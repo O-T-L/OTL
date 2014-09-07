@@ -15,10 +15,9 @@
 
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Modules")
-include(create_project)
 include(list_projects)
 
-create_project("${CMAKE_SOURCE_DIR}")
+get_filename_component(PROJECT_NAME "${CMAKE_SOURCE_DIR}" NAME)
 project(${PROJECT_NAME})
 include_directories("${CMAKE_SOURCE_DIR}/Include")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Include")
