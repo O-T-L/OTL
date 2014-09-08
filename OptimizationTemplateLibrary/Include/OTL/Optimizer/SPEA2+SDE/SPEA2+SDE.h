@@ -16,13 +16,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-@ARTICLE{Li2013d,
-  author = {Miqing Li and Shengxiang Yang and Xiaohui Liu},
-  title = {Shift-Based Density Estimation for {Pareto}-Based Algorithms in Many-Objective
-	Optimization},
-  journal = {IEEE Transactions on Evolutionary Computation},
-  year = {2013},
-  doi = {10.1109/TEVC.2013.2262178}
+@Article{,
+  Title                    = {Shift-Based Density Estimation for {Pareto}-Based Algorithms in Many-Objective Optimization},
+  Author                   = {Miqing Li and Shengxiang Yang and Xiaohui Liu},
+  Journal                  = {IEEE Transactions on Evolutionary Computation},
+  Year                     = {2014},
+  Month                    = {June},
+  Number                   = {3},
+  Pages                    = {348-365},
+  Volume                   = {18},
+  Doi                      = {10.1109/TEVC.2013.2262178}
 }
 */
 
