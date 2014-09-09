@@ -4,6 +4,12 @@ OTL is a cross-platform C++ template library for multi-objective optimization, a
 
 The goal of the OTL is to implement various modules for multi-objective optimization and maximize their running efficiency. However, it does not provide an experimental platform or any engineering project, because C++ has a low development efficiency. A feasible solution is using Python. the project [PyOTL](https://github.com/O-T-L/PyOTL) is created to convert C++ programs of the OTL into Python modules, which are used to implement the project [PyOptimization](https://github.com/O-T-L/PyOptimization) to carry out scientific experiments.
 
+Notably, since the standard C++11 is used in the OTL, please check if your compiler supports this standard.
+
+# License
+
+The OTL is released as the open source software with the GNU Lesser General Public License version 3 ([LGPL v3](http://www.gnu.org/licenses/lgpl-3.0.html)).
+
 # Acknowledgements
 
 * [Boost](http://www.boost.org/).
