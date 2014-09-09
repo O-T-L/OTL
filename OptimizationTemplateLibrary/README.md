@@ -1,2 +1,2 @@
-OptimizationTemplateLibrary
+Optimization Template Library (OTL)
 =====
