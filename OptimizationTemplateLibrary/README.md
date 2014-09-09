@@ -8,11 +8,12 @@ Notably, since the standard C++11 is used in the OTL, please check if your compi
 
 # License
 
-The OTL is released as the open source software with the GNU Lesser General Public License version 3 ([LGPL v3](http://www.gnu.org/licenses/lgpl-3.0.html)).
+This project is released as the open source software with the GNU Lesser General Public License version 3 ([LGPL v3](http://www.gnu.org/licenses/lgpl-3.0.html)).
 
 # Acknowledgements
 
-The following tool and library are used in the OTL:
+The following tool and library are used in this project:
+
 * [CMake](http://www.cmake.org/).
 * [Boost](http://www.boost.org/).
 
