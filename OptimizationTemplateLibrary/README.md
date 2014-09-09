@@ -14,15 +14,15 @@ This project is released as the open source software with the GNU Lesser General
 
 The following tool and library are used in this project:
 
-* [CMake](http://www.cmake.org/).
-* [Boost](http://www.boost.org/).
+* [CMake](http://www.cmake.org).
+* [Boost](http://www.boost.org).
 
 # Related Works
 
 * Programming language independent interface for search algorithms ([PISA](http://www.tik.ee.ethz.ch/sop/pisa)).
 * [jMetal](http://jmetal.sourceforge.net).
 * [MOEA Framework](www.moeaframework.org).
-* [Opt4J](http://opt4j.sourceforge.net/).
-* [ECJ](http://cs.gmu.edu/~eclab/projects/ecj/).
-* [Watchmaker Framework](http://watchmaker.uncommons.org/).
-* [Paradiseo](http://paradiseo.gforge.inria.fr/).
+* [Opt4J](http://opt4j.sourceforge.net).
+* [ECJ](http://cs.gmu.edu/~eclab/projects/ecj).
+* [Watchmaker Framework](http://watchmaker.uncommons.org).
+* [Paradiseo](http://paradiseo.gforge.inria.fr).
