@@ -1,4 +1,4 @@
-# Optimization Template Library (OTL)
+# Optimization Template Library  (OTL)
 
 OTL is a cross-platform C++ template library for multi-objective optimization, and the type of decision variable can be any data structures. The OTL contains various ready-to-use modules (multi-objective optimization problems (MOPs), operators, optimization algorithms, and quality indicators), which can be arbitrarily combined through a unified interface. Since generic programming is adopted in the OTL, the optimization algorithms can be used to solve the MOPs of different encodings.
 
