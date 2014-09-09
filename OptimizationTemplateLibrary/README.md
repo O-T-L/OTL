@@ -12,8 +12,9 @@ The OTL is released as the open source software with the GNU Lesser General Publ
 
 # Acknowledgements
 
-* [Boost](http://www.boost.org/).
+The following tool and library are used in the OTL:
 * [CMake](http://www.cmake.org/).
+* [Boost](http://www.boost.org/).
 
 # Related Works
 
