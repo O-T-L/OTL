@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cmath>
 #include <vector>
 #include <list>
 #include <random>
@@ -23,12 +24,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Problem/CommunityDiscovery/CD1/Decode.h>
 #include <OTL/Problem/CommunityDiscovery/Metric/Q.h>
 #include <OTL/Problem/CommunityDiscovery/Metric/QLi.h>
+#include <OTL/Problem/CommunityDiscovery/CD1/CD1.h>
+#include <OTL/Initial/UniformReal.h>
+#include <OTL/Crossover/SinglePointCrossover.h>
+#include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
+#include <OTL/Mutation/BitwiseMutation.h>
+#include <OTL/Optimizer/NSGA-II/NSGA-II.h>
 
 namespace community_discovery
 {
 namespace cd1
 {
-BOOST_AUTO_TEST_CASE(TestDecode)
+BOOST_AUTO_TEST_CASE(TestMetrics)
 {
 	typedef double _TReal;
 	std::vector<std::vector<_TReal> > _graph = {
@@ -60,6 +67,50 @@ BOOST_AUTO_TEST_CASE(TestDecode)
 		BOOST_CHECK(communities.back().find(i) != communities.back().end());
 	BOOST_CHECK_CLOSE(otl::problem::community_discovery::metric::Q(graph, communities), 0.78, 0.1);
 	BOOST_CHECK_CLOSE(otl::problem::community_discovery::metric::QLi(graph, communities), 4, 0.1);
+}
+
+BOOST_AUTO_TEST_CASE(TestCD1)
+{
+	typedef std::mt19937 _TRandom;
+	typedef double _TReal;
+	typedef otl::problem::community_discovery::cd1::CD1<_TReal> _TProblem;
+	typedef _TProblem::TDecision _TDecision;
+	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
+	const size_t populationSize = 100;
+	_TRandom random;
+	std::vector<std::vector<_TReal> > _graph = {
+		{1, 1, 1, 1, 0, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0, 0},
+		{1, 1, 1, 1, 1, 1, 1, 1},
+		{0, 0, 0, 1, 1, 1, 1, 0},
+		{0, 0, 0, 1, 1, 1, 1, 1},
+		{0, 0, 0, 1, 1, 1, 1, 1},
+		{0, 0, 0, 1, 0, 1, 1, 1},
+	};
+	boost::numeric::ublas::symmetric_matrix<_TReal> graph(_graph.size());
+	for (size_t i = 0; i < _graph.size(); ++i)
+	{
+		for (size_t j = 0; j < _graph[i].size(); ++j)
+			graph(i, j) = _graph[i][j];
+	}
+	std::vector<_TProblem::TFunction> functions = {otl::problem::community_discovery::metric::Q<_TReal>, otl::problem::community_discovery::metric::QLi<_TReal>};
+	std::vector<bool> maximize = {true, true};
+	_TProblem problem(graph, functions, maximize);
+	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<size_t> decisionBits(graph.size1(), ceil(log2(graph.size1())));
+	_TCrossover _crossover(random, 1, decisionBits);
+	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
+	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), decisionBits);
+	_TOptimizer optimizer(random, problem, initial, crossover, mutation);
+	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
+	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
+	{
+		optimizer();
+		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
+	}
 }
 }
 }

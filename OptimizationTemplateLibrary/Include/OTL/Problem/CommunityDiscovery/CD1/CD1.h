@@ -32,15 +32,15 @@ namespace community_discovery
 namespace cd1
 {
 template <typename _TReal>
-class CD1 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithSpaceBoundary<_TReal>
+class CD1 : public Problem<_TReal, std::vector<size_t> >, public otl::utility::WithSpaceBoundary<size_t>
 {
 public:
 	typedef _TReal TReal;
 	typedef std::vector<size_t> TDecision;
 	typedef Problem<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithSpaceBoundary<size_t>::TMinMax TMinMax;
+	typedef typename otl::utility::WithSpaceBoundary<size_t>::TBoundary TBoundary;
 	typedef boost::numeric::ublas::symmetric_matrix<TReal> TMatrix;
 	typedef std::set<size_t> TCommunity;
 	typedef std::vector<TCommunity> TCommunities;
@@ -52,7 +52,7 @@ public:
 protected:
 	size_t _DoEvaluate(TSolution &solution);
 	void _DoFix(std::vector<TReal> &objective);
-	void _Evaluate(const TDecision &decision, std::vector<TReal> &objective);
+	void _Evaluate(const TDecision &decision, std::vector<TReal> &objective) const;
 
 private:
 	TMatrix graph_;
@@ -66,9 +66,9 @@ private:
 };
 
 template <typename _TReal>
-template <typename _TIterator> CD1<_TReal>::CD1(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize)
+CD1<_TReal>::CD1(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize)
 	: TSuper(functions.size())
-	, otl::utility::WithSpaceBoundary<TReal>(graph.size1(), TMinMax(0, graph.size1() - 1))
+	, otl::utility::WithSpaceBoundary<size_t>(TBoundary(graph.size1(), TMinMax(0, graph.size1() - 1)))
 	, graph_(graph)
 	, functions_(functions)
 	, maximize_(maximize)
@@ -96,13 +96,13 @@ void CD1<_TReal>::_DoFix(std::vector<TReal> &objective)
 	assert(objective.size() == functions_.size());
 	for (size_t i = 0; i < objective.size(); ++i)
 	{
-		if (functions_[i].second)
+		if (maximize_[i])
 			objective[i] = -objective[i];
 	}
 }
 
 template <typename _TReal>
-void CD1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
+void CD1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective) const
 {
 	auto _communities = Decode(list_, decision);
 	TCommunities communities(_communities.begin(), _communities.end());
