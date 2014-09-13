@@ -58,9 +58,9 @@ public:
 	typedef boost::numeric::ublas::symmetric_matrix<TReal> TMatrix;
 	typedef std::set<size_t> TCommunity;
 	typedef std::vector<TCommunity> TCommunities;
-	typedef TReal (*TFunction)(const TMatrix &, const TCommunities &);
+	typedef TReal (*TMetric)(const TMatrix &, const TCommunities &);
 
-	OrderedNeighborList(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize);
+	OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize);
 	~OrderedNeighborList(void);
 	const TMatrix &GetGraph(void) const;
 	const std::vector<std::vector<size_t> > &GetList(void) const;
@@ -72,7 +72,7 @@ protected:
 
 private:
 	TMatrix graph_;
-	std::vector<TFunction> functions_;
+	std::vector<TMetric> functions_;
 	std::vector<bool> maximize_;
 	std::vector<std::vector<size_t> > list_;
 
@@ -82,7 +82,7 @@ private:
 };
 
 template <typename _TReal>
-OrderedNeighborList<_TReal>::OrderedNeighborList(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize)
+OrderedNeighborList<_TReal>::OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize)
 	: TSuper(functions.size())
 	, otl::utility::WithSpaceBoundary<size_t>(TBoundary(graph.size1(), TMinMax(0, graph.size1() - 1)))
 	, graph_(graph)

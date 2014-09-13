@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(TestONL)
 		for (size_t j = 0; j < _graph[i].size(); ++j)
 			graph(i, j) = _graph[i][j];
 	}
-	std::vector<_TProblem::TFunction> functions = {otl::problem::community_discovery::metric::Q<_TReal>, otl::problem::community_discovery::metric::QLi<_TReal>};
+	std::vector<_TProblem::TMetric> functions = {otl::problem::community_discovery::metric::Q<_TReal>, otl::problem::community_discovery::metric::QLi<_TReal>};
 	std::vector<bool> maximize = {true, true};
 	_TProblem problem(graph, functions, maximize, random);
 	std::vector<std::pair<size_t, size_t> > boundary(graph.size1(), std::pair<size_t, size_t>(0, graph.size1() - 1));

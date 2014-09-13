@@ -39,9 +39,9 @@ public:
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
 	typedef typename TSuper::TMatrix TMatrix;
-	typedef typename TSuper::TFunction TFunction;
+	typedef typename TSuper::TMetric TMetric;
 
-	ONL(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize, TRandom random);
+	ONL(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize, TRandom random);
 	~ONL(void);
 
 protected:
@@ -49,7 +49,7 @@ protected:
 };
 
 template <typename _TReal, typename _TRandom>
-ONL<_TReal, _TRandom>::ONL(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize, TRandom random)
+ONL<_TReal, _TRandom>::ONL(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize, TRandom random)
 	: TSuper(graph, functions, maximize)
 	, otl::utility::WithRandom<TRandom>(random)
 {
