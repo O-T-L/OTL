@@ -38,6 +38,7 @@ namespace onl
 BOOST_AUTO_TEST_CASE(TestMetrics)
 {
 	typedef double _TReal;
+	typedef boost::numeric::ublas::symmetric_matrix<_TReal> _TMatrix;
 	std::vector<std::vector<_TReal> > _graph = {
 		{1, 1, 1, 1, 0, 0, 0, 0},
 		{1, 1, 1, 1, 0, 0, 0, 0},
@@ -48,7 +49,7 @@ BOOST_AUTO_TEST_CASE(TestMetrics)
 		{0, 0, 0, 1, 1, 1, 1, 1},
 		{0, 0, 0, 1, 0, 1, 1, 1},
 	};
-	boost::numeric::ublas::symmetric_matrix<_TReal> graph(_graph.size());
+	_TMatrix graph(_graph.size());
 	for (size_t i = 0; i < _graph.size(); ++i)
 	{
 		for (size_t j = 0; j < _graph[i].size(); ++j)
@@ -65,15 +66,22 @@ BOOST_AUTO_TEST_CASE(TestMetrics)
 	BOOST_CHECK_EQUAL(communities.back().size(), 5);
 	for (size_t i = 3; i < 8; ++i)
 		BOOST_CHECK(communities.back().find(i) != communities.back().end());
-	BOOST_CHECK_CLOSE(otl::problem::community_discovery::metric::Q(graph, communities), 0.78, 0.1);
-	BOOST_CHECK_CLOSE(otl::problem::community_discovery::metric::QLi(graph, communities), 4, 0.1);
+	{
+		otl::problem::community_discovery::metric::Q<_TMatrix> metric;
+		BOOST_CHECK_CLOSE(metric(graph, communities), 0.78, 0.1);
+	}
+	{
+		otl::problem::community_discovery::metric::QLi<_TMatrix> metric;
+		BOOST_CHECK_CLOSE(metric(graph, communities), 4, 0.1);
+	}
 }
 
 BOOST_AUTO_TEST_CASE(TestONL)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
-	typedef otl::problem::community_discovery::onl::ONL<_TReal, _TRandom &> _TProblem;
+	typedef boost::numeric::ublas::symmetric_matrix<_TReal> _TMatrix;
+	typedef otl::problem::community_discovery::onl::ONL<_TReal, _TMatrix, _TRandom &> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::SinglePointCrossover<_TReal, size_t, _TRandom &> _TCrossover;
 	typedef otl::mutation::BitwiseMutation<_TReal, size_t, _TRandom &> _TMutation;
@@ -90,17 +98,17 @@ BOOST_AUTO_TEST_CASE(TestONL)
 		{0, 0, 0, 1, 1, 1, 1, 1},
 		{0, 0, 0, 1, 0, 1, 1, 1},
 	};
-	boost::numeric::ublas::symmetric_matrix<_TReal> graph(_graph.size());
+	_TMatrix graph(_graph.size());
 	for (size_t i = 0; i < _graph.size(); ++i)
 	{
 		for (size_t j = 0; j < _graph[i].size(); ++j)
 			graph(i, j) = _graph[i][j];
 	}
-	std::vector<_TProblem::TMetric> functions = {otl::problem::community_discovery::metric::Q<_TReal>, otl::problem::community_discovery::metric::QLi<_TReal>};
-	std::vector<bool> maximize = {true, true};
-	_TProblem problem(graph, functions, maximize, random);
-	std::vector<std::pair<size_t, size_t> > boundary(graph.size1(), std::pair<size_t, size_t>(0, graph.size1() - 1));
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformInteger(random, boundary, populationSize);
+	otl::problem::community_discovery::metric::Q<_TMatrix> metric1;
+	otl::problem::community_discovery::metric::QLi<_TMatrix> metric2;
+	std::vector<_TProblem::TMetric *> metrics = {&metric1, &metric2};
+	_TProblem problem(graph, metrics, random);
+	const std::vector<_TDecision> initial = otl::initial::PopulationUniformInteger(random, problem.GetBoundary(), populationSize);
 	const std::vector<size_t> decisionBits(graph.size1(), ceil(log2((_TReal)graph.size1())));
 	_TCrossover _crossover(random, 1, decisionBits);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);

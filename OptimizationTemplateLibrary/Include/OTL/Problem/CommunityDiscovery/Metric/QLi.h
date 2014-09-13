@@ -31,8 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <cassert>
-#include <vector>
-#include <boost/numeric/ublas/symmetric.hpp>
+#include "Metric.h"
 #include "Utility.h"
 
 namespace otl
@@ -43,10 +42,36 @@ namespace community_discovery
 {
 namespace metric
 {
-template <typename _TReal>
-_TReal QLi(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph, const std::vector<std::set<size_t> > &communities)
+template <typename _TMatrix>
+class QLi : public Metric<_TMatrix>
 {
-	_TReal q = 0;
+public:
+	typedef _TMatrix TMatrix;
+	typedef Metric<TMatrix> TSuper;
+	typedef typename TSuper::TResult TResult;
+
+	QLi(void);
+	~QLi(void);
+
+protected:
+	TResult _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
+};
+
+template <typename _TMatrix>
+QLi<_TMatrix>::QLi(void)
+	: TSuper(true)
+{
+}
+
+template <typename _TMatrix>
+QLi<_TMatrix>::~QLi(void)
+{
+}
+
+template <typename _TMatrix>
+typename QLi<_TMatrix>::TResult QLi<_TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
+{
+	TResult q = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{
 		const std::set<size_t> &community = communities[i];

@@ -32,9 +32,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <cmath>
-#include <boost/numeric/ublas/symmetric.hpp>
 #include <OTL/Problem/Problem.h>
 #include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Problem/CommunityDiscovery/Metric/Metric.h>
 #include "Decode.h"
 
 namespace otl
@@ -45,25 +45,26 @@ namespace community_discovery
 {
 namespace onl
 {
-template <typename _TReal>
+template <typename _TReal, typename _TMatrix>
 class OrderedNeighborList : public Problem<_TReal, std::vector<size_t> >, public otl::utility::WithSpaceBoundary<size_t>
 {
 public:
 	typedef _TReal TReal;
+	typedef _TMatrix TMatrix;
 	typedef std::vector<size_t> TDecision;
 	typedef Problem<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
 	typedef typename otl::utility::WithSpaceBoundary<size_t>::TMinMax TMinMax;
 	typedef typename otl::utility::WithSpaceBoundary<size_t>::TBoundary TBoundary;
-	typedef boost::numeric::ublas::symmetric_matrix<TReal> TMatrix;
 	typedef std::set<size_t> TCommunity;
 	typedef std::vector<TCommunity> TCommunities;
-	typedef TReal (*TMetric)(const TMatrix &, const TCommunities &);
+	typedef otl::problem::community_discovery::metric::Metric<TMatrix> TMetric;
 
-	OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize);
+	OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric *> &metrics);
 	~OrderedNeighborList(void);
 	const TMatrix &GetGraph(void) const;
 	const std::vector<std::vector<size_t> > &GetList(void) const;
+	TCommunities Decode(const TDecision &decision) const;
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
@@ -72,8 +73,7 @@ protected:
 
 private:
 	TMatrix graph_;
-	std::vector<TMetric> functions_;
-	std::vector<bool> maximize_;
+	const std::vector<TMetric *> &metrics_;
 	std::vector<std::vector<size_t> > list_;
 
 	template<class _TArchive> void serialize(_TArchive &archive, const unsigned version);
@@ -81,70 +81,75 @@ private:
 	friend class boost::serialization::access;
 };
 
-template <typename _TReal>
-OrderedNeighborList<_TReal>::OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize)
-	: TSuper(functions.size())
+template <typename _TReal, typename _TMatrix>
+OrderedNeighborList<_TReal, _TMatrix>::OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric *> &metrics)
+	: TSuper(metrics.size())
 	, otl::utility::WithSpaceBoundary<size_t>(TBoundary(graph.size1(), TMinMax(0, graph.size1() - 1)))
 	, graph_(graph)
-	, functions_(functions)
-	, maximize_(maximize)
+	, metrics_(metrics)
 	, list_(MakeOrderedNeighborList(graph))
 {
 	assert(graph.size1() == graph.size2());
-	assert(functions.size() == maximize.size());
 }
 
-template <typename _TReal>
-OrderedNeighborList<_TReal>::~OrderedNeighborList(void)
+template <typename _TReal, typename _TMatrix>
+OrderedNeighborList<_TReal, _TMatrix>::~OrderedNeighborList(void)
 {
 }
 
-template <typename _TReal>
-const typename OrderedNeighborList<_TReal>::TMatrix &OrderedNeighborList<_TReal>::GetGraph(void) const
+template <typename _TReal, typename _TMatrix>
+const _TMatrix &OrderedNeighborList<_TReal, _TMatrix>::GetGraph(void) const
 {
 	return graph_;
 }
 
-template <typename _TReal>
-const std::vector<std::vector<size_t> > &OrderedNeighborList<_TReal>::GetList(void) const
+template <typename _TReal, typename _TMatrix>
+const std::vector<std::vector<size_t> > &OrderedNeighborList<_TReal, _TMatrix>::GetList(void) const
 {
 	return list_;
 }
 
-template <typename _TReal>
-size_t OrderedNeighborList<_TReal>::_DoEvaluate(TSolution &solution)
+template <typename _TReal, typename _TMatrix>
+typename OrderedNeighborList<_TReal, _TMatrix>::TCommunities OrderedNeighborList<_TReal, _TMatrix>::Decode(const TDecision &decision) const
+{
+	auto _communities = otl::problem::community_discovery::onl::Decode(list_, decision);
+	TCommunities communities(_communities.begin(), _communities.end());
+	return communities;
+}
+
+template <typename _TReal, typename _TMatrix>
+size_t OrderedNeighborList<_TReal, _TMatrix>::_DoEvaluate(TSolution &solution)
 {
 	_Evaluate(solution.decision_, solution.objective_);
 	return 1;
 }
 
-template <typename _TReal>
-void OrderedNeighborList<_TReal>::_DoFix(std::vector<TReal> &objective)
+template <typename _TReal, typename _TMatrix>
+void OrderedNeighborList<_TReal, _TMatrix>::_DoFix(std::vector<TReal> &objective)
 {
-	assert(objective.size() == functions_.size());
+	assert(objective.size() == metrics_.size());
 	for (size_t i = 0; i < objective.size(); ++i)
 	{
-		if (maximize_[i])
+		if (metrics_[i]->maximize_)
 			objective[i] = -objective[i];
 	}
 }
 
-template <typename _TReal>
-void OrderedNeighborList<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective) const
+template <typename _TReal, typename _TMatrix>
+void OrderedNeighborList<_TReal, _TMatrix>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective) const
 {
-	auto _communities = Decode(list_, decision);
-	TCommunities communities(_communities.begin(), _communities.end());
-	objective.resize(functions_.size());
+	TCommunities communities = Decode(decision);
+	objective.resize(metrics_.size());
 	for (size_t i = 0; i < objective.size(); ++i)
 	{
-		objective[i] = functions_[i](graph_, communities);
-		if (maximize_[i])
+		objective[i] = (*metrics_[i])(graph_, communities);
+		if (metrics_[i]->maximize_)
 			objective[i] = -objective[i];
 	}
 }
 
-template <typename _TReal>
-template<class _TArchive> void OrderedNeighborList<_TReal>::serialize(_TArchive &archive, const unsigned version)
+template <typename _TReal, typename _TMatrix>
+template<class _TArchive> void OrderedNeighborList<_TReal, _TMatrix>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
 	archive & boost::serialization::base_object<otl::utility::WithSpaceBoundary<TReal> >(*this);

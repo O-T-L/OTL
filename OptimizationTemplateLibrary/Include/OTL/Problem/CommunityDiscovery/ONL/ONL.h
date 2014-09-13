@@ -29,41 +29,56 @@ namespace community_discovery
 {
 namespace onl
 {
-template <typename _TReal, typename _TRandom>
-class ONL : public OrderedNeighborList<_TReal>, public otl::utility::WithRandom<_TRandom>
+template <typename _TRandom>
+void MakeLegal(_TRandom &random, const std::vector<std::vector<size_t> > &list, std::vector<size_t> &decision)
+{
+	for (size_t i = 0; i < decision.size(); ++i)
+	{
+		assert(0 <= decision[i] && decision[i] < decision.size());
+		if (decision[i] >= list[i].size())
+		{
+			std::uniform_int_distribution<size_t> dist(0, list[i].size() - 1);
+			decision[i] = dist(random);
+		}
+	}
+	assert(IsLegal(list, decision));
+}
+
+template <typename _TReal, typename _TMatrix, typename _TRandom>
+class ONL : public OrderedNeighborList<_TReal, _TMatrix>, public otl::utility::WithRandom<_TRandom>
 {
 public:
 	typedef _TReal TReal;
+	typedef _TMatrix TMatrix;
 	typedef _TRandom TRandom;
-	typedef OrderedNeighborList<TReal> TSuper;
+	typedef OrderedNeighborList<TReal, TMatrix> TSuper;
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename TSuper::TMatrix TMatrix;
 	typedef typename TSuper::TMetric TMetric;
 
-	ONL(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize, TRandom random);
+	ONL(const TMatrix &graph, const std::vector<TMetric *> &metrics, TRandom random);
 	~ONL(void);
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
 };
 
-template <typename _TReal, typename _TRandom>
-ONL<_TReal, _TRandom>::ONL(const TMatrix &graph, const std::vector<TMetric> &functions, const std::vector<bool> &maximize, TRandom random)
-	: TSuper(graph, functions, maximize)
+template <typename _TReal, typename _TMatrix, typename _TRandom>
+ONL<_TReal, _TMatrix, _TRandom>::ONL(const TMatrix &graph, const std::vector<TMetric *> &metrics, TRandom random)
+	: TSuper(graph, metrics)
 	, otl::utility::WithRandom<TRandom>(random)
 {
 }
 
-template <typename _TReal, typename _TRandom>
-ONL<_TReal, _TRandom>::~ONL(void)
+template <typename _TReal, typename _TMatrix, typename _TRandom>
+ONL<_TReal, _TMatrix, _TRandom>::~ONL(void)
 {
 }
 
-template <typename _TReal, typename _TRandom>
-size_t ONL<_TReal, _TRandom>::_DoEvaluate(TSolution &solution)
+template <typename _TReal, typename _TMatrix, typename _TRandom>
+size_t ONL<_TReal, _TMatrix, _TRandom>::_DoEvaluate(TSolution &solution)
 {
-	MakeLegal(TSuper::GetList(), solution.decision_, this->GetRandom());
+	MakeLegal(this->GetRandom(), TSuper::GetList(), solution.decision_);
 	return TSuper::_DoEvaluate(solution);
 }
 }

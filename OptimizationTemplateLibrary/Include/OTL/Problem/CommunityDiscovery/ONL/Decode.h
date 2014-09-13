@@ -53,21 +53,6 @@ std::vector<std::vector<size_t> > MakeOrderedNeighborList(const boost::numeric::
 	}
 	return list;
 }
-
-template <typename _TRandom>
-void MakeLegal(const std::vector<std::vector<size_t> > &list, std::vector<size_t> &decision, _TRandom &random)
-{
-	for (size_t i = 0; i < decision.size(); ++i)
-	{
-		assert(0 <= decision[i] && decision[i] < decision.size());
-		if (decision[i] >= list[i].size())
-		{
-			std::uniform_int_distribution<size_t> dist(0, list[i].size() - 1);
-			decision[i] = dist(random);
-		}
-	}
-	assert(IsLegal(list, decision));
-}
 }
 }
 }

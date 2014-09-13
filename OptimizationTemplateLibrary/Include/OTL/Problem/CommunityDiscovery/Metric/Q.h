@@ -31,8 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <cassert>
-#include <vector>
-#include <boost/numeric/ublas/symmetric.hpp>
+#include "Metric.h"
 #include "Utility.h"
 
 namespace otl
@@ -43,14 +42,40 @@ namespace community_discovery
 {
 namespace metric
 {
-template <typename _TReal>
-_TReal Q(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph, const std::vector<std::set<size_t> > &communities)
+template <typename _TMatrix>
+class Q : public Metric<_TMatrix>
 {
-	const _TReal communityDegree = CommunityDegree(graph);
-	_TReal q = 0;
+public:
+	typedef _TMatrix TMatrix;
+	typedef Metric<TMatrix> TSuper;
+	typedef typename TSuper::TResult TResult;
+
+	Q(void);
+	~Q(void);
+
+protected:
+	TResult _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
+};
+
+template <typename _TMatrix>
+Q<_TMatrix>::Q(void)
+	: TSuper(true)
+{
+}
+
+template <typename _TMatrix>
+Q<_TMatrix>::~Q(void)
+{
+}
+
+template <typename _TMatrix>
+typename Q<_TMatrix>::TResult Q<_TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
+{
+	const TResult communityDegree = CommunityDegree(graph);
+	TResult q = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{;
-		const _TReal temp = CommunityOuterDegree(graph, communities, i) / communityDegree;
+		const TResult temp = CommunityOuterDegree(graph, communities, i) / communityDegree;
 		const std::set<size_t> &community = communities[i];
 		q += CommunityInnerDegree(graph, community) / communityDegree - temp * temp;
 	}
