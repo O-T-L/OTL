@@ -15,6 +15,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@Article{,
+  Title                    = {网络社区发现的粒子群优化算法},
+  Author                   = {黄发良 and 肖南峰},
+  Journal                  = {控制理论与应用},
+  Year                     = {2011},
+  Month                    = {September},
+  Number                   = {9},
+  Pages                    = {1135-1140},
+  Volume                   = {28},
+  Doi                      = {10.7641/j.issn.1000-8152.2011.9.CCTA100397}
+}
+*/
+
 #pragma once
 
 #include <cmath>
@@ -29,10 +43,10 @@ namespace problem
 {
 namespace community_discovery
 {
-namespace cd1
+namespace onl
 {
 template <typename _TReal>
-class CD1 : public Problem<_TReal, std::vector<size_t> >, public otl::utility::WithSpaceBoundary<size_t>
+class OrderedNeighborList : public Problem<_TReal, std::vector<size_t> >, public otl::utility::WithSpaceBoundary<size_t>
 {
 public:
 	typedef _TReal TReal;
@@ -46,8 +60,10 @@ public:
 	typedef std::vector<TCommunity> TCommunities;
 	typedef TReal (*TFunction)(const TMatrix &, const TCommunities &);
 
-	CD1(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize);
-	~CD1(void);
+	OrderedNeighborList(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize);
+	~OrderedNeighborList(void);
+	const TMatrix &GetGraph(void) const;
+	const std::vector<std::vector<size_t> > &GetList(void) const;
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
@@ -66,7 +82,7 @@ private:
 };
 
 template <typename _TReal>
-CD1<_TReal>::CD1(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize)
+OrderedNeighborList<_TReal>::OrderedNeighborList(const TMatrix &graph, const std::vector<TFunction> &functions, const std::vector<bool> &maximize)
 	: TSuper(functions.size())
 	, otl::utility::WithSpaceBoundary<size_t>(TBoundary(graph.size1(), TMinMax(0, graph.size1() - 1)))
 	, graph_(graph)
@@ -79,19 +95,31 @@ CD1<_TReal>::CD1(const TMatrix &graph, const std::vector<TFunction> &functions, 
 }
 
 template <typename _TReal>
-CD1<_TReal>::~CD1(void)
+OrderedNeighborList<_TReal>::~OrderedNeighborList(void)
 {
 }
 
 template <typename _TReal>
-size_t CD1<_TReal>::_DoEvaluate(TSolution &solution)
+const typename OrderedNeighborList<_TReal>::TMatrix &OrderedNeighborList<_TReal>::GetGraph(void) const
+{
+	return graph_;
+}
+
+template <typename _TReal>
+const std::vector<std::vector<size_t> > &OrderedNeighborList<_TReal>::GetList(void) const
+{
+	return list_;
+}
+
+template <typename _TReal>
+size_t OrderedNeighborList<_TReal>::_DoEvaluate(TSolution &solution)
 {
 	_Evaluate(solution.decision_, solution.objective_);
 	return 1;
 }
 
 template <typename _TReal>
-void CD1<_TReal>::_DoFix(std::vector<TReal> &objective)
+void OrderedNeighborList<_TReal>::_DoFix(std::vector<TReal> &objective)
 {
 	assert(objective.size() == functions_.size());
 	for (size_t i = 0; i < objective.size(); ++i)
@@ -102,7 +130,7 @@ void CD1<_TReal>::_DoFix(std::vector<TReal> &objective)
 }
 
 template <typename _TReal>
-void CD1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective) const
+void OrderedNeighborList<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective) const
 {
 	auto _communities = Decode(list_, decision);
 	TCommunities communities(_communities.begin(), _communities.end());
@@ -116,7 +144,7 @@ void CD1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objec
 }
 
 template <typename _TReal>
-template<class _TArchive> void CD1<_TReal>::serialize(_TArchive &archive, const unsigned version)
+template<class _TArchive> void OrderedNeighborList<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
 	archive & boost::serialization::base_object<otl::utility::WithSpaceBoundary<TReal> >(*this);

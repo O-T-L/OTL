@@ -24,8 +24,18 @@ namespace problem
 {
 namespace community_discovery
 {
-namespace index
+namespace onl
 {
+bool IsLegal(const std::vector<std::vector<size_t> > &list, const std::vector<size_t> &decision)
+{
+	for (size_t i = 0; i < decision.size(); ++i)
+	{
+		if (decision[i] < 0 || decision[i] >= list[i].size())
+			return false;
+	}
+	return true;
+}
+
 template <typename _TIterator>
 _TIterator Find(const size_t key, _TIterator begin, _TIterator end)
 {
@@ -38,8 +48,9 @@ _TIterator Find(const size_t key, _TIterator begin, _TIterator end)
 	return end;
 }
 
-std::list<std::set<size_t> > Decode(const std::vector<size_t> &decision)
+std::list<std::set<size_t> > Decode(const std::vector<std::vector<size_t> > &list, const std::vector<size_t> &decision)
 {
+	assert(IsLegal(list, decision));
 	std::list<std::set<size_t> > communities;
 	for (size_t i = 0; i < decision.size(); ++i)
 	{
@@ -48,10 +59,10 @@ std::list<std::set<size_t> > Decode(const std::vector<size_t> &decision)
 	}
 	for (size_t i = 0; i < decision.size(); ++i)
 	{
-		assert(0 <= decision[i] && decision[i] < decision.size());
 		auto iCurrent = Find(i, communities.begin(), communities.end());
 		assert(iCurrent != communities.end());
-		auto iAnother = Find(decision[i], communities.begin(), communities.end());
+		assert(0 <= decision[i] && decision[i] < list[i].size());
+		auto iAnother = Find(list[i][decision[i]], communities.begin(), communities.end());
 		assert(iAnother != communities.end());
 		if (iCurrent != iAnother) //merge
 		{

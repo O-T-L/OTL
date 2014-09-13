@@ -31,8 +31,11 @@ namespace problem
 {
 namespace community_discovery
 {
-namespace cd1
+namespace onl
 {
+bool IsLegal(const std::vector<std::vector<size_t> > &list, const std::vector<size_t> &decision);
+std::list<std::set<size_t> > Decode(const std::vector<std::vector<size_t> > &list, const std::vector<size_t> &decision);
+
 template <typename _TReal>
 std::vector<std::vector<size_t> > MakeOrderedNeighborList(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph)
 {
@@ -52,21 +55,19 @@ std::vector<std::vector<size_t> > MakeOrderedNeighborList(const boost::numeric::
 }
 
 template <typename _TRandom>
-void Fix(const std::vector<std::vector<size_t> > &list, std::vector<size_t> &decision, _TRandom &random)
+void MakeLegal(const std::vector<std::vector<size_t> > &list, std::vector<size_t> &decision, _TRandom &random)
 {
 	for (size_t i = 0; i < decision.size(); ++i)
 	{
 		assert(0 <= decision[i] && decision[i] < decision.size());
-		if (decision[i] > list[i].size())
+		if (decision[i] >= list[i].size())
 		{
 			std::uniform_int_distribution<size_t> dist(0, list[i].size() - 1);
 			decision[i] = dist(random);
 		}
 	}
+	assert(IsLegal(list, decision));
 }
-
-bool IsLegal(const std::vector<std::vector<size_t> > &list, const std::vector<size_t> &decision);
-std::list<std::set<size_t> > Decode(const std::vector<std::vector<size_t> > &list, const std::vector<size_t> &decision);
 }
 }
 }
