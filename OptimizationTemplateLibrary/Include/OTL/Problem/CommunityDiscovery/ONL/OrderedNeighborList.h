@@ -58,7 +58,7 @@ public:
 	typedef typename otl::utility::WithSpaceBoundary<size_t>::TBoundary TBoundary;
 	typedef std::set<size_t> TCommunity;
 	typedef std::vector<TCommunity> TCommunities;
-	typedef otl::problem::community_discovery::metric::Metric<TMatrix> TMetric;
+	typedef otl::problem::community_discovery::metric::Metric<TReal, TMatrix> TMetric;
 
 	OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric *> &metrics);
 	~OrderedNeighborList(void);

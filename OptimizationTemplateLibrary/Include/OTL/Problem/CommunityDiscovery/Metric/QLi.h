@@ -42,40 +42,42 @@ namespace community_discovery
 {
 namespace metric
 {
-template <typename _TMatrix>
-class QLi : public Metric<_TMatrix>
+template <typename _TReal, typename _TMatrix>
+class QLi : public Metric<_TReal, _TMatrix>
 {
 public:
+	typedef _TReal TReal;
 	typedef _TMatrix TMatrix;
-	typedef Metric<TMatrix> TSuper;
-	typedef typename TSuper::TResult TResult;
+	typedef Metric<TReal, TMatrix> TSuper;
 
 	QLi(void);
 	~QLi(void);
 
 protected:
-	TResult _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
+	TReal _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
 };
 
-template <typename _TMatrix>
-QLi<_TMatrix>::QLi(void)
+template <typename _TReal, typename _TMatrix>
+QLi<_TReal, _TMatrix>::QLi(void)
 	: TSuper(true)
 {
 }
 
-template <typename _TMatrix>
-QLi<_TMatrix>::~QLi(void)
+template <typename _TReal, typename _TMatrix>
+QLi<_TReal, _TMatrix>::~QLi(void)
 {
 }
 
-template <typename _TMatrix>
-typename QLi<_TMatrix>::TResult QLi<_TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
+template <typename _TReal, typename _TMatrix>
+_TReal QLi<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
 {
-	TResult q = 0;
+	TReal q = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{
 		const std::set<size_t> &community = communities[i];
-		q += (CommunityInnerDegree(graph, community) - CommunityOuterDegree(graph, communities, i)) / community.size();
+		const TReal innerDegree = CommunityInnerDegree(graph, community);
+		const TReal outerDegree = CommunityOuterDegree(graph, communities, i);
+		q += (innerDegree - outerDegree) / community.size();
 	}
 	return q;
 }

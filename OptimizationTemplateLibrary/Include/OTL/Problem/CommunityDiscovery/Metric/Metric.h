@@ -29,36 +29,36 @@ namespace community_discovery
 {
 namespace metric
 {
-template <typename _TMatrix>
+template <typename _TReal, typename _TMatrix>
 class Metric
 {
 public:
+	typedef _TReal TReal;
 	typedef _TMatrix TMatrix;
-	typedef typename TMatrix::value_type TResult;
 
 	const bool maximize_;
 
 	Metric(const bool maximize);
 	virtual ~Metric(void);
-	TResult operator ()(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
+	TReal operator ()(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
 
 protected:
-	virtual TResult _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities) = 0;
+	virtual TReal _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities) = 0;
 };
 
-template <typename _TMatrix>
-Metric<_TMatrix>::Metric(const bool maximize)
+template <typename _TReal, typename _TMatrix>
+Metric<_TReal, _TMatrix>::Metric(const bool maximize)
 	: maximize_(maximize)
 {
 }
 
-template <typename _TMatrix>
-Metric<_TMatrix>::~Metric(void)
+template <typename _TReal, typename _TMatrix>
+Metric<_TReal, _TMatrix>::~Metric(void)
 {
 }
 
-template <typename _TMatrix>
-typename Metric<_TMatrix>::TResult Metric<_TMatrix>::operator ()(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
+template <typename _TReal, typename _TMatrix>
+_TReal Metric<_TReal, _TMatrix>::operator ()(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
 {
 	return _DoEvaluate(graph, communities);
 }

@@ -42,42 +42,44 @@ namespace community_discovery
 {
 namespace metric
 {
-template <typename _TMatrix>
-class Q : public Metric<_TMatrix>
+template <typename _TReal, typename _TMatrix>
+class Q : public Metric<_TReal, _TMatrix>
 {
 public:
+	typedef _TReal TReal;
 	typedef _TMatrix TMatrix;
-	typedef Metric<TMatrix> TSuper;
-	typedef typename TSuper::TResult TResult;
+	typedef Metric<TReal, TMatrix> TSuper;
 
 	Q(void);
 	~Q(void);
 
 protected:
-	TResult _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
+	TReal _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
 };
 
-template <typename _TMatrix>
-Q<_TMatrix>::Q(void)
+template <typename _TReal, typename _TMatrix>
+Q<_TReal, _TMatrix>::Q(void)
 	: TSuper(true)
 {
 }
 
-template <typename _TMatrix>
-Q<_TMatrix>::~Q(void)
+template <typename _TReal, typename _TMatrix>
+Q<_TReal, _TMatrix>::~Q(void)
 {
 }
 
-template <typename _TMatrix>
-typename Q<_TMatrix>::TResult Q<_TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
+template <typename _TReal, typename _TMatrix>
+_TReal Q<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
 {
-	const TResult communityDegree = CommunityDegree(graph);
-	TResult q = 0;
+	const TReal degree = CommunityDegree(graph);
+	TReal q = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
-	{;
-		const TResult temp = CommunityOuterDegree(graph, communities, i) / communityDegree;
+	{
 		const std::set<size_t> &community = communities[i];
-		q += CommunityInnerDegree(graph, community) / communityDegree - temp * temp;
+		const TReal innerDegree = CommunityInnerDegree(graph, community);
+		const TReal outerDegree = CommunityOuterDegree(graph, communities, i);
+		const TReal temp = outerDegree / degree;
+		q += innerDegree / degree - temp * temp;
 	}
 	return q;
 }

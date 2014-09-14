@@ -67,11 +67,11 @@ BOOST_AUTO_TEST_CASE(TestMetrics)
 	for (size_t i = 3; i < 8; ++i)
 		BOOST_CHECK(communities.back().find(i) != communities.back().end());
 	{
-		otl::problem::community_discovery::metric::Q<_TMatrix> metric;
+		otl::problem::community_discovery::metric::Q<_TReal, _TMatrix> metric;
 		BOOST_CHECK_CLOSE(metric(graph, communities), 0.78, 0.1);
 	}
 	{
-		otl::problem::community_discovery::metric::QLi<_TMatrix> metric;
+		otl::problem::community_discovery::metric::QLi<_TReal, _TMatrix> metric;
 		BOOST_CHECK_CLOSE(metric(graph, communities), 4, 0.1);
 	}
 }
@@ -104,8 +104,8 @@ BOOST_AUTO_TEST_CASE(TestONL)
 		for (size_t j = 0; j < _graph[i].size(); ++j)
 			graph(i, j) = _graph[i][j];
 	}
-	otl::problem::community_discovery::metric::Q<_TMatrix> metric1;
-	otl::problem::community_discovery::metric::QLi<_TMatrix> metric2;
+	otl::problem::community_discovery::metric::Q<_TReal, _TMatrix> metric1;
+	otl::problem::community_discovery::metric::QLi<_TReal, _TMatrix> metric2;
 	std::vector<_TProblem::TMetric *> metrics = {&metric1, &metric2};
 	_TProblem problem(graph, metrics, random);
 	const std::vector<_TDecision> initial = otl::initial::PopulationUniformInteger(random, problem.GetBoundary(), populationSize);
