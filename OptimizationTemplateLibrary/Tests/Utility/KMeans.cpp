@@ -25,39 +25,51 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace clustering
 {
-BOOST_AUTO_TEST_CASE(TestK_Means)
+BOOST_AUTO_TEST_CASE(TestKMeans)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
-	typedef std::vector<_TReal> _TPoint;
-	typedef const _TPoint * _TConstPointer;
-	_TRandom random;
-	const size_t nPoints = 100;
-	std::vector<_TPoint> points(nPoints);
-	std::vector<_TConstPointer> _points(points.size());
-	for (size_t i = 0; i < points.size(); ++i)
+	struct _TUnit
 	{
-		_TPoint &point = points[i];
-		point.resize(3);
-		std::uniform_real_distribution<_TReal> dist;
-		for (size_t j = 0; j < point.size(); ++j)
-			point[j] = dist(random);
-		_points[i] = &point;
+		size_t class_;
+		std::vector<_TReal> coordiante_;
+	};
+	_TRandom random;
+	std::vector<std::vector<_TUnit> > units(2, std::vector<_TUnit>(50));
+	std::list<const _TUnit *> _pointers;
+	for (size_t n = 0; n < units.size(); ++n)
+	{
+		const _TReal base = n * 2;
+		for (size_t i = 0; i < units[n].size(); ++i)
+		{
+			_TUnit &unit = units[n][i];
+			unit.class_ = n;
+			unit.coordiante_.resize(3);
+			std::uniform_real_distribution<_TReal> dist;
+			for (size_t j = 0; j < unit.coordiante_.size(); ++j)
+				unit.coordiante_[j] = base + dist(random);
+			_pointers.push_back(&unit);
+		}
 	}
-	std::random_shuffle(_points.begin(), _points.end(), [&random](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(random);});
-	std::vector<_TPoint> centroids(5);
-	std::vector<std::list<_TConstPointer> > clusters = otl::utility::clustering::KMeans(_points.begin(), _points.end(), centroids);
+	std::vector<const _TUnit *> pointers(_pointers.begin(), _pointers.end());
+	std::random_shuffle(pointers.begin(), pointers.end(), [&random](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(random);});
+	std::vector<std::vector<_TReal> > centroids(units.size());
+	auto clusters = otl::utility::clustering::KMeans(pointers, centroids, [](const _TUnit &unit)->const std::vector<_TReal> &{return unit.coordiante_;});
 	BOOST_CHECK_EQUAL(clusters.size(), centroids.size());
 	{
-		std::list<_TConstPointer> merge;
-		for (size_t index = 0; index < clusters.size(); ++index)
+		std::list<const _TUnit *> merge;
+		for (size_t n = 0; n < clusters.size(); ++n)
 		{
-			std::list<_TConstPointer> &cluster = clusters[index];
+			auto &cluster = clusters[n];
 			for (auto i = cluster.begin(); i != cluster.end(); ++i)
+			{
 				BOOST_CHECK(std::find(merge.begin(), merge.end(), *i) == merge.end());
+				const _TUnit &unit = **i;
+				BOOST_CHECK_EQUAL(unit.class_, n);
+			}
 			merge.splice(merge.end(), cluster, cluster.begin(), cluster.end());
 		}
-		BOOST_CHECK_EQUAL(merge.size(), nPoints);
+		BOOST_CHECK_EQUAL(merge.size(), pointers.size());
 	}
 }
 }

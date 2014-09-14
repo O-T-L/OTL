@@ -42,10 +42,9 @@ namespace utility
 {
 namespace clustering
 {
-template <typename _TPoint>
-size_t NearestCentroid(const _TPoint &point, const std::vector<_TPoint> &centroids)
+template <typename _TReal>
+size_t NearestCentroid(const std::vector<_TReal> &point, const std::vector<std::vector<_TReal> > &centroids)
 {
-	typedef typename _TPoint::value_type _TReal;
 	assert(centroids.size() > 0);
 	size_t index = 0;
 	_TReal distance = sqrt(std::inner_product(point.begin(), point.end(), centroids[index].begin(), (_TReal)0
@@ -67,19 +66,18 @@ size_t NearestCentroid(const _TPoint &point, const std::vector<_TPoint> &centroi
 	return index;
 }
 
-template <typename _TIterator>
-typename std::iterator_traits<typename std::iterator_traits<_TIterator>::value_type>::value_type CalculateCentroid(_TIterator begin, _TIterator end)
+template <typename _TReal, typename _TUnit, typename _TFetcher>
+std::vector<_TReal> CalculateCentroid(const std::list<const _TUnit *> &cluster, _TFetcher fetcher)
 {
-	typedef typename std::iterator_traits<_TIterator>::value_type _TPointer;
-	typedef typename std::iterator_traits<_TPointer>::value_type _TPoint;
-	typedef typename _TPoint::value_type _TReal;
-	_TPoint centroid = **begin;
+	typedef std::vector<_TReal> _TCoordinate;
+	_TCoordinate centroid = fetcher(*cluster.front());
 	for (size_t n = 0; n < centroid.size(); ++n)
 	{
 		size_t count = 1;
-		for (_TIterator i = ++begin; i != end; ++i)
+		for (auto i = ++cluster.begin(); i != cluster.end(); ++i)
 		{
-			centroid[n] += (**i)[n];
+			const _TCoordinate point = fetcher(**i);
+			centroid[n] += point[n];
 			++count;
 		}
 		centroid[n] /= count;
@@ -87,46 +85,45 @@ typename std::iterator_traits<typename std::iterator_traits<_TIterator>::value_t
 	return centroid;
 }
 
-template <typename _TIterator, typename _TPoint>
-std::vector<std::list<const _TPoint *> > KMeans(_TIterator begin, _TIterator end, std::vector<_TPoint> &centroids, size_t iteration = -1)
+template <typename _TUnit, typename _TReal, typename _TFetcher>
+std::vector<std::list<const _TUnit *> > KMeans(const std::vector<const _TUnit *> &units, std::vector<std::vector<_TReal> > &centroids, _TFetcher fetcher, size_t iteration = -1)
 {
-	typedef const _TPoint * _TPointer;
-	typedef typename _TPoint::value_type _TReal;
+	typedef std::vector<_TReal> _TCoordinate;
 	assert(centroids.size() > 0);
-	std::vector<std::list<_TPointer> > clusters(centroids.size());
+	std::vector<std::list<const _TUnit *> > clusters(centroids.size());
 	{//Initialize
-		assert(std::distance(begin, end) >= centroids.size());
-		_TIterator src = begin;
+		assert(units.size() >= centroids.size());
+		size_t index = 0;
 		for (size_t n = 0; n < clusters.size(); ++n)
 		{
-			_TPointer pointer = *src;
-			centroids[n] = *pointer;
-			clusters[n].push_back(pointer);
-			++src;
+			const _TUnit *unit = units[index];
+			centroids[n] = fetcher(*unit);
+			clusters[n].push_back(unit);
+			++index;
 		}
-		while (src != end)
+		while (index < units.size())
 		{
-			_TPointer pointer = *src;
-			const size_t index = NearestCentroid(*pointer, centroids);
-			clusters[index].push_back(pointer);
-			++src;
+			const _TUnit *unit = units[index];
+			const size_t cluster = NearestCentroid(fetcher(*unit), centroids);
+			clusters[cluster].push_back(unit);
+			++index;
 		}
 	}
 	while (iteration)
 	{
-		std::vector<_TPoint> _centroids(centroids.size());
+		std::vector<_TCoordinate> _centroids(centroids.size());
 		for (size_t n = 0; n < clusters.size(); ++n)
-			_centroids[n] = CalculateCentroid(clusters[n].begin(), clusters[n].end());
+			_centroids[n] = CalculateCentroid<_TReal>(clusters[n], fetcher);
 		if (_centroids == centroids)
 			break;
 		centroids = _centroids;
 		for (size_t n = 0; n < clusters.size(); ++n)
 			clusters[n].clear();
-		for (_TIterator i = begin; i != end; ++i)
+		for (size_t i = 0; i < units.size(); ++i)
 		{
-			_TPointer pointer = *i;
-			const size_t index = NearestCentroid(*pointer, centroids);
-			clusters[index].push_back(pointer);
+			const _TUnit *unit = units[i];
+			const size_t cluster = NearestCentroid(fetcher(*unit), centroids);
+			clusters[cluster].push_back(unit);
 		}
 		--iteration;
 	}
