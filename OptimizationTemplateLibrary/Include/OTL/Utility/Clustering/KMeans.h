@@ -15,6 +15,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@Article{,
+  Title                    = {Algorithm {AS} 136: A {K-Means} Clustering Algorithm},
+  Author                   = {J. A. Hartigan and M. A. Wong},
+  Journal                  = {Journal of the Royal Statistical Society},
+  Year                     = {1979},
+  Number                   = {1},
+  Pages                    = {100-108},
+  Volume                   = {28},
+  Url                      = {www.jstor.org/stable/2346830}
+}
+*/
+
 #pragma once
 
 #include <cassert>
