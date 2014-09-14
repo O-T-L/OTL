@@ -57,7 +57,7 @@ MinMaxCut<_TReal, _TMatrix>::~MinMaxCut(void)
 
 template <typename _TReal, typename _TMatrix>
 _TReal MinMaxCut<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
-{
+{;
 	_TReal mmc = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{
