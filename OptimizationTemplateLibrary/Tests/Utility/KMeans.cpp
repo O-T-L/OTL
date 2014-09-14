@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(TestK_Means)
 			point[j] = dist(random);
 		_points[i] = &point;
 	}
-	std::random_shuffle(_points.begin(), _points.end());
+	std::random_shuffle(_points.begin(), _points.end(), [&random](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(random);});
 	std::vector<_TPoint> centroids(5);
 	std::vector<std::list<_TConstPointer> > clusters = otl::utility::clustering::KMeans(_points.begin(), _points.end(), centroids);
 	BOOST_CHECK_EQUAL(clusters.size(), centroids.size());
