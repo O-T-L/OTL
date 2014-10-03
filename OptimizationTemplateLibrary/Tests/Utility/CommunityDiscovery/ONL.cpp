@@ -24,6 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Problem/CommunityDiscovery/Metric/Q.h>
 #include <OTL/Problem/CommunityDiscovery/Metric/QLi.h>
 #include <OTL/Problem/CommunityDiscovery/Metric/MinMaxCut.h>
+#include <OTL/Problem/CommunityDiscovery/Metric/Silhouette.h>
+#include <OTL/Problem/CommunityDiscovery/Metric/Ductance.h>
+#include <OTL/Problem/CommunityDiscovery/Metric/Expansion.h>
 #include <OTL/Problem/CommunityDiscovery/ONL/Decode.h>
 #include <OTL/Problem/CommunityDiscovery/ONL/ONL.h>
 #include <OTL/Initial/UniformInteger.h>
@@ -78,6 +81,18 @@ BOOST_AUTO_TEST_CASE(TestMetrics)
 	{
 		otl::problem::community_discovery::metric::MinMaxCut<_TReal, _TMatrix> metric;
 		BOOST_CHECK_CLOSE(metric(graph, communities), 0.66666666667, 0.1);
+	}
+	{
+		otl::problem::community_discovery::metric::Silhouette<_TReal, _TMatrix> metric;
+		BOOST_CHECK_CLOSE(metric(graph, communities), 0.8, 0.1);
+	}
+	{
+		otl::problem::community_discovery::metric::Ductance<_TReal, _TMatrix> metric;
+		BOOST_CHECK_CLOSE(metric(graph, communities), 0.8, 0.1);
+	}
+	{
+		otl::problem::community_discovery::metric::Expansion<_TReal, _TMatrix> metric;
+		BOOST_CHECK_CLOSE(metric(graph, communities), 0.8, 0.1);
 	}
 }
 
