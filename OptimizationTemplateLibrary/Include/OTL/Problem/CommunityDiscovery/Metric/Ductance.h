@@ -30,43 +30,43 @@ namespace community_discovery
 namespace metric
 {
 template <typename _TReal, typename _TMatrix>
-class MinMaxCut : public Metric<_TReal, _TMatrix>
+class Ductance : public Metric<_TReal, _TMatrix>
 {
 public:
 	typedef _TReal TReal;
 	typedef _TMatrix TMatrix;
 	typedef Metric<TReal, TMatrix> TSuper;
 
-	MinMaxCut(void);
-	~MinMaxCut(void);
+	Ductance(void);
+	~Ductance(void);
 
 protected:
 	TReal _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
 };
 
 template <typename _TReal, typename _TMatrix>
-MinMaxCut<_TReal, _TMatrix>::MinMaxCut(void)
+Ductance<_TReal, _TMatrix>::Ductance(void)
 	: TSuper(true)
 {
 }
 
 template <typename _TReal, typename _TMatrix>
-MinMaxCut<_TReal, _TMatrix>::~MinMaxCut(void)
+Ductance<_TReal, _TMatrix>::~Ductance(void)
 {
 }
 
 template <typename _TReal, typename _TMatrix>
-_TReal MinMaxCut<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
+_TReal Ductance<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
 {
-	_TReal mmc = 0;
+	TReal duc = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{
-	    const std::set<size_t> &community = communities[i];
+		const std::set<size_t> &community = communities[i];
 		const TReal innerDegree = CommunityInnerDegree(graph, community);
 		const TReal outerDegree = CommunityOuterDegree(graph, communities, i);
-		mmc +=  outerDegree / innerDegree;
+		duc += outerDegree / (2 * innerDegree + outerDegree);
 	}
-	return mmc;
+	return duc;
 }
 }
 }
