@@ -27,6 +27,7 @@ namespace clustering
 {
 BOOST_AUTO_TEST_CASE(TestKMeans)
 {
+	int a;
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
 	struct _TUnit
