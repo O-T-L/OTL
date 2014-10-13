@@ -56,7 +56,7 @@ Silhouette<_TReal, _TMatrix>::~Silhouette(void)
 }
 
 template <typename _TReal, typename _TMatrix>
-_TReal Silhouette<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities, const size_t point)
+_TReal Silhouette<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
 {
 //	const TReal degree = CommunityDegree(graph);
 	const TReal temp = 0;
@@ -72,7 +72,7 @@ _TReal Silhouette<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std
 				const TReal inner = AverageInnerDegree(graph, community, j);
 				const TReal outer = AverageOuterDegree(graph, communities, j);
 				temp += inner - outer;
-				temp /=std::max(inner, outer);
+				temp /= std::max(inner, outer);
 			}
 		}
 		gs += 1.0 / community.end() * temp;
