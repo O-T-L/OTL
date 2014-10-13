@@ -162,6 +162,7 @@ _TReal AverageInnerDegree(const boost::numeric::ublas::symmetric_matrix<_TReal> 
 		if (*i != point)
 			degree += graph(point, *i);
 	}
+	degree /= community.size() + 1;
 	return degree;
 }
 
@@ -170,6 +171,7 @@ _TReal AverageOuterDegree(const boost::numeric::ublas::symmetric_matrix<_TReal> 
 {
 	assert(graph.size1() == graph.size2());
 	_TReal degree = 0;
+	_TReal min = 1;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{
 		const std::set<size_t> &community = communities[i];
@@ -180,9 +182,12 @@ _TReal AverageOuterDegree(const boost::numeric::ublas::symmetric_matrix<_TReal> 
 				assert(0 <= *j && *j < graph.size1());
 				degree += graph(point, *j);
 			}
+			degree /= community.size() + 1;
 		}
+		if (min > degree)
+			min = degree;
 	}
-	return degree;
+	return min;
 }
 }
 }
