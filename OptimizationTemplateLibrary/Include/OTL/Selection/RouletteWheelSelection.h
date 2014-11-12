@@ -27,12 +27,12 @@ namespace otl
 namespace selection
 {
 template <typename _TReal, typename _TIterator, typename _TEvaluate>
-_TIterator RouletteWheelSelect(const _TReal minFitness, const _TReal rouletteWheel, _TIterator begin, _TIterator end, _TEvaluate evaluate)
+_TIterator RouletteWheelSelect(const _TReal rouletteWheel, _TIterator begin, _TIterator end, _TEvaluate evaluate)
 {
 	_TReal seek = 0;
 	for (_TIterator i = begin; i != end; ++i)
 	{
-		const _TReal fitness = evaluate(*i) - minFitness;
+		const _TReal fitness = evaluate(*i);
 		assert(fitness >= 0);
 		seek += fitness;
 		if (seek >= rouletteWheel)
@@ -42,32 +42,32 @@ _TIterator RouletteWheelSelect(const _TReal minFitness, const _TReal rouletteWhe
 	return end;
 }
 
-template <typename _TReal, typename _TRandom, typename _TPointer, typename _TEvaluate>
-std::list<_TPointer> RouletteWheelSelection(size_t nElites, _TRandom &random, std::list<_TPointer> &population, _TEvaluate evaluate)
+template <typename _TReal, typename _TRandom, typename _TSrcIterator, typename _TDestIterator, typename _TEvaluate, typename _TCopy>
+void RouletteWheelSelection(_TRandom &random, _TSrcIterator srcBegin, _TSrcIterator srcEnd, _TDestIterator destBegin, _TDestIterator destEnd, _TEvaluate evaluate, _TCopy copy)
 {
-	const _TReal minFitness = evaluate(*std::min_element(population.begin(), population.end(), [evaluate](_TPointer individual1, _TPointer individual2)->bool{return evaluate(individual1) < evaluate(individual2);}));
-	_TReal sum = std::accumulate(population.begin(), population.end(), (_TReal)0, [evaluate](const _TReal sum, _TPointer individual)->_TReal{return sum + evaluate(individual);}) - minFitness * population.size();
+	typedef typename std::iterator_traits<_TSrcIterator>::value_type _TPointer;
+	const _TReal sum = std::accumulate(srcBegin, srcEnd, (_TReal)0, [evaluate](const _TReal sum, _TPointer individual)->_TReal{return sum + evaluate(individual);});
 	assert(sum >= 0);
-	std::list<_TPointer> elites;
-	while (nElites && sum > 0)
+	if (sum > 0)
 	{
 		std::uniform_real_distribution<_TReal> dist(0, sum);
-		auto elite = RouletteWheelSelect(minFitness, dist(random), population.begin(), population.end(), evaluate);
-		const _TReal fitness = evaluate(*elite) - minFitness;
-		assert(fitness >= 0);
-		sum -= fitness;
-		assert(sum >= 0);
-		elites.splice(elites.end(), population, elite);
-		--nElites;
+		for (_TDestIterator i = destBegin; i != destEnd; ++i)
+		{
+			auto elite = RouletteWheelSelect(dist(random), srcBegin, srcEnd, evaluate);
+			copy(*elite, *i);
+		}
 	}
-	if (nElites > 0)
+	else
 	{
-		std::vector<_TPointer> _population(population.begin(), population.end());
-		std::random_shuffle(_population.begin(), _population.end(), [&random](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(random);});
-		for (size_t i = 0; i < nElites; ++i)
-			elites.push_back(_population[i]);
+		std::vector<_TPointer> population(srcBegin, srcEnd);
+		std::random_shuffle(population.begin(), population.end(), [&random](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(random);});
+		size_t index = 0;
+		for (_TDestIterator i = destBegin; i != destEnd; ++i)
+		{
+			copy(population[index], *i);
+			++index;
+		}
 	}
-	return elites;
 }
 }
 }

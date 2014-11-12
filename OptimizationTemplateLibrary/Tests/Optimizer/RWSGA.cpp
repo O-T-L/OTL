@@ -25,9 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Crossover/SimulatedBinaryCrossover.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
 #include <OTL/Mutation/PolynomialMutation.h>
-#include <OTL/Optimizer/SGA.h>
+#include <OTL/Optimizer/RWSGA/RWSGA.h>
 
-BOOST_AUTO_TEST_CASE(SGA)
+BOOST_AUTO_TEST_CASE(RWSGA)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(SGA)
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
 	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
-	typedef otl::optimizer::SGA<_TReal, _TDecision, _TRandom &> _TOptimizer;
+	typedef otl::optimizer::rwsga::RWSGA<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem;

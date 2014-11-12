@@ -26,14 +26,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Crossover/WithCrossover.h>
 #include <OTL/Mutation/WithMutation.h>
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
-#include <OTL/Selection/RouletteWheelSelection.h>
 
 namespace otl
 {
 namespace optimizer
 {
 template <typename _TReal, typename _TDecision, typename _TRandom>
-class SGA : public Metaheuristic<std::vector<Solution<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithCrossover<_TReal, _TDecision>, public otl::mutation::WithMutation<_TReal, _TDecision>
+class ElitismGA : public Metaheuristic<std::vector<Solution<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithCrossover<_TReal, _TDecision>, public otl::mutation::WithMutation<_TReal, _TDecision>
 {
 public:
 	typedef _TReal TReal;
@@ -46,9 +45,8 @@ public:
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	SGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation);
-	~SGA(void);
-	size_t GetNumberOfElites(void) const;
+	ElitismGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation);
+	~ElitismGA(void);
 	TSolutionSet MakeOffspring(const TSolutionSet &ancestor);
 
 protected:
@@ -57,7 +55,7 @@ protected:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-SGA<_TReal, _TDecision, _TRandom>::SGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation)
+ElitismGA<_TReal, _TDecision, _TRandom>::ElitismGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, otl::crossover::WithCrossover<TReal, TDecision>(crossover)
@@ -73,12 +71,12 @@ SGA<_TReal, _TDecision, _TRandom>::SGA(TRandom random, TProblem &problem, const 
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-SGA<_TReal, _TDecision, _TRandom>::~SGA(void)
+ElitismGA<_TReal, _TDecision, _TRandom>::~ElitismGA(void)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-typename SGA<_TReal, _TDecision, _TRandom>::TSolutionSet SGA<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
+typename ElitismGA<_TReal, _TDecision, _TRandom>::TSolutionSet ElitismGA<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
 {
 	TSolutionSet offspring = otl::optimizer::nsga_ii::MakeOffspring(ancestor.size(), ancestor.begin(), ancestor.end(), this->GetRandom(), &_Compete, this->GetCrossover());
 	for (size_t i = 0; i < offspring.size(); ++i)
@@ -91,28 +89,32 @@ typename SGA<_TReal, _TDecision, _TRandom>::TSolutionSet SGA<_TReal, _TDecision,
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void SGA<_TReal, _TDecision, _TRandom>::_DoStep(void)
+void ElitismGA<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
 	TSolutionSet offspring = MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
-	std::list<_TPointer> mix;
-	for (size_t i = 0; i < ancestor.size(); ++i)
-		mix.push_back(&ancestor[i]);
-	for (size_t i = 0; i < offspring.size(); ++i)
-		mix.push_back(&offspring[i]);
-	auto elite = std::min_element(mix.begin(), mix.end(), [](_TPointer individual1, _TPointer individual2)->bool{return individual1->objective_[0] < individual2->objective_[0];});
-	TSuper::solutionSet_[0] = **elite;
-	mix.erase(elite);
-	std::list<_TPointer> elites = otl::selection::RouletteWheelSelection<TReal>(TSuper::solutionSet_.size() - 1, this->GetRandom(), mix, [](_TPointer individual)->TReal{return individual->objective_[0];});
-	assert(elites.size() == TSuper::solutionSet_.size() - 1);
-	size_t index = 1;
-	for (auto i = elites.begin(); i != elites.end(); ++i, ++index)
-		TSuper::solutionSet_[index] = **i;
+	std::vector<_TPointer> mix(ancestor.size() + offspring.size());
+	{
+		size_t index = 0;
+		for (size_t i = 0; i < ancestor.size(); ++i)
+		{
+			mix[index] = &ancestor[i];
+			++index;
+		}
+		for (size_t i = 0; i < offspring.size(); ++i)
+		{
+			mix[index] = &offspring[i];
+			++index;
+		}
+	}
+	std::partial_sort(mix.begin(), mix.begin() + TSuper::solutionSet_.size(), mix.end(), [](_TPointer individual1, _TPointer individual2)->bool{return individual1->objective_[0] < individual2->objective_[0];});
+	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
+		TSuper::solutionSet_[i] = *mix[i];
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-const typename SGA<_TReal, _TDecision, _TRandom>::TIndividual *SGA<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
+const typename ElitismGA<_TReal, _TDecision, _TRandom>::TIndividual *ElitismGA<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
 {
 	return competition[0]->objective_[0] < competition[1]->objective_[0] ? competition[0] : competition[1];
 }
