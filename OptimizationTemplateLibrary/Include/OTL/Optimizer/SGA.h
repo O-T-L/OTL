@@ -32,7 +32,7 @@ namespace otl
 namespace optimizer
 {
 template <typename _TReal, typename _TDecision, typename _TRandom>
-class ElitismGA : public Metaheuristic<std::vector<Solution<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithCrossover<_TReal, _TDecision>, public otl::mutation::WithMutation<_TReal, _TDecision>
+class SGA : public Metaheuristic<std::vector<Solution<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithCrossover<_TReal, _TDecision>, public otl::mutation::WithMutation<_TReal, _TDecision>
 {
 public:
 	typedef _TReal TReal;
@@ -45,8 +45,8 @@ public:
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	ElitismGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation);
-	~ElitismGA(void);
+	SGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation);
+	~SGA(void);
 	TSolutionSet MakeOffspring(const TSolutionSet &ancestor);
 
 protected:
@@ -55,7 +55,7 @@ protected:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-ElitismGA<_TReal, _TDecision, _TRandom>::ElitismGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation)
+SGA<_TReal, _TDecision, _TRandom>::SGA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, otl::crossover::WithCrossover<TReal, TDecision>(crossover)
@@ -71,12 +71,12 @@ ElitismGA<_TReal, _TDecision, _TRandom>::ElitismGA(TRandom random, TProblem &pro
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-ElitismGA<_TReal, _TDecision, _TRandom>::~ElitismGA(void)
+SGA<_TReal, _TDecision, _TRandom>::~SGA(void)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-typename ElitismGA<_TReal, _TDecision, _TRandom>::TSolutionSet ElitismGA<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
+typename SGA<_TReal, _TDecision, _TRandom>::TSolutionSet SGA<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
 {
 	TSolutionSet offspring = otl::optimizer::nsga_ii::MakeOffspring(ancestor.size(), ancestor.begin(), ancestor.end(), this->GetRandom(), &_Compete, this->GetCrossover());
 	for (size_t i = 0; i < offspring.size(); ++i)
@@ -89,7 +89,7 @@ typename ElitismGA<_TReal, _TDecision, _TRandom>::TSolutionSet ElitismGA<_TReal,
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void ElitismGA<_TReal, _TDecision, _TRandom>::_DoStep(void)
+void SGA<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
 	TSolutionSet offspring = MakeOffspring(ancestor);
@@ -114,7 +114,7 @@ void ElitismGA<_TReal, _TDecision, _TRandom>::_DoStep(void)
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-const typename ElitismGA<_TReal, _TDecision, _TRandom>::TIndividual *ElitismGA<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
+const typename SGA<_TReal, _TDecision, _TRandom>::TIndividual *SGA<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
 {
 	return competition[0]->objective_[0] < competition[1]->objective_[0] ? competition[0] : competition[1];
 }
