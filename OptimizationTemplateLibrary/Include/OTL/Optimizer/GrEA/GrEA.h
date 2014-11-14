@@ -102,15 +102,6 @@ GrEA<_TReal, _TDecision, _TRandom>::GrEA(TRandom random, TProblem &problem, cons
 		individual.decision_ = initial[i];
 		TSuper::GetProblem()(individual);
 	}
-#if 1
-	typedef typename TSolutionSet::pointer _TPointer;
-	std::list<_TPointer> solutionSet;
-	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
-		solutionSet.push_back(&TSuper::solutionSet_[i]);
-	GridSetting(solutionSet.begin(), solutionSet.end());
-	CalculateFitness(solutionSet.begin(), solutionSet.end());
-	CalculateGCD(solutionSet.begin(), solutionSet.end());
-#endif
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -224,6 +215,7 @@ template <typename _TPointer, typename _TIterator> _TIterator GrEA<_TReal, _TDec
 		AdjustGCD(*elite, front.begin(), front.end());
 		AdjustGR(*elite, front);
 #if 0
+		//Output debug data
 		for (_TIterator i = begin; i != dest; ++i)
 		{
 			auto &objective = i->objective_;
