@@ -58,6 +58,8 @@ Individual<_TReal, _TDecision>::Individual(void)
 #ifndef NDEBUG
 	gr_ = -1;
 	gcd_ = -1;
+	gcpd_ = -1;
+	pd_ = -1;
 #endif
 }
 

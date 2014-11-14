@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include <numeric>
+#include <OTL/Utility/Relation/Pareto.h>
 #include "Individual.h"
 
 namespace otl
@@ -45,28 +46,31 @@ std::pair<_TReal, _TReal> ExpandHalfBox(const _TReal min, const _TReal max, cons
 }
 
 template <typename _TReal>
-std::vector<size_t> GridCoordinate(const std::vector<std::pair<_TReal, _TReal> > &ranges, const std::vector<_TReal> &objective)
+std::vector<size_t> GridCoordinate(const std::vector<std::pair<_TReal, _TReal> > &boundary, const std::vector<_TReal> &objective)
 {
-	assert(ranges.size() == objective.size());
+	assert(boundary.size() == objective.size());
 	std::vector<size_t> gridCoordinate(objective.size());
 	for (size_t i = 0; i < gridCoordinate.size(); ++i)
 	{
-		auto &range = ranges[i];
-		assert(range.first < objective[i]);
+		auto &range = boundary[i];
+		assert(range.first <= objective[i]);
 		assert(range.second >= 0);
-		gridCoordinate[i] = (size_t)((objective[i] - range.first) / range.second);
+		if (range.second > 0)
+			gridCoordinate[i] = (size_t)((objective[i] - range.first) / range.second);
+		else
+			gridCoordinate[i] = 0;
 	}
 	return gridCoordinate;
 }
 
 template <typename _TReal>
-std::vector<_TReal> GridCoordinatePoint(const std::vector<std::pair<_TReal, _TReal> > &ranges, const std::vector<size_t> &gridCoordinate)
+std::vector<_TReal> GridCoordinatePoint(const std::vector<std::pair<_TReal, _TReal> > &boundary, const std::vector<size_t> &gridCoordinate)
 {
-	assert(ranges.size() == gridCoordinate.size());
+	assert(boundary.size() == gridCoordinate.size());
 	std::vector<_TReal> point(gridCoordinate.size());
 	for (size_t i = 0; i < point.size(); ++i)
 	{
-		auto &range = ranges[i];
+		auto &range = boundary[i];
 		assert(range.second >= 0);
 		point[i] = range.first + gridCoordinate[i] * range.second;
 	}
@@ -74,21 +78,21 @@ std::vector<_TReal> GridCoordinatePoint(const std::vector<std::pair<_TReal, _TRe
 }
 
 template <typename _TReal, typename _TDecision>
-_TReal GridCoordinatePointDistance(const std::vector<std::pair<_TReal, _TReal> > &ranges, const Individual<_TReal, _TDecision> &individual)
+_TReal GridCoordinatePointDistance(const std::vector<std::pair<_TReal, _TReal> > &boundary, const Individual<_TReal, _TDecision> &individual)
 {
-	const std::vector<_TReal> point = GridCoordinatePoint(ranges, individual.gridCoordinate_);
+	const std::vector<_TReal> point = GridCoordinatePoint(boundary, individual.gridCoordinate_);
 	assert(individual.objective_.size() == point.size());
 	_TReal gcpd = 0;
 	for (size_t i = 0; i < point.size(); ++i)
 	{
 		const _TReal diff = point[i] - individual.objective_[i];
-		gcpd += diff * diff / ranges[i].second;
+		gcpd += diff * diff / boundary[i].second;
 	}
 	return sqrt(gcpd);
 }
 
 template <typename _TIterator>
-_TIterator LocateBest(_TIterator begin, _TIterator end)
+_TIterator FindoutBest(_TIterator begin, _TIterator end)
 {
 	_TIterator best = begin;
 	for (_TIterator i = ++begin; i != end; ++i)
@@ -110,6 +114,28 @@ _TIterator LocateBest(_TIterator begin, _TIterator end)
 	return best;
 }
 
+template <typename _TIterator>
+void CalculateGCD(_TIterator begin, _TIterator end)
+{
+	for (_TIterator i = begin; i != end; ++i)
+		(**i).gcd_ = 0;
+	for (_TIterator i = begin; i != end; ++i)
+	{
+		auto &individual = **i;
+		for (_TIterator j = ++_TIterator(i); j != end; ++j)
+		{
+			auto &_individual = **j;
+			const size_t gd = GridDifference(individual.gridCoordinate_, _individual.gridCoordinate_);
+			if (gd < individual.gridCoordinate_.size())
+			{
+				const size_t gcd = individual.gridCoordinate_.size() - gd;
+				individual.gcd_ += gcd;
+				_individual.gcd_ += gcd;
+			}
+		}
+	}
+}
+
 template <typename _TReal, typename _TDecision, typename _TIterator>
 void AdjustGCD(const Individual<_TReal, _TDecision> &elite, _TIterator begin, _TIterator end)
 {
@@ -122,8 +148,14 @@ void AdjustGCD(const Individual<_TReal, _TDecision> &elite, _TIterator begin, _T
 	}
 }
 
-template <typename _TReal, typename _TDecision, typename _TIterator, typename _TDominate>
-void AdjustPunishmentDegree(const Individual<_TReal, _TDecision> &elite, _TIterator begin, _TIterator end, _TDominate dominate)
+template <typename _TReal, typename _TDecision>
+bool GridDominate(const Individual<_TReal, _TDecision> &individual1, const Individual<_TReal, _TDecision> &individual2)
+{
+	return otl::utility::relation::Dominate(individual1.gridCoordinate_, individual2.gridCoordinate_);
+}
+
+template <typename _TReal, typename _TDecision, typename _TIterator>
+void CalculatePunishmentDegree(const Individual<_TReal, _TDecision> &elite, _TIterator begin, _TIterator end)
 {
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).pd_ = 0;
@@ -140,7 +172,7 @@ void AdjustPunishmentDegree(const Individual<_TReal, _TDecision> &elite, _TItera
 				for (_TIterator j = begin; j != end; ++j)
 				{
 					Individual<_TReal, _TDecision> &_individual = **j;
-					if (dominate(individual, _individual))
+					if (GridDominate(individual, _individual))
 					{
 						if (_individual.pd_ < gcd)
 							_individual.pd_ = gcd;
@@ -149,12 +181,10 @@ void AdjustPunishmentDegree(const Individual<_TReal, _TDecision> &elite, _TItera
 			}
 		}
 	}
-	for (_TIterator i = begin; i != end; ++i)
-		(**i).gr_ += (**i).pd_;
 }
 
-template <typename _TReal, typename _TDecision, typename _TPointer, typename _TDominate>
-void AdjustGR(const Individual<_TReal, _TDecision> &elite, std::list<_TPointer> &population, _TDominate dominate)
+template <typename _TReal, typename _TDecision, typename _TPointer>
+void AdjustGR(const Individual<_TReal, _TDecision> &elite, std::list<_TPointer> &population)
 {
 	std::list<_TPointer> weakDominated;
 	for (auto i = population.begin(); i != population.end();)
@@ -167,7 +197,7 @@ void AdjustGR(const Individual<_TReal, _TDecision> &elite, std::list<_TPointer> 
 			++i;
 			weakDominated.splice(weakDominated.end(), population, move);
 		}
-		else if (dominate(elite, individual))
+		else if (GridDominate(elite, individual))
 		{
 			individual.gr_ += individual.gridCoordinate_.size();
 			auto move = i;
@@ -177,7 +207,9 @@ void AdjustGR(const Individual<_TReal, _TDecision> &elite, std::list<_TPointer> 
 		else
 			++i;
 	}
-	AdjustPunishmentDegree(elite, population.begin(), population.end(), dominate);
+	CalculatePunishmentDegree(elite, population.begin(), population.end());
+	for (auto i = population.begin(); i != population.end(); ++i)
+		(**i).gr_ += (**i).pd_;
 	population.splice(population.end(), weakDominated, weakDominated.begin(), weakDominated.end());
 }
 }

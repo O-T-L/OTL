@@ -70,21 +70,20 @@ public:
 	~GrEA(void);
 	const std::vector<size_t> &GetDividion(void) const;
 	TSolutionSet MakeOffspring(const TSolutionSet &ancestor);
-	template <typename _TIterator> std::vector<std::pair<TReal, TReal> > CalculateRanges(_TIterator begin, _TIterator end) const;
-	template <typename _TIterator> void AssignFitness(_TIterator begin, _TIterator end) const;
+	template <typename _TIterator> void GridSetting(_TIterator begin, _TIterator end);
+	template <typename _TIterator> void CalculateFitness(_TIterator begin, _TIterator end) const;
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
-	static bool GridDominate(const TIndividual &individual1, const TIndividual &individual2);
 
 protected:
 	static bool _Dominate(const TIndividual *individual1, const TIndividual *individual2);
-	static bool _GridDominate(const TIndividual *individual1, const TIndividual *individual2);
 	void _DoStep(void);
 	template <typename _TPointer, typename _TIterator> static _TIterator _SelectNoncritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
-	template <typename _TPointer, typename _TIterator> static _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
+	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 
 private:
 	std::vector<size_t> dividion_;
+	std::vector<std::pair<TReal, TReal> > boundary_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -94,6 +93,7 @@ GrEA<_TReal, _TDecision, _TRandom>::GrEA(TRandom random, TProblem &problem, cons
 	, otl::crossover::WithCrossover<TReal, TDecision>(crossover)
 	, otl::mutation::WithMutation<TReal, TDecision>(mutation)
 	, dividion_(dividion)
+	, boundary_(problem.GetNumberOfObjectives())
 {
 	TSuper::solutionSet_.resize(initial.size());
 	for (size_t i = 0; i < initial.size(); ++i)
@@ -102,11 +102,15 @@ GrEA<_TReal, _TDecision, _TRandom>::GrEA(TRandom random, TProblem &problem, cons
 		individual.decision_ = initial[i];
 		TSuper::GetProblem()(individual);
 	}
+#if 1
 	typedef typename TSolutionSet::pointer _TPointer;
 	std::list<_TPointer> solutionSet;
 	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
 		solutionSet.push_back(&TSuper::solutionSet_[i]);
-	AssignFitness(solutionSet.begin(), solutionSet.end());
+	GridSetting(solutionSet.begin(), solutionSet.end());
+	CalculateFitness(solutionSet.begin(), solutionSet.end());
+	CalculateGCD(solutionSet.begin(), solutionSet.end());
+#endif
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -134,43 +138,31 @@ typename GrEA<_TReal, _TDecision, _TRandom>::TSolutionSet GrEA<_TReal, _TDecisio
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TIterator> std::vector<std::pair<_TReal, _TReal> > GrEA<_TReal, _TDecision, _TRandom>::CalculateRanges(_TIterator begin, _TIterator end) const
+template <typename _TIterator> void GrEA<_TReal, _TDecision, _TRandom>::GridSetting(_TIterator begin, _TIterator end)
 {
-	std::vector<std::pair<TReal, TReal> > ranges(TSuper::GetProblem().GetNumberOfObjectives());
-	for (size_t i = 0; i < ranges.size(); ++i)
+	for (size_t i = 0; i < boundary_.size(); ++i)
 	{
 		auto minmax = std::minmax_element(begin, end, [i](const TIndividual *individual1, const TIndividual *individual2)->bool{return individual1->objective_[i] < individual2->objective_[i];});
-		ranges[i] = ExpandHalfBox((**minmax.first).objective_[i], (**minmax.second).objective_[i], dividion_[i]);
+#if 1
+		boundary_[i] = ExpandHalfBox((**minmax.first).objective_[i], (**minmax.second).objective_[i], dividion_[i]);
+#else
+		auto &range = boundary_[i];
+		range.first = (**minmax.first).objective_[i];
+		range.second = ((**minmax.second).objective_[i] - range.first) / dividion_[i];
+#endif
 	}
-	return ranges;
+	for (_TIterator i = begin; i != end; ++i)
+		(**i).gridCoordinate_ = GridCoordinate(boundary_, (**i).objective_);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TIterator> void GrEA<_TReal, _TDecision, _TRandom>::AssignFitness(_TIterator begin, _TIterator end) const
+template <typename _TIterator> void GrEA<_TReal, _TDecision, _TRandom>::CalculateFitness(_TIterator begin, _TIterator end) const
 {
-	const auto ranges = CalculateRanges(begin, end);
-	for (_TIterator i = begin; i != end; ++i)
-	{
-		TIndividual &individual = **i;
-		individual.gridCoordinate_ = GridCoordinate(ranges, individual.objective_);
-		individual.gcd_ = 0;
-	}
 	for (_TIterator i = begin; i != end; ++i)
 	{
 		TIndividual &individual = **i;
 		individual.gr_ = std::accumulate(individual.gridCoordinate_.begin(), individual.gridCoordinate_.end(), (TReal)0);
-		for (_TIterator j = ++_TIterator(i); j != end; ++j)
-		{
-			TIndividual &_individual = **j;
-			const size_t gd = GridDifference(individual.gridCoordinate_, _individual.gridCoordinate_);
-			if (gd < individual.gridCoordinate_.size())
-			{
-				const size_t gcd = individual.gridCoordinate_.size() - gd;
-				individual.gcd_ += gcd;
-				_individual.gcd_ += gcd;
-			}
-		}
-		individual.gcpd_ = GridCoordinatePointDistance(ranges, individual);
+		individual.gcpd_ = GridCoordinatePointDistance(boundary_, individual);
 	}
 }
 
@@ -181,37 +173,29 @@ bool GrEA<_TReal, _TDecision, _TRandom>::Dominate(const TIndividual &individual1
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-bool GrEA<_TReal, _TDecision, _TRandom>::GridDominate(const TIndividual &individual1, const TIndividual &individual2)
-{
-	return otl::utility::relation::Dominate(individual1.gridCoordinate_, individual2.gridCoordinate_);
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
 bool GrEA<_TReal, _TDecision, _TRandom>::_Dominate(const TIndividual *individual1, const TIndividual *individual2)
 {
 	return Dominate(*individual1, *individual2);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-bool GrEA<_TReal, _TDecision, _TRandom>::_GridDominate(const TIndividual *individual1, const TIndividual *individual2)
-{
-	return GridDominate(*individual1, *individual2);
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
 void GrEA<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
-	TSolutionSet offspring = MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
 	std::list<_TPointer> mix;
 	for (size_t i = 0; i < ancestor.size(); ++i)
 		mix.push_back(&ancestor[i]);
+	GridSetting(mix.begin(), mix.end());
+	CalculateGCD(mix.begin(), mix.end());
+	TSolutionSet offspring = MakeOffspring(ancestor);
 	for (size_t i = 0; i < offspring.size(); ++i)
 		mix.push_back(&offspring[i]);
-	AssignFitness(mix.begin(), mix.end());
 	typedef typename TSolutionSet::iterator _TIterator;
-	otl::selection::NondominateSelection(mix, TSuper::solutionSet_.begin(), TSuper::solutionSet_.end(), &_Dominate, &_SelectNoncritical<_TPointer, _TIterator>, &_SelectCritical<_TPointer, _TIterator>);
+	otl::selection::NondominateSelection(mix, TSuper::solutionSet_.begin(), TSuper::solutionSet_.end(), &_Dominate
+		, &_SelectNoncritical<_TPointer, _TIterator>
+		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return _SelectCritical(front, begin, end);}
+	);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -227,14 +211,43 @@ template <typename _TPointer, typename _TIterator> _TIterator GrEA<_TReal, _TDec
 template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator GrEA<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
+	GridSetting(front.begin(), front.end());
+	CalculateFitness(front.begin(), front.end());
+	for (auto i = front.begin(); i != front.end(); ++i)
+		(**i).gcd_ = 0;
 	for (_TIterator dest = begin; dest != end; ++dest)
 	{
-		auto best = LocateBest(front.begin(), front.end());
-		_TPointer elite = *best;
-		front.erase(best);
+		auto _elite = FindoutBest(front.begin(), front.end());
+		_TPointer elite = *_elite;
+		front.erase(_elite);
 		*dest = *elite;
 		AdjustGCD(*elite, front.begin(), front.end());
-		AdjustGR(*elite, front, &GridDominate);
+		AdjustGR(*elite, front);
+#if 0
+		for (_TIterator i = begin; i != dest; ++i)
+		{
+			auto &objective = i->objective_;
+			for (size_t j = 0; j < objective.size(); ++j)
+				std::cout << objective[j] << '\t';
+			std::cout << 'v' << '\t' << i->gr_ << '\t' << i->gcd_ << '\t' << i->gcpd_ << std::endl;
+		}
+		{
+			_TIterator i = dest;
+			auto &objective = i->objective_;
+			for (size_t j = 0; j < objective.size(); ++j)
+				std::cout << objective[j] << '\t';
+			std::cout << '*' << '\t' << i->gr_ << '\t' << i->gcd_ << '\t' << i->gcpd_ << std::endl;
+		}
+		for (auto t = front.begin(); t != front.end(); ++t)
+		{
+			auto i = *t;
+			auto &objective = i->objective_;
+			for (size_t j = 0; j < objective.size(); ++j)
+				std::cout << objective[j] << '\t';
+			std::cout << 'o' << '\t' << i->gr_ << '\t' << i->gcd_ << '\t' << i->gcpd_ << std::endl;
+		}
+		std::cout << std::endl;
+#endif
 	}
 	return end;
 }
@@ -242,8 +255,6 @@ template <typename _TPointer, typename _TIterator> _TIterator GrEA<_TReal, _TDec
 template <typename _TReal, typename _TDecision, typename _TRandom>
 const typename GrEA<_TReal, _TDecision, _TRandom>::TIndividual *GrEA<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
 {
-	assert(competition[0]->gr_ != -1);
-	assert(competition[1]->gr_ != -1);
 	assert(competition[0]->gcd_ != -1);
 	assert(competition[1]->gcd_ != -1);
 	if (Dominate(*competition[0], *competition[1]) || GridDominate(*competition[0], *competition[1]))

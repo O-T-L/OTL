@@ -30,11 +30,12 @@ size_t GridDifference(const std::vector<size_t> &gridCoordinate1, const std::vec
 	assert(gridCoordinate1.size() == gridCoordinate2.size());
 	size_t gd = 0;
 	for (size_t i = 0; i < gridCoordinate1.size(); ++i)
-#ifdef WIN32 //For M$ Visual Studio
-		gd += std::abs((long)(gridCoordinate1[i] - gridCoordinate2[i]));
-#else
-		gd += std::abs(gridCoordinate1[i] - gridCoordinate2[i]);
-#endif
+	{
+		if (gridCoordinate1[i] > gridCoordinate2[i])
+			gd += gridCoordinate1[i] - gridCoordinate2[i];
+		else
+			gd += gridCoordinate2[i] - gridCoordinate1[i];
+	}
 	return gd;
 }
 }
