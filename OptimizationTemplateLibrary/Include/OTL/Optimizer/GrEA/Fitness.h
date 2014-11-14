@@ -33,14 +33,14 @@ namespace grea
 size_t GridDifference(const std::vector<size_t> &gridCoordinate1, const std::vector<size_t> &gridCoordinate2);
 
 template <typename _TReal>
-std::pair<_TReal, _TReal> ExpandHalfBox(const _TReal min, const _TReal max, const size_t dividion)
+std::pair<_TReal, _TReal> ExpandHalfBox(const _TReal min, const _TReal max, const size_t division)
 {
 	assert(min <= max);
 	std::pair<_TReal, _TReal> range;
 	const _TReal width = max - min;
-	const _TReal boxWidth = width / dividion;
+	const _TReal boxWidth = width / division;
 	range.first = min - boxWidth / 2; //grid lower boundary
-	range.second = (width + boxWidth) / dividion; //hyperbox width
+	range.second = (width + boxWidth) / division; //hyperbox width
 	assert(range.second >= 0);
 	return range;
 }

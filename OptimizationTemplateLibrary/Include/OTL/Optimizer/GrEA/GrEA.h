@@ -66,9 +66,9 @@ public:
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	GrEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<size_t> &dividion);
+	GrEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<size_t> &division);
 	~GrEA(void);
-	const std::vector<size_t> &GetDividion(void) const;
+	const std::vector<size_t> &GetDivision(void) const;
 	TSolutionSet MakeOffspring(const TSolutionSet &ancestor);
 	template <typename _TIterator> void GridSetting(_TIterator begin, _TIterator end);
 	template <typename _TIterator> void CalculateFitness(_TIterator begin, _TIterator end) const;
@@ -82,17 +82,17 @@ protected:
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 
 private:
-	std::vector<size_t> dividion_;
+	std::vector<size_t> division_;
 	std::vector<std::pair<TReal, TReal> > boundary_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-GrEA<_TReal, _TDecision, _TRandom>::GrEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<size_t> &dividion)
+GrEA<_TReal, _TDecision, _TRandom>::GrEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<size_t> &division)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, otl::crossover::WithCrossover<TReal, TDecision>(crossover)
 	, otl::mutation::WithMutation<TReal, TDecision>(mutation)
-	, dividion_(dividion)
+	, division_(division)
 	, boundary_(problem.GetNumberOfObjectives())
 {
 	TSuper::solutionSet_.resize(initial.size());
@@ -119,9 +119,9 @@ GrEA<_TReal, _TDecision, _TRandom>::~GrEA(void)
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-const std::vector<size_t> &GrEA<_TReal, _TDecision, _TRandom>::GetDividion(void) const
+const std::vector<size_t> &GrEA<_TReal, _TDecision, _TRandom>::GetDivision(void) const
 {
-	return dividion_;
+	return division_;
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -144,11 +144,11 @@ template <typename _TIterator> void GrEA<_TReal, _TDecision, _TRandom>::GridSett
 	{
 		auto minmax = std::minmax_element(begin, end, [i](const TIndividual *individual1, const TIndividual *individual2)->bool{return individual1->objective_[i] < individual2->objective_[i];});
 #if 1
-		boundary_[i] = ExpandHalfBox((**minmax.first).objective_[i], (**minmax.second).objective_[i], dividion_[i]);
+		boundary_[i] = ExpandHalfBox((**minmax.first).objective_[i], (**minmax.second).objective_[i], division_[i]);
 #else
 		auto &range = boundary_[i];
 		range.first = (**minmax.first).objective_[i];
-		range.second = ((**minmax.second).objective_[i] - range.first) / dividion_[i];
+		range.second = ((**minmax.second).objective_[i] - range.first) / division_[i];
 #endif
 	}
 	for (_TIterator i = begin; i != end; ++i)

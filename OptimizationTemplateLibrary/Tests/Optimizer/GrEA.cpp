@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(GrEA)
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
-	std::vector<size_t> dividion(nObjectives, 10);
-	_TOptimizer optimizer(random, problem, initial, crossover, mutation, dividion);
+	std::vector<size_t> division(nObjectives, 10);
+	_TOptimizer optimizer(random, problem, initial, crossover, mutation, division);
 	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
 	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
 	{
