@@ -134,13 +134,7 @@ template <typename _TIterator> void GrEA<_TReal, _TDecision, _TRandom>::GridSett
 	for (size_t i = 0; i < boundary_.size(); ++i)
 	{
 		auto minmax = std::minmax_element(begin, end, [i](const TIndividual *individual1, const TIndividual *individual2)->bool{return individual1->objective_[i] < individual2->objective_[i];});
-#if 1
 		boundary_[i] = ExpandHalfBox((**minmax.first).objective_[i], (**minmax.second).objective_[i], division_[i]);
-#else
-		auto &range = boundary_[i];
-		range.first = (**minmax.first).objective_[i];
-		range.second = ((**minmax.second).objective_[i] - range.first) / division_[i];
-#endif
 	}
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).gridCoordinate_ = GridCoordinate(boundary_, (**i).objective_);

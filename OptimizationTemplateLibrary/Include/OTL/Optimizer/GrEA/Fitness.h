@@ -155,13 +155,13 @@ bool GridDominate(const Individual<_TReal, _TDecision> &individual1, const Indiv
 }
 
 template <typename _TReal, typename _TDecision, typename _TIterator>
-void CalculatePunishmentDegree(const Individual<_TReal, _TDecision> &elite, _TIterator begin, _TIterator end)
+void AdjustPunishmentDegree(const Individual<_TReal, _TDecision> &elite, _TIterator begin, _TIterator end)
 {
-	for (_TIterator i = begin; i != end; ++i)
-		(**i).pd_ = 0;
 	for (_TIterator i = begin; i != end; ++i)
 	{
 		Individual<_TReal, _TDecision> &individual = **i;
+		assert(elite.gridCoordinate_ != individual.gridCoordinate_);
+		assert(!GridDominate(elite, individual));
 		const size_t gd = GridDifference(elite.gridCoordinate_, individual.gridCoordinate_);
 		if (gd < elite.gridCoordinate_.size())
 		{
@@ -171,11 +171,14 @@ void CalculatePunishmentDegree(const Individual<_TReal, _TDecision> &elite, _TIt
 				individual.pd_ = gcd;
 				for (_TIterator j = begin; j != end; ++j)
 				{
-					Individual<_TReal, _TDecision> &_individual = **j;
-					if (GridDominate(individual, _individual))
+					if (j != i)
 					{
-						if (_individual.pd_ < gcd)
-							_individual.pd_ = gcd;
+						Individual<_TReal, _TDecision> &_individual = **j;
+						if (GridDominate(individual, _individual))
+						{
+							if (_individual.pd_ < gcd)
+								_individual.pd_ = gcd;
+						}
 					}
 				}
 			}
@@ -205,9 +208,12 @@ void AdjustGR(const Individual<_TReal, _TDecision> &elite, std::list<_TPointer> 
 			weakDominated.splice(weakDominated.end(), population, move);
 		}
 		else
+		{
+			individual.pd_ = 0;
 			++i;
+		}
 	}
-	CalculatePunishmentDegree(elite, population.begin(), population.end());
+	AdjustPunishmentDegree(elite, population.begin(), population.end());
 	for (auto i = population.begin(); i != population.end(); ++i)
 		(**i).gr_ += (**i).pd_;
 	population.splice(population.end(), weakDominated, weakDominated.begin(), weakDominated.end());
