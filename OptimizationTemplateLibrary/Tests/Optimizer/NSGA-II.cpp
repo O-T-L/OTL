@@ -167,7 +167,12 @@ BOOST_AUTO_TEST_CASE(NSGA_II_Integer)
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	std::vector<std::pair<_TInteger, _TInteger> > boundary(problem.GetDecisionBits().size(), std::pair<_TInteger, _TInteger>(0, (1 << problem.GetDecisionBits()[i]) - 1));
+	std::vector<std::pair<_TInteger, _TInteger> > boundary(problem.GetDecisionBits().size());
+	for (size_t i = 0; i < boundary.size(); ++i)
+	{
+		boundary[i].first = 0;
+		boundary[i].second = (1 << problem.GetDecisionBits()[i]) - 1;
+	}
 	const std::vector<_TDecision> initial = otl::initial::PopulationUniformInteger(random, boundary, populationSize);
 	_TCrossover _crossover(random, 1, problem.GetDecisionBits());
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
