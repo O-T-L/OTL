@@ -37,6 +37,7 @@ public:
 	typedef Solution<TReal, TDecision> TSuper;
 
 	std::vector<TReal> translatedObjective_;
+	TReal minDistance_;
 
 	Individual(void);
 	~Individual(void);
@@ -50,6 +51,9 @@ private:
 template <typename _TReal, typename _TDecision>
 Individual<_TReal, _TDecision>::Individual(void)
 {
+#ifndef NDEBUG
+	minDistance_ = -1;
+#endif
 }
 
 template <typename _TReal, typename _TDecision>

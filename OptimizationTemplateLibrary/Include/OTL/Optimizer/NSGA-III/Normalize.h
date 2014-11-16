@@ -53,15 +53,15 @@ std::vector<_TReal> MakeAxisDirection(const size_t dimension, const size_t objec
 {
 	assert(dimension > 0);
 	assert(0 <= objective && objective < dimension);
-	std::vector<_TReal> axisDirection(dimension);
+	std::vector<_TReal> direction(dimension);
 	for (size_t i = 0; i < dimension; ++i)
 	{
 		if (i == objective)
-			axisDirection[i] = 1;
+			direction[i] = 1;
 		else
-			axisDirection[i] = epsilon;
+			direction[i] = epsilon;
 	}
-	return axisDirection;
+	return direction;
 }
 
 template <typename _TReal>
@@ -79,14 +79,14 @@ _TReal ASF(const std::vector<_TReal> &axisDirection, const std::vector<_TReal> &
 }
 
 template <typename _TReal, typename _TIterator>
-_TIterator LocateExtremeIndividual(const std::vector<_TReal> &axisDirection, _TIterator begin, _TIterator end)
+_TIterator LocateExtremeIndividual(const std::vector<_TReal> &direction, _TIterator begin, _TIterator end)
 {
 	assert(begin != end);
-	_TReal minASF = ASF(axisDirection, (**begin).translatedObjective_);
+	_TReal minASF = ASF(direction, (**begin).translatedObjective_);
 	_TIterator extremeIndividual = begin;
 	for (_TIterator i = ++_TIterator(begin); i != end; ++i)
 	{
-		const _TReal asf = ASF(axisDirection, (**i).translatedObjective_);
+		const _TReal asf = ASF(direction, (**i).translatedObjective_);
 		if (asf < minASF)
 		{
 			minASF = asf;
@@ -160,8 +160,8 @@ boost::numeric::ublas::matrix<_TReal> ComputeExtremePoints(_TIterator begin, _TI
 	_TMatrix extremePoints(idealPoint.size(), idealPoint.size());
 	for (size_t row = 0; row < extremePoints.size1(); ++row)
 	{
-		const std::vector<_TReal> axisDirection = MakeAxisDirection(extremePoints.size2(), row, epsilon);
-		auto extremeIndividual = LocateExtremeIndividual(axisDirection, begin, end);
+		const std::vector<_TReal> direction = MakeAxisDirection(extremePoints.size2(), row, epsilon);
+		auto extremeIndividual = LocateExtremeIndividual(direction, begin, end);
 		boost::numeric::ublas::matrix_row<_TMatrix> extremePoint(extremePoints, row);
 		for (size_t col = 0; col < extremePoint.size(); ++col)
 			extremePoint(col) = (**extremeIndividual).translatedObjective_[col];
