@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(MOEA_D_WeightedSum)
 	const size_t nObjectives = 3;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 23);
+	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 23));
 	std::vector<std::vector<_TReal> > weightVectors(_weightVectors.begin(), _weightVectors.end());
 	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), weightVectors.size());
 	_TCrossover crossover(random, 1, problem.GetBoundary(), 20);
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(MOEA_D_Tchebycheff)
 	const size_t nObjectives = 3;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 23);
+	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 23));
 	std::vector<std::vector<_TReal> > weightVectors(_weightVectors.begin(), _weightVectors.end());
 	for (size_t i = 0; i < weightVectors.size(); ++i)
 		otl::optimizer::moea_d::weight::AdjustWeight(weightVectors[i], 0.00001);
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(MOEA_D_PBI)
 	const size_t nObjectives = 3;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 23);
+	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 23));
 	std::vector<std::vector<_TReal> > weightVectors(_weightVectors.begin(), _weightVectors.end());
 	for (size_t i = 0; i < weightVectors.size(); ++i)
 		otl::optimizer::moea_d::weight::NormalizeWeight(weightVectors[i]);
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(NormMOEA_D_Tchebycheff)
 	const size_t nObjectives = 3;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 23);
+	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 23));
 	std::vector<std::vector<_TReal> > weightVectors(_weightVectors.begin(), _weightVectors.end());
 	for (size_t i = 0; i < weightVectors.size(); ++i)
 		otl::optimizer::moea_d::weight::AdjustWeight(weightVectors[i], 0.0001);

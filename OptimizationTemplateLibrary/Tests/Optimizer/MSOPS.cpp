@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(MSOPS)
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
-	auto _targets = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 23);
+	auto _targets = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 23));
 	std::vector<std::vector<_TReal> > targets(_targets.begin(), _targets.end());
 	_TOptimizer optimizer(random, problem, initial, crossover, mutation, targets, 100);
 	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);

@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(NSGA_III)
 	const size_t nObjectives = 3;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	std::list<std::vector<_TReal> > points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 12);
+	std::list<std::vector<_TReal> > points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 12));
 	std::vector<std::vector<_TReal> > referenceSet(points.begin(), points.end());
 	size_t nPopulation = referenceSet.size();
 	while (nPopulation % 4)
