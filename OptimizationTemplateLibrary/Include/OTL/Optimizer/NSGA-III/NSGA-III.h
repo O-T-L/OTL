@@ -175,9 +175,9 @@ template <typename _TPointer, typename _TIterator> _TIterator NSGA_III<_TReal, _
 	if (front.size() == std::distance(begin, end))
 		return _SelectNoncritical(front, begin, end);
 	{
-		std::list<_TPointer> candidates(noncritical_.begin(), noncritical_.end());
-		candidates.insert(candidates.end(), front.begin(), front.end());
-		Normalize(candidates.begin(), candidates.end(), epsilon_);
+		std::list<_TPointer> population(noncritical_.begin(), noncritical_.end());
+		population.insert(population.end(), front.begin(), front.end());
+		Normalize(population.begin(), population.end(), epsilon_);
 	}
 	auto association1 = _Associate(noncritical_.begin(), noncritical_.end());
 	assert(association1.size() == referenceSet_.size());

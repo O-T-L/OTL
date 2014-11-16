@@ -38,15 +38,17 @@ BOOST_AUTO_TEST_CASE(NSGA_III)
 	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_iii::NSGA_III<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
-	const size_t nPopulation = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
+	std::list<std::vector<_TReal> > points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 12);
+	std::vector<std::vector<_TReal> > referenceSet(points.begin(), points.end());
+	size_t nPopulation = referenceSet.size();
+	while (nPopulation % 4)
+		++nPopulation;
 	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), nPopulation);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
-	std::list<std::vector<_TReal> > points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 12);
-	std::vector<std::vector<_TReal> > referenceSet(points.begin(), points.end());
 	_TOptimizer optimizer(random, problem, initial, crossover, mutation, referenceSet);
 	BOOST_CHECK(problem.GetNumberOfEvaluations() == nPopulation);
 	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
