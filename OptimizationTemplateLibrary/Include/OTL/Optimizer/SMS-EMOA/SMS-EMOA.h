@@ -74,12 +74,12 @@ protected:
 	static bool _Dominate(const TIndividual *individual1, const TIndividual *individual2);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 	void _Reduce(TSolutionSet &population, TSolutionSet &solutionSet);
-	template <typename _TPointer, typename _TIterator> _TIterator _SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
+	template <typename _TPointer, typename _TIterator> _TIterator _SelectNoncritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end) const;
 
 private:
 	_TMakeHypervolume makeHypervolume_;
-	size_t nondominateRank_;
+	std::list<TIndividual *> noncritical_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom, typename _TMakeHypervolume>
@@ -143,7 +143,7 @@ void SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_Reduce(TSolutio
 	std::list<_TPointer> _population;
 	for (size_t i = 0; i < population.size(); ++i)
 		_population.push_back(&population[i]);
-	nondominateRank_ = 0;
+	noncritical_.clear();
 	otl::selection::NondominateSelection(_population, solutionSet.begin(), solutionSet.end(), &_Dominate
 		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectNoncritical(front, begin, end);}
 		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectCritical(front, begin, end);}
@@ -151,33 +151,20 @@ void SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_Reduce(TSolutio
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom, typename _TMakeHypervolume>
-template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
+template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_SelectNoncritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
 	assert(front.size() <= std::distance(begin, end));
-	++nondominateRank_;
 	_TIterator dest = begin;
 	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
 		*dest = **i;
+	noncritical_.splice(noncritical_.end(), front, front.begin(), front.end());
 	return dest;
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom, typename _TMakeHypervolume>
 template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end) const
 {
-	if (nondominateRank_ > 0)
-	{
-		for (auto i = front.begin(); i != front.end(); ++i)
-			(**i).dominatingPoints_ = otl::optimizer::spea2::RawFitness(i, front.begin(), front.end(), &_Dominate);
-		std::vector<_TPointer> _front(front.begin(), front.end());
-		std::partial_sort(_front.begin(), _front.begin() + std::distance(begin, end), _front.end()
-			, [](_TPointer individual1, _TPointer individual2)->bool{return individual1->dominatingPoints_ > individual2->dominatingPoints_;}
-		);
-		_TIterator dest = begin;
-		for (size_t i = 0; dest != end; ++i, ++dest)
-			*dest = *_front[i];
-		return dest;
-	}
-	else
+	if (noncritical_.empty())
 	{
 		const std::vector<_TReal> referencePoint = CalculateUpperReferencePoint<_TReal>(front.begin(), front.end());
 		ContributionAssignment(front.begin(), front.end(), referencePoint, makeHypervolume_);
@@ -186,6 +173,21 @@ template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _
 			, [](_TPointer individual1, _TPointer individual2)->bool{return individual1->hvContribution_ > individual2->hvContribution_;}
 		);
 		assert(_front.size() >= std::distance(begin, end));
+		_TIterator dest = begin;
+		for (size_t i = 0; dest != end; ++i, ++dest)
+			*dest = *_front[i];
+		return dest;
+	}
+	else
+	{
+		auto population = noncritical_;
+		population.insert(population.end(), front.begin(), front.end());
+		for (auto i = front.begin(); i != front.end(); ++i)
+			(**i).dominatingPoints_ = otl::optimizer::spea2::RawFitness(i, population.begin(), population.end(), &_Dominate);
+		std::vector<_TPointer> _front(front.begin(), front.end());
+		std::partial_sort(_front.begin(), _front.begin() + std::distance(begin, end), _front.end()
+			, [](_TPointer individual1, _TPointer individual2)->bool{return individual1->dominatingPoints_ > individual2->dominatingPoints_;}
+		);
 		_TIterator dest = begin;
 		for (size_t i = 0; dest != end; ++i, ++dest)
 			*dest = *_front[i];
