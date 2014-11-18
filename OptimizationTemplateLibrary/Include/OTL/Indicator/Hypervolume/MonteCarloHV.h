@@ -55,6 +55,7 @@ public:
 	typedef otl::indicator::hypervolume::Hypervolume<TReal> TSuper;
 	typedef typename TSuper::TMetric TMetric;
 	typedef typename TSuper::TPoint TPoint;
+	typedef typename TSuper::TPointer TPointer;
 	typedef typename TSuper::TFront TFront;
 
 	MonteCarloHV(const TPoint &referencePoint, TRandom random, const size_t nSample);
@@ -133,14 +134,14 @@ template <typename _TReal, typename _TRandom>
 typename MonteCarloHV<_TReal, _TRandom>::TPoint MonteCarloHV<_TReal, _TRandom>::_CalculateLower(const TFront &front)
 {
 	assert(front.size() > 0);
-	TPoint lower(front[0].size());
+	TPoint lower(front[0]->size());
 	for (size_t dim = 0; dim < lower.size(); ++dim)
 	{
-		lower[dim] = front[0][dim];
+		lower[dim] = (*front[0])[dim];
 		for (size_t i = 1; i < front.size(); ++i)
 		{
-			if (front[i][dim] < lower[dim])
-				lower[dim] = front[i][dim];
+			if ((*front[i])[dim] < lower[dim])
+				lower[dim] = (*front[i])[dim];
 		}
 	}
 	return lower;
@@ -151,8 +152,8 @@ bool MonteCarloHV<_TReal, _TRandom>::_IsInside(const TPoint &point, const TFront
 {
 	for (size_t i = 0; i < front.size(); ++i)
 	{
-		assert(!otl::utility::relation::Dominate(TSuper::GetReferencePoint(), front[i]));
-		if (otl::utility::relation::Dominate(front[i], point))
+		assert(!otl::utility::relation::Dominate(TSuper::GetReferencePoint(), *front[i]));
+		if (otl::utility::relation::Dominate(*front[i], point))
 			return true;
 	}
 	return false;
@@ -161,11 +162,8 @@ bool MonteCarloHV<_TReal, _TRandom>::_IsInside(const TPoint &point, const TFront
 template <typename _TReal, typename _TRandom>
 bool MonteCarloHV<_TReal, _TRandom>::_IsNondominated(const TFront &front)
 {
-	typedef typename TFront::const_pointer _TConstPointer;
-	std::list<_TConstPointer> _front;
-	for (size_t i = 0; i < front.size(); ++i)
-		_front.push_back(&front[i]);
-	otl::utility::ExtractNondominate(_front, [](_TConstPointer pointer1, _TConstPointer pointer2)->bool{return otl::utility::relation::Dominate(*pointer1, *pointer2);});
+	std::list<TPointer> _front(front.begin(), front.end());
+	otl::utility::ExtractNondominate(_front, [](TPointer pointer1, TPointer pointer2)->bool{return otl::utility::relation::Dominate(*pointer1, *pointer2);});
 	return _front.empty();
 }
 }

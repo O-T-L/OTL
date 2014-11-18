@@ -49,16 +49,16 @@ public:
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
 
-	Epsilon(const TFront &front);
+	Epsilon(const std::vector<TPoint> &front);
 	virtual ~Epsilon(void);
-	const TFront &GetFront(void) const;
+	const std::vector<TPoint> &GetFront(void) const;
 
 private:
-	const TFront &front_;
+	const std::vector<TPoint> &front_;
 };
 
 template <typename _TReal>
-Epsilon<_TReal>::Epsilon(const TFront &front) : front_(front)
+Epsilon<_TReal>::Epsilon(const std::vector<TPoint> &front) : front_(front)
 {
 }
 
@@ -68,7 +68,7 @@ Epsilon<_TReal>::~Epsilon(void)
 }
 
 template <typename _TReal>
-const typename Epsilon<_TReal>::TFront &Epsilon<_TReal>::GetFront(void) const
+const std::vector<typename Epsilon<_TReal>::TPoint> &Epsilon<_TReal>::GetFront(void) const
 {
 	return front_;
 }

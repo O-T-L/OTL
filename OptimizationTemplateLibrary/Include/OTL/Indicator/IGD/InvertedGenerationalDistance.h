@@ -37,11 +37,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <numeric>
 #include <OTL/Indicator/Indicator.h>
-#include <OTL/Indicator/GD/Utility.h>
+#include "Utility.h"
 
 namespace otl
 {
 namespace indicator
+{
+namespace igd
 {
 template <typename _TReal>
 class InvertedGenerationalDistance : public Indicator<_TReal, _TReal>
@@ -53,19 +55,19 @@ public:
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
 
-	InvertedGenerationalDistance(const TFront &front);
+	InvertedGenerationalDistance(const std::vector<TPoint> &front);
 	virtual ~InvertedGenerationalDistance(void);
-	const TFront &GetFront(void) const;
+	const std::vector<TPoint> &GetFront(void) const;
 
 protected:
 	TMetric _DoEvaluate(const TFront &front);
 
 private:
-	const TFront &front_;
+	const std::vector<TPoint> &front_;
 };
 
 template <typename _TReal>
-InvertedGenerationalDistance<_TReal>::InvertedGenerationalDistance(const TFront &front) : front_(front)
+InvertedGenerationalDistance<_TReal>::InvertedGenerationalDistance(const std::vector<TPoint> &front) : front_(front)
 {
 }
 
@@ -75,7 +77,7 @@ InvertedGenerationalDistance<_TReal>::~InvertedGenerationalDistance(void)
 }
 
 template <typename _TReal>
-const typename InvertedGenerationalDistance<_TReal>::TFront &InvertedGenerationalDistance<_TReal>::GetFront(void) const
+const std::vector<typename InvertedGenerationalDistance<_TReal>::TPoint> &InvertedGenerationalDistance<_TReal>::GetFront(void) const
 {
 	return front_;
 }
@@ -86,8 +88,9 @@ typename InvertedGenerationalDistance<_TReal>::TMetric InvertedGenerationalDista
 	assert(!front_.empty());
 	TReal sum = 0;
 	for (size_t i = 0; i < front_.size(); ++i)
-		sum += otl::indicator::gd::Distance2Population(front_[i], front.begin(), front.end());
+		sum += Distance2Population(front_[i], front.begin(), front.end());
 	return sum / front_.size();
+}
 }
 }
 }

@@ -20,10 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <OTL/Indicator/Epsilon/AdditiveEpsilon.h>
-#include <OTL/Indicator/Epsilon/MultiplicativeEpsilon.h>
+#include <OTL/Indicator/GD/FrontGD.h>
+#include <OTL/Indicator/GD/DTLZ1GD.h>
+#include <OTL/Indicator/GD/DTLZ2GD.h>
+#include <OTL/Indicator/GD/WFG3GD.h>
+#include <OTL/Indicator/GD/WFG4GD.h>
 
-namespace epsilon
+namespace gd
 {
 template <typename _TReal>
 std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const size_t nPoints)
@@ -41,10 +44,10 @@ std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const 
 	return population;
 }
 
-BOOST_AUTO_TEST_CASE(AdditiveEpsilon)
+BOOST_AUTO_TEST_CASE(FrontGD)
 {
 	typedef double _TReal;
-	typedef otl::indicator::epsilon::AdditiveEpsilon<_TReal> _TIndicator;
+	typedef otl::indicator::gd::FrontGD<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const std::list<_TPoint> _pf = GenerateCirclePoints<_TReal>(1, 10000);
@@ -55,17 +58,51 @@ BOOST_AUTO_TEST_CASE(AdditiveEpsilon)
 	indicator(front);
 }
 
-BOOST_AUTO_TEST_CASE(MultiplicativeEpsilon)
+BOOST_AUTO_TEST_CASE(DTLZ1GD)
 {
 	typedef double _TReal;
-	typedef otl::indicator::epsilon::MultiplicativeEpsilon<_TReal> _TIndicator;
+	typedef otl::indicator::gd::DTLZ1GD<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	const std::list<_TPoint> _pf = GenerateCirclePoints<_TReal>(1, 10000);
-	const std::vector<_TPoint> pf(_pf.begin(), _pf.end());
-	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
+	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(4, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(pf);
+	_TIndicator indicator;
+	indicator(front);
+}
+
+BOOST_AUTO_TEST_CASE(DTLZ2GD)
+{
+	typedef double _TReal;
+	typedef otl::indicator::gd::DTLZ2GD<_TReal> _TIndicator;
+	typedef _TIndicator::TMetric _TMetric;
+	typedef _TIndicator::TPoint _TPoint;
+	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(4, 100);
+	const std::vector<_TPoint> front(_front.begin(), _front.end());
+	_TIndicator indicator;
+	indicator(front);
+}
+
+BOOST_AUTO_TEST_CASE(WFG3GD)
+{
+	typedef double _TReal;
+	typedef otl::indicator::gd::WFG3GD<_TReal> _TIndicator;
+	typedef _TIndicator::TMetric _TMetric;
+	typedef _TIndicator::TPoint _TPoint;
+	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(4, 100);
+	const std::vector<_TPoint> front(_front.begin(), _front.end());
+	_TIndicator indicator;
+	indicator(front);
+}
+
+BOOST_AUTO_TEST_CASE(WFG4GD)
+{
+	typedef double _TReal;
+	typedef otl::indicator::gd::WFG4GD<_TReal> _TIndicator;
+	typedef _TIndicator::TMetric _TMetric;
+	typedef _TIndicator::TPoint _TPoint;
+	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(4, 100);
+	const std::vector<_TPoint> front(_front.begin(), _front.end());
+	_TIndicator indicator;
 	indicator(front);
 }
 }

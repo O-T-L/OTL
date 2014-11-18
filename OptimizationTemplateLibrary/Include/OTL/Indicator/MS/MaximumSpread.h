@@ -29,21 +29,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <OTL/Indicator/MaximumSpread.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <cassert>
+#include <vector>
+#include <utility>
+#include <limits>
+#include <cmath>
+#include <OTL/Indicator/Indicator.h>
+#include "Utility.h"
 
 namespace otl
 {
 namespace indicator
 {
+namespace ms
+{
 /*!
- * \brief Calculate $MS1=\frac{\sqrt{\Sigma_{\imath=1}^{m}\left(f_{\imath}^{\max}-f_{\imath}^{\min}\right)^{2}}}{\sqrt{\Sigma_{\imath=1}^{m}\left(F_{\imath}^{\max}-F_{\imath}^{\min}\right)^{2}}}$
- * where $f_{\imath}^{\min}$ and $f_{\imath}^{\max}$ are the minimum and maximum of the ith objective in the evolved population,
- * respectively, $F_{\imath}^{\min}$ and $F_{\imath}^{\max}$ are the minimum and maximum of the ith objective in the true Pareto front.
+ * \brief Calculate $MS=\sqrt{\Sigma_{\imath=1}^{m}\left(f_{\imath}^{\max}-f_{\imath}^{\min}\right)^{2}}$
+ * where $f_{\imath}^{\min}$ and $f_{\imath}^{\max}$ are the minimum and maximum of the ith objective in the evolved population.
  * \param[in] _TReal The type of objective, must be a real number type
  */
 template <typename _TReal>
-class MaximumSpread1 : public Indicator<_TReal, _TReal>, public otl::utility::WithSpaceBoundary<_TReal>
+class MaximumSpread : public Indicator<_TReal, _TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -51,31 +57,29 @@ public:
 	typedef Indicator<TReal, TMetric> TSuper;
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
 
-	MaximumSpread1(const TBoundary &boundary);
-	~MaximumSpread1(void);
+	MaximumSpread(void);
+	~MaximumSpread(void);
 
 protected:
 	TMetric _DoEvaluate(const TFront &front);
 };
 
 template <typename _TReal>
-MaximumSpread1<_TReal>::MaximumSpread1(const TBoundary &boundary)
-	: otl::utility::WithSpaceBoundary<TReal>(boundary)
+MaximumSpread<_TReal>::MaximumSpread(void)
 {
 }
 
 template <typename _TReal>
-MaximumSpread1<_TReal>::~MaximumSpread1(void)
+MaximumSpread<_TReal>::~MaximumSpread(void)
 {
 }
 
 template <typename _TReal>
-typename MaximumSpread1<_TReal>::TMetric MaximumSpread1<_TReal>::_DoEvaluate(const TFront &front)
+typename MaximumSpread<_TReal>::TMetric MaximumSpread<_TReal>::_DoEvaluate(const TFront &front)
 {
-	return CalcMaximumSpread(CalcSpaceBoundary<TReal>(front.begin(), front.end())) / CalcMaximumSpread(this->GetBoundary());
+	return CalcMaximumSpread(CalcSpaceBoundary<TReal>(front.begin(), front.end()));
+}
 }
 }
 }

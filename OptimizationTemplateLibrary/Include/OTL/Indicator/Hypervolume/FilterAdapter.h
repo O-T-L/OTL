@@ -74,7 +74,7 @@ typename FilterAdapter<_THypervolume>::TMetric FilterAdapter<_THypervolume>::_Do
 	std::list<TConstPointer> _front;
 	for (size_t i = 0; i < front.size(); ++i)
 	{
-		if (IsValid(front[i]))
+		if (IsValid(*front[i]))
 			_front.push_back(&front[i]);
 	}
 	if (_front.empty())

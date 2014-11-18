@@ -79,7 +79,7 @@ typename GenerationalDistance<_TReal>::TMetric GenerationalDistance<_TReal>::_Do
 	TReal sum = 0;
 	for (size_t i = 0; i < front.size(); ++i)
 	{
-		const TReal distance = Distance2TruePF(front[i]);
+		const TReal distance = Distance2TruePF(*front[i]);
 		sum += distance * distance;
 	}
 	return sqrt(sum) / front.size();

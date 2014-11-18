@@ -66,12 +66,11 @@ BOOST_AUTO_TEST_CASE(RecursiveHVInput2)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	_TPoint point(2);
 	point[0] = 1;
 	point[1] = 1;
 	_TIndicator indicator(point);
-	_TFront front;
+	std::vector<_TPoint> front;
 	point[0] = 0.1;
 	point[1] = 0.9;
 	front.push_back(point);
@@ -90,13 +89,12 @@ BOOST_AUTO_TEST_CASE(RecursiveHVInput3)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	_TPoint point(3);
 	point[0] = 1;
 	point[1] = 1;
 	point[2] = 1;
 	_TIndicator indicator(point);
-	_TFront front;
+	std::vector<_TPoint> front;
 	// Z = 0.7
 	point[0] = 0.1;
 	point[1] = 0.9;
@@ -127,10 +125,9 @@ BOOST_AUTO_TEST_CASE(RecursiveHVCircle)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	const _TReal radius = 1;
 	const std::list<_TPoint> _points = GenerateCirclePoints(radius, 100);
-	const _TFront points(_points.begin(), _points.end());
+	const std::vector<_TPoint> points(_points.begin(), _points.end());
 	const _TReal _referencePoint = radius + 1;
 	const _TPoint referencePoint(points.front().size(), _referencePoint);
 	_TIndicator indicator(referencePoint);
@@ -143,7 +140,6 @@ BOOST_AUTO_TEST_CASE(RecursiveHVCircle2)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	const _TReal radius1 = 1;
 	const _TReal radius2 = 2;
 	std::list<_TPoint> points1 = GenerateCirclePoints(radius1, 100);
@@ -151,7 +147,7 @@ BOOST_AUTO_TEST_CASE(RecursiveHVCircle2)
 	std::list<_TPoint> _points;
 	_points.splice(_points.end(), points1, points1.begin());
 	_points.splice(_points.end(), points2, points2.begin());
-	const _TFront points(_points.begin(), _points.end());
+	const std::vector<_TPoint> points(_points.begin(), _points.end());
 	const _TReal _referencePoint = std::max(radius1, radius2) + 1;
 	const _TPoint referencePoint(points.front().size(), _referencePoint);
 	_TIndicator indicator(referencePoint);
@@ -164,10 +160,9 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat3)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	const size_t nObjectives = 3;
 	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 10));
-	const _TFront front(_front.begin(), _front.end());
+	const std::vector<_TPoint> front(_front.begin(), _front.end());
 	const _TPoint refPoint(front.front().size(), 2);
 	_TIndicator indicator(refPoint);
 	BOOST_CHECK_CLOSE(indicator(front), 7.7800000000000002, 0.00001);
@@ -179,7 +174,6 @@ BOOST_AUTO_TEST_CASE(RecursiveHVSphere3)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	const size_t nObjectives = 3;
 	const std::vector<_TPoint> front = GenerateSphere<_TReal>(nObjectives - 1, 10);
 	const _TPoint refPoint(front.front().size(), 2);
@@ -193,10 +187,9 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat4)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	const size_t nObjectives = 4;
 	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 5));
-	const _TFront front(_front.begin(), _front.end());
+	const std::vector<_TPoint> front(_front.begin(), _front.end());
 	const _TPoint refPoint(front.front().size(), 2);
 	_TIndicator indicator(refPoint);
 	BOOST_CHECK_CLOSE(indicator(front), 15.888000000000002, 0.00001);
@@ -208,10 +201,9 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat5)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	const size_t nObjectives = 5;
 	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 3));
-	const _TFront front(_front.begin(), _front.end());
+	const std::vector<_TPoint> front(_front.begin(), _front.end());
 	const _TPoint refPoint(front.front().size(), 2);
 	_TIndicator indicator(refPoint);
 	BOOST_CHECK_CLOSE(indicator(front), 31.913580246913583, 0.00001);
@@ -223,12 +215,11 @@ BOOST_AUTO_TEST_CASE(RecursiveHVSamePoints)
 	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	_TPoint point(3);
 	point[0] = 0.46291356661423427;
 	point[1] = 1.244693272766431;
 	point[2] = 1.9401231443048559;
-	const _TFront points(3, point);
+	const std::vector<_TPoint> points(3, point);
 	_TPoint referencePoint(point.size());
 	for (size_t i = 0; i < point.size(); ++i)
 		referencePoint[i] = point[i] + 1;

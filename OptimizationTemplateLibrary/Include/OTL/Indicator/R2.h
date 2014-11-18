@@ -49,10 +49,10 @@ public:
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
 
-	R2(const TPoint &referencePoint, const TFront &weightVectors);
+	R2(const TPoint &referencePoint, const std::vector<TPoint> &weightVectors);
 	virtual ~R2(void);
 	const TPoint &GetReferencePoint(void) const;
-	const TFront &GetWeightVectors(void) const;
+	const std::vector<TPoint> &GetWeightVectors(void) const;
 	TPoint ComputeDirection(const TPoint &point) const;
 
 protected:
@@ -61,11 +61,11 @@ protected:
 
 private:
 	TPoint referencePoint_;
-	TFront weightVectors_;
+	std::vector<TPoint> weightVectors_;
 };
 
 template <typename _TReal>
-R2<_TReal>::R2(const TPoint &referencePoint, const TFront &weightVectors)
+R2<_TReal>::R2(const TPoint &referencePoint, const std::vector<TPoint> &weightVectors)
 	: referencePoint_(referencePoint)
 	, weightVectors_(weightVectors)
 {
@@ -83,7 +83,7 @@ const typename R2<_TReal>::TPoint &R2<_TReal>::GetReferencePoint(void) const
 }
 
 template <typename _TReal>
-const typename R2<_TReal>::TFront &R2<_TReal>::GetWeightVectors(void) const
+const std::vector<typename R2<_TReal>::TPoint> &R2<_TReal>::GetWeightVectors(void) const
 {
 	return weightVectors_;
 }
@@ -115,10 +115,10 @@ template <typename _TReal>
 typename R2<_TReal>::TMetric R2<_TReal>::MinTchebycheff(const TFront &front, const TPoint &weight) const
 {
 	assert(!front.empty());
-	TMetric minTchebycheff = otl::utility::aggregation::Tchebycheff(weight, ComputeDirection(front[0]));
+	TMetric minTchebycheff = otl::utility::aggregation::Tchebycheff(weight, ComputeDirection(*front[0]));
 	for (size_t i = 1; i < front.size(); ++i)
 	{
-		const TMetric tchebycheff = otl::utility::aggregation::Tchebycheff(weight, ComputeDirection(front[i]));
+		const TMetric tchebycheff = otl::utility::aggregation::Tchebycheff(weight, ComputeDirection(*front[i]));
 		if (tchebycheff < minTchebycheff)
 			minTchebycheff = tchebycheff;
 	}

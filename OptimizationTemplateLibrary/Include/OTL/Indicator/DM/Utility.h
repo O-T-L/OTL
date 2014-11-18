@@ -27,22 +27,22 @@ namespace otl
 {
 namespace indicator
 {
-namespace gd
+namespace dm
 {
-template <typename _TReal, typename _TIterator>
-_TReal Distance2Population(const std::vector<_TReal> &objective, _TIterator begin, _TIterator end)
+template <typename _TReal>
+std::vector<std::pair<_TReal, _TReal> > ExpandHalfBox(const std::vector<std::pair<_TReal, _TReal> > &boundary, const std::vector<size_t> &division)
 {
-	_TReal minDistance = std::numeric_limits<_TReal>::max();
-	for (_TIterator i = begin; i != end; ++i)
+	assert(division.size() == boundary.size());
+	std::vector<std::pair<_TReal, _TReal> > expandedBoundary(boundary.size());
+	for (size_t i = 0; i < boundary.size(); ++i)
 	{
-		auto &point = *i;
-		assert(point.size() == objective.size());
-		const _TReal distance = sqrt(std::inner_product(objective.begin(), objective.end(), point.begin(), (_TReal)0, std::plus<_TReal>()
-			, [](_TReal x, _TReal y)->_TReal{_TReal t = x - y; return t * t;}));
-		if (distance < minDistance)
-			minDistance = distance;
+		assert(division[i] > 0);
+		assert(boundary[i].first <= boundary[i].second);
+		const _TReal move = (boundary[i].second - boundary[i].first) / division[i] / 2;
+		expandedBoundary[i].first = boundary[i].first - move;
+		expandedBoundary[i].second = boundary[i].second + move;
 	}
-	return minDistance;
+	return expandedBoundary;
 }
 }
 }
