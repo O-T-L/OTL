@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/floating_point_comparison.hpp>
 #include <OTL/Problem/TSP/MOTSP.h>
 
+namespace motsp
+{
 template <typename _TReal>
 void FillMatrix(boost::numeric::ublas::symmetric_matrix<_TReal> &matrix, const size_t cities, const size_t index)
 {
@@ -69,4 +71,5 @@ BOOST_AUTO_TEST_CASE(Correlate_Matrix)
 			}
 		}
 	}
+}
 }

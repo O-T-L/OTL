@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/NSGA-II/NSGA-II.h>
 
+namespace wfg
+{
 BOOST_AUTO_TEST_CASE(WFG1)
 {
 	typedef std::mt19937 _TRandom;
@@ -267,4 +269,5 @@ BOOST_AUTO_TEST_CASE(WFG9)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }

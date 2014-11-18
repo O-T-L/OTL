@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/NSGA-II/NSGA-II.h>
 
+namespace adapter
+{
 BOOST_AUTO_TEST_CASE(CoupleCoupleCrossover)
 {
 	typedef std::mt19937 _TRandom;
@@ -87,4 +89,5 @@ BOOST_AUTO_TEST_CASE(XTripleCrossover)
 			BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 		}
 	}
+}
 }

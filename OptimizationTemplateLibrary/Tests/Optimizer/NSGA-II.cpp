@@ -44,6 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/NSGA-II/NSGA-II.h>
 #include <OTL/Optimizer/NSGA-II/ConstrainedNSGA-II.h>
 
+namespace nsga_ii
+{
 template <typename _TRandom, typename _TReal>
 std::vector<_TReal> GenerateCity(_TRandom &random, const std::vector<std::pair<_TReal, _TReal> > &boundary)
 {
@@ -302,4 +304,5 @@ BOOST_AUTO_TEST_CASE(ConstrainedNSGA_II_Bitset)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }

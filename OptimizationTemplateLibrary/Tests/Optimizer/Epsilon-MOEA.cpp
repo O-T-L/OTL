@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/Epsilon-MOEA/CoupleCouple/Epsilon-MOEA.h>
 
+namespace epsilon_moea
+{
 BOOST_AUTO_TEST_CASE(CoupleCoupleEpsilon_MOEA)
 {
 	typedef std::mt19937 _TRandom;
@@ -51,4 +53,5 @@ BOOST_AUTO_TEST_CASE(CoupleCoupleEpsilon_MOEA)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), initial.size() + 2 * generation);
 	}
+}
 }

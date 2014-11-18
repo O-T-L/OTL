@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/floating_point_comparison.hpp>
 #include <OTL/Crossover/SimulatedBinaryCrossover.h>
 
+namespace sbx
+{
 template <typename _TRandom, typename _TReal>
 std::vector<_TReal> GeneratePoint(_TRandom &random, const std::vector<std::pair<_TReal, _TReal> > &boundary)
 {
@@ -58,4 +60,5 @@ BOOST_AUTO_TEST_CASE(SBX)
 		for (size_t i = 0; i < middle.size(); ++i)
 			BOOST_CHECK_CLOSE(middle[i], (parent1.decision_[i] + parent2.decision_[i]) / 2, 0.001);
 	}
+}
 }

@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/HypE/HypE.h>
 
+namespace hype
+{
 template <typename _TReal>
 std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const size_t nPoints)
 {
@@ -105,4 +107,5 @@ BOOST_AUTO_TEST_CASE(HypE)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }

@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/AR+DMO/AR+DMO.h>
 
+namespace ar_dmo
+{
 BOOST_AUTO_TEST_CASE(AR_DMO)
 {
 	typedef std::mt19937 _TRandom;
@@ -57,4 +59,5 @@ BOOST_AUTO_TEST_CASE(AR_DMO)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }
