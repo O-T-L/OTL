@@ -28,15 +28,15 @@ namespace optimizer
 namespace sms_emoa
 {
 template <typename _TReal, typename _TIterator>
-std::vector<std::vector<_TReal> > MakeFront(_TIterator begin, _TIterator end)
+std::vector<const std::vector<_TReal> *> MakeFront(_TIterator begin, _TIterator end)
 {
 	typedef std::vector<_TReal> _TPoint;
-	typedef std::vector<_TPoint> _TFront;
+	typedef std::vector<const _TPoint *> _TFront;
 	_TFront front(std::distance(begin, end));
 	_TIterator src = begin;
 	for (size_t i = 0; i < front.size(); ++i)
 	{
-		front[i] = (**src).objective_;
+		front[i] = &(**src).objective_;
 		++src;
 	}
 	return front;
@@ -53,11 +53,11 @@ void ContributionAssignment(_TIterator begin, _TIterator end, const std::vector<
 	for (size_t i = 0; i < front.size(); ++i)
 	{
 		assert(individual != end);
-		assert(front[i] == (**individual).objective_);
+		assert(front[i] == &(**individual).objective_);
 		front[i] = front[(i + 1) % front.size()];
 		const auto removedHV = hypervolume(front);
 		(**individual).hvContribution_ = totalHV - removedHV;
-		front[i] = (**individual).objective_;
+		front[i] = &(**individual).objective_;
 		++individual;
 	}
 }
