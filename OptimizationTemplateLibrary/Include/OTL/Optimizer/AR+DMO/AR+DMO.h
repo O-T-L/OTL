@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include <OTL/Optimizer/AR/AverageRanking.h>
 #include <OTL/Optimizer/NSGA-II/CrowdingDistanceAssignment.h>
-#include <OTL/Indicator/MaximumSpread1.h>
+#include <OTL/Indicator/MS/MaximumSpread1.h>
 #include "Individual.h"
 
 namespace otl
@@ -65,7 +65,7 @@ public:
 	typedef typename TSuper::TProblem TProblem;
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
-	typedef otl::indicator::MaximumSpread1<TReal> TMaximumSpread;
+	typedef otl::indicator::ms::MaximumSpread1<TReal> TMaximumSpread;
 	typedef typename TMaximumSpread::TFront TFront;
 	typedef typename TMaximumSpread::TMinMax TMinMax;
 	typedef typename TMaximumSpread::TBoundary TBoundary;
