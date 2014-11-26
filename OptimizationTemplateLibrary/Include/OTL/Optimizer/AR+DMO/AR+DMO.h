@@ -82,7 +82,7 @@ protected:
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end, const bool randomSelection);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 	template <typename _TPointer> _TPointer _RandomPop(std::list<_TPointer> &front, const size_t size);
-	bool _ShouldRandomSelect(void);
+	template <typename _TIterator> bool _ShouldRandomSelect(_TIterator begin, _TIterator end);
 
 private:
 	TMaximumSpread maximumSpread_;
@@ -154,7 +154,7 @@ void AR_DMO<_TReal, _TDecision, _TRandom>::_DoStep(void)
 	TSolutionSet ancestor = TSuper::solutionSet_;
 	TSolutionSet offspring = MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
-	const bool randomSelection = _ShouldRandomSelect();
+	const bool randomSelection = _ShouldRandomSelect(TSuper::solutionSet_.begin(), TSuper::solutionSet_.end());
 	std::list<_TPointer> mix;
 	for (size_t i = 0; i < ancestor.size(); ++i)
 		mix.push_back(&ancestor[i]);
@@ -237,11 +237,15 @@ template <typename _TPointer> _TPointer AR_DMO<_TReal, _TDecision, _TRandom>::_R
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-bool AR_DMO<_TReal, _TDecision, _TRandom>::_ShouldRandomSelect(void)
+template <typename _TIterator> bool AR_DMO<_TReal, _TDecision, _TRandom>::_ShouldRandomSelect(_TIterator begin, _TIterator end)
 {
-	TFront front(TSuper::solutionSet_.size());
-	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
-		front[i] = TSuper::solutionSet_[i].objective_;
+	TFront front(std::distance(begin, end));
+	size_t index = 0;
+	for (_TIterator i = begin; i != end; ++i)
+	{
+		front[index] = &i->objective_;
+		++index;
+	}
 	return maximumSpread_(front) > 1;
 }
 }
