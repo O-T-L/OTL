@@ -21,9 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <OTL/Indicator/GD/FrontGD.h>
-#include <OTL/Indicator/GD/DTLZ1GD.h>
 #include <OTL/Indicator/GD/DTLZ2GD.h>
-#include <OTL/Indicator/GD/WFG3GD.h>
 #include <OTL/Indicator/GD/WFG4GD.h>
 
 namespace gd
@@ -58,34 +56,10 @@ BOOST_AUTO_TEST_CASE(FrontGD)
 	indicator(front);
 }
 
-BOOST_AUTO_TEST_CASE(DTLZ1GD)
-{
-	typedef double _TReal;
-	typedef otl::indicator::gd::DTLZ1GD<_TReal> _TIndicator;
-	typedef _TIndicator::TMetric _TMetric;
-	typedef _TIndicator::TPoint _TPoint;
-	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(4, 100);
-	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator;
-	indicator(front);
-}
-
 BOOST_AUTO_TEST_CASE(DTLZ2GD)
 {
 	typedef double _TReal;
 	typedef otl::indicator::gd::DTLZ2GD<_TReal> _TIndicator;
-	typedef _TIndicator::TMetric _TMetric;
-	typedef _TIndicator::TPoint _TPoint;
-	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(4, 100);
-	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator;
-	indicator(front);
-}
-
-BOOST_AUTO_TEST_CASE(WFG3GD)
-{
-	typedef double _TReal;
-	typedef otl::indicator::gd::WFG3GD<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(4, 100);
