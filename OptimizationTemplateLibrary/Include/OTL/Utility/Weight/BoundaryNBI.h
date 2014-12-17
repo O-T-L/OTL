@@ -27,6 +27,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   number = {3},
   doi = {10.1137/S1052623496307510}
 }
+
+@Article{,
+  Title                    = {An Evolutionary Many-Objective Optimization Algorithm Using Reference-point Based Non-dominated Sorting Approach, Part {I}: Solving Problems with Box Constraints},
+  Author                   = {Kalyanmoy Deb and Himanshu Jain},
+  Journal                  = {IEEE Transactions on Evolutionary Computation},
+  Year                     = {2014},
+  Month                    = {16 September},
+  Number                   = {4},
+  Pages                    = {577-601},
+  Volume                   = {18},
+  Doi                      = {10.1109/TEVC.2013.2281535}
+}
 */
 
 #pragma once
