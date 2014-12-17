@@ -54,7 +54,7 @@ bool IsBoundary(const std::vector<_TReal> &point)
 }
 
 template <typename _TReal>
-void _BoundaryNormalBoundaryIntersection(const size_t component, const std::vector<size_t> &division, std::vector<_TReal> &point, std::list<std::vector<_TReal> > &points)
+void _BoundaryNBI(const size_t component, const std::vector<size_t> &division, std::vector<_TReal> &point, std::list<std::vector<_TReal> > &points)
 {
 	assert(0 <= component && component < point.size());
 	if (component == point.size() - 1)
@@ -72,18 +72,18 @@ void _BoundaryNormalBoundaryIntersection(const size_t component, const std::vect
 			point[component] = (_TReal)i / _division;
 			if (std::accumulate(point.begin(), point.begin() + component + 1, (_TReal)0) > 1)
 				break;
-			_BoundaryNormalBoundaryIntersection(component + 1, division, point, points);
+			_BoundaryNBI(component + 1, division, point, points);
 		}
 	}
 }
 
 template <typename _TReal>
-std::list<std::vector<_TReal> > BoundaryNormalBoundaryIntersection(const std::vector<size_t> &division)
+std::list<std::vector<_TReal> > BoundaryNBI(const std::vector<size_t> &division)
 {
 	assert(division.size() > 0);
 	std::list<std::vector<_TReal> > points;
 	std::vector<_TReal> point(division.size() + 1);
-	_BoundaryNormalBoundaryIntersection(0, division, point, points);
+	_BoundaryNBI(0, division, point, points);
 	return points;
 }
 }
