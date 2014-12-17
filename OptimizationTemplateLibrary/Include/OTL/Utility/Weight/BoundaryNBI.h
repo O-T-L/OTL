@@ -66,7 +66,7 @@ bool IsBoundary(const std::vector<_TReal> &point)
 }
 
 template <typename _TReal>
-void _BoundaryNBI(const size_t component, const std::vector<size_t> &division, std::vector<_TReal> &point, std::list<std::vector<_TReal> > &points)
+void _BoundaryNBI(const size_t component, const size_t division, std::vector<_TReal> &point, std::list<std::vector<_TReal> > &points)
 {
 	assert(0 <= component && component < point.size());
 	if (component == point.size() - 1)
@@ -77,11 +77,10 @@ void _BoundaryNBI(const size_t component, const std::vector<size_t> &division, s
 	}
 	else
 	{
-		const size_t _division = division[component];
-		assert(_division > 1);
-		for (size_t i = 0; i <= _division; ++i)
+		assert(division > 1);
+		for (size_t i = 0; i <= division; ++i)
 		{
-			point[component] = (_TReal)i / _division;
+			point[component] = (_TReal)i / division;
 			if (std::accumulate(point.begin(), point.begin() + component + 1, (_TReal)0) > 1)
 				break;
 			_BoundaryNBI(component + 1, division, point, points);
@@ -90,11 +89,11 @@ void _BoundaryNBI(const size_t component, const std::vector<size_t> &division, s
 }
 
 template <typename _TReal>
-std::list<std::vector<_TReal> > BoundaryNBI(const std::vector<size_t> &division)
+std::list<std::vector<_TReal> > BoundaryNBI(const size_t dimension, const size_t division)
 {
-	assert(division.size() > 0);
+	assert(dimension > 1);
 	std::list<std::vector<_TReal> > points;
-	std::vector<_TReal> point(division.size() + 1);
+	std::vector<_TReal> point(dimension);
 	_BoundaryNBI(0, division, point, points);
 	return points;
 }

@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(NBI)
 	{
 		for (size_t division = 3; division < 6; ++division)
 		{
-			auto points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(dimension - 1, division));
+			auto points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(dimension, division);
 			BOOST_CHECK_EQUAL(points.size(), nCr<std::uintmax_t>(dimension + division - 1, division));
 		}
 	}
