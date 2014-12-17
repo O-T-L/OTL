@@ -43,7 +43,7 @@ namespace utility
 namespace weight
 {
 template <typename _TReal>
-void RecursiveGeneratePoint(const size_t component, const std::vector<size_t> &division, std::vector<_TReal> &point, std::list<std::vector<_TReal> > &points)
+void _NormalBoundaryIntersection(const size_t component, const std::vector<size_t> &division, std::vector<_TReal> &point, std::list<std::vector<_TReal> > &points)
 {
 	assert(0 <= component && component < point.size());
 	if (component == point.size() - 1)
@@ -60,7 +60,7 @@ void RecursiveGeneratePoint(const size_t component, const std::vector<size_t> &d
 			point[component] = (_TReal)i / _division;
 			if (std::accumulate(point.begin(), point.begin() + component + 1, (_TReal)0) > 1)
 				break;
-			RecursiveGeneratePoint(component + 1, division, point, points);
+			_NormalBoundaryIntersection(component + 1, division, point, points);
 		}
 	}
 }
@@ -71,7 +71,7 @@ std::list<std::vector<_TReal> > NormalBoundaryIntersection(const std::vector<siz
 	assert(division.size() > 0);
 	std::list<std::vector<_TReal> > points;
 	std::vector<_TReal> point(division.size() + 1);
-	RecursiveGeneratePoint(0, division, point, points);
+	_NormalBoundaryIntersection(0, division, point, points);
 	return points;
 }
 }
