@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <limits>
+#include <list>
 
 namespace otl
 {
@@ -78,7 +78,7 @@ typename FilterAdapter<_THypervolume>::TMetric FilterAdapter<_THypervolume>::_Do
 			_front.push_back(&front[i]);
 	}
 	if (_front.empty())
-		return std::numeric_limits<TMetric>::infinity();
+		return 0;
 	else
 	{
 		TFront front(_front.size());
