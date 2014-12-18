@@ -45,7 +45,7 @@ template <typename _TReal>
 std::vector<std::vector<_TReal> > GenerateSphere(const size_t dimension, const size_t count)
 {
 	typedef std::vector<_TReal> _TPoint;
-	const std::list<_TPoint> decisions = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(dimension - 2, count));
+	const std::list<_TPoint> decisions = otl::utility::weight::NormalBoundaryIntersection<_TReal>(dimension - 1, count);
 	std::vector<_TPoint> points(decisions.size());
 	typename std::list<_TPoint>::const_iterator src = decisions.begin();
 	for (size_t i = 0; i < points.size(); ++i)
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat3)
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const size_t nObjectives = 3;
-	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 10));
+	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 10);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
 	const _TPoint refPoint(front.front().size(), 2);
 	_TIndicator indicator(refPoint);
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat4)
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const size_t nObjectives = 4;
-	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 5));
+	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 5);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
 	const _TPoint refPoint(front.front().size(), 2);
 	_TIndicator indicator(refPoint);
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat5)
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const size_t nObjectives = 5;
-	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(nObjectives - 1, 3));
+	const std::list<_TPoint> _front = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 3);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
 	const _TPoint refPoint(front.front().size(), 2);
 	_TIndicator indicator(refPoint);

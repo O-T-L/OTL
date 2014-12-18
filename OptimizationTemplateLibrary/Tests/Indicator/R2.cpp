@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(R2)
 	typedef otl::indicator::R2<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(std::vector<size_t>(1, 50));
+	auto _weightVectors = otl::utility::weight::NormalBoundaryIntersection<_TReal>(2, 50);
 	std::vector<_TPoint> weightVectors(_weightVectors.begin(), _weightVectors.end());
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
