@@ -143,10 +143,11 @@ void SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_Reduce(TSolutio
 	std::list<_TPointer> _population;
 	for (size_t i = 0; i < population.size(); ++i)
 		_population.push_back(&population[i]);
+	const std::list<_TPointer> pop = _population;
 	multiLayer_ = false;
 	otl::selection::NondominateSelection(_population, solutionSet.begin(), solutionSet.end(), &_Dominate
 		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectNoncritical(front, begin, end);}
-		, [this, &_population](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectCritical(_population, front, begin, end);}
+		, [this, &pop](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectCritical(pop, front, begin, end);}
 	);
 }
 
