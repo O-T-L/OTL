@@ -45,6 +45,21 @@ std::vector<_TReal> ComputeIdealPoint(_TIterator begin, _TIterator end)
 	return idealPoint;
 }
 
+template <typename _TReal, typename _TIterator>
+void ShiftPopulation(const std::vector<_TReal> &idealPoint, _TIterator begin, _TIterator end)
+{
+	for (_TIterator individual = begin; individual != end; ++individual)
+	{
+		auto &_individual = **individual;
+		_individual.translatedObjective_.resize(idealPoint.size());
+		for (size_t i = 0; i < idealPoint.size(); ++i)
+		{
+			assert(idealPoint[i] <= _individual.objective_[i]);
+			_individual.translatedObjective_[i] = _individual.objective_[i] - idealPoint[i];
+		}
+	}
+}
+
 template <typename _TReal>
 _TReal ASF(const size_t axis, const _TReal epsilon, const std::vector<_TReal> &objective)
 {
@@ -62,11 +77,11 @@ template <typename _TReal, typename _TIterator>
 _TIterator LocateExtremeIndividual(const size_t axis, const _TReal epsilon, _TIterator begin, _TIterator end)
 {
 	assert(begin != end);
-	_TReal minASF = ASF(axis, epsilon, (**begin).objective_);
+	_TReal minASF = ASF(axis, epsilon, (**begin).translatedObjective_);
 	_TIterator extremeIndividual = begin;
 	for (_TIterator i = ++_TIterator(begin); i != end; ++i)
 	{
-		const _TReal asf = ASF(axis, epsilon, (**i).objective_);
+		const _TReal asf = ASF(axis, epsilon, (**i).translatedObjective_);
 		if (asf < minASF)
 		{
 			minASF = asf;
@@ -86,7 +101,7 @@ boost::numeric::ublas::matrix<_TReal> ComputeExtremePoints(_TIterator begin, _TI
 		auto extremeIndividual = LocateExtremeIndividual(row, epsilon, begin, end);
 		boost::numeric::ublas::matrix_row<_TMatrix> extremePoint(extremePoints, row);
 		for (size_t col = 0; col < extremePoint.size(); ++col)
-			extremePoint(col) = (**extremeIndividual).objective_[col];
+			extremePoint(col) = (**extremeIndividual).translatedObjective_[col];
 	}
 	return extremePoints;
 }
@@ -138,10 +153,8 @@ void NormalizePopulation(const std::vector<_TReal> &idealPoint, const std::vecto
 		_intercepts[i] = intercepts[i] - idealPoint[i];
 	for (_TIterator i = begin; i != end; ++i)
 	{
-		auto &individual = **i;
-		individual.translatedObjective_.resize(individual.objective_.size());
 		for (size_t j = 0; j < intercepts.size(); ++j)
-			individual.translatedObjective_[j] = (individual.objective_[j] - idealPoint[j]) / _intercepts[j];
+			(**i).translatedObjective_[j] /= _intercepts[j];
 	}
 }
 
@@ -149,6 +162,7 @@ template <typename _TIterator, typename _TReal>
 void Normalize(_TIterator begin, _TIterator end, const _TReal epsilon)
 {
 	const std::vector<_TReal> idealPoint = ComputeIdealPoint<_TReal>(begin, end);
+	ShiftPopulation(idealPoint, begin, end);
 	auto extremePoints = ComputeExtremePoints(begin, end, epsilon, idealPoint);
 	const auto intercepts = ComputeIntercept<_TReal>(extremePoints);
 	NormalizePopulation(idealPoint, intercepts, begin, end);
