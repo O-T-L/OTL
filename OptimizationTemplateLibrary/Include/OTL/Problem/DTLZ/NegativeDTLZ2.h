@@ -39,6 +39,7 @@ public:
 
 	NegativeDTLZ2(const size_t nObjectives, const size_t distDecisions = 10);
 	~NegativeDTLZ2(void);
+	TReal GetMaxDistance(void) const;
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
@@ -59,6 +60,12 @@ NegativeDTLZ2<_TReal>::NegativeDTLZ2(const size_t nObjectives, const size_t dist
 template <typename _TReal>
 NegativeDTLZ2<_TReal>::~NegativeDTLZ2(void)
 {
+}
+
+template <typename _TReal>
+_TReal NegativeDTLZ2<_TReal>::GetMaxDistance(void) const
+{
+	return maxDistance_;
 }
 
 template <typename _TReal>
