@@ -30,7 +30,7 @@ std::list<std::vector<_TReal> > NBI2(const size_t dimension, const size_t divisi
 {
 	auto points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(dimension, divisionBoundary);
 	auto inside = otl::utility::weight::NormalBoundaryIntersection<_TReal>(dimension, divisionInside);
-	const _TReal center = 1. / dimension;
+	const _TReal center = (_TReal)1 / dimension;
 	for (auto _point = inside.begin(); _point != inside.end(); ++_point)
 	{
 		auto &point = *_point;
