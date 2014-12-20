@@ -63,6 +63,8 @@ public:
 	Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const std::vector<TReal> &objectiveLower, const std::vector<TReal> &epsilon);
 	~Epsilon_MOEA(void);
 	const std::vector<TReal> &GetEpsilon(void) const;
+	void Update(TIndividual &individual) const;
+	void Update(const std::vector<TReal> &objective, std::vector<size_t> &epslionPoint) const;
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 	static bool EpslionDominate(const TIndividual &individual1, const TIndividual &individual2);
 
@@ -70,8 +72,6 @@ protected:
 	TPopulation population_;
 
 	static bool _Dominate(const TIndividual *individual1, const TIndividual *individual2);
-	void _CalcEpsilonPoint(TIndividual &individual) const;
-	void _CalcEpsilonPoint(const std::vector<TReal> &objective, std::vector<size_t> &epslionPoint) const;
 	const TIndividual &_ArchiveSelection(const TSolutionSet &archive);
 	template <typename _TIterator> _TIterator _RandLocate(_TIterator begin, _TIterator end);
 	const TIndividual &_PopulationSelection(const TPopulation &population);
@@ -100,7 +100,7 @@ Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Epsilon_MOEA(TRandom random, TProble
 	{
 		population_[i].decision_ = initial[i];
 		TSuper::GetProblem()(population_[i]);
-		_CalcEpsilonPoint(population_[i]);
+		Update(population_[i]);
 	}
 	typedef typename TPopulation::pointer _TPointer;
 	std::list<_TPointer> population;
@@ -123,6 +123,25 @@ const std::vector<typename Epsilon_MOEA<_TReal, _TDecision, _TRandom>::TReal> &E
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
+void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Update(TIndividual &individual) const
+{
+	Update(individual.objective_, individual.point_);
+}
+
+template <typename _TReal, typename _TDecision, typename _TRandom>
+void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Update(const std::vector<TReal> &objective, std::vector<size_t> &epslionPoint) const
+{
+	assert(objective.size() == epsilon_.size());
+	assert(objectiveLower_.size() == epsilon_.size());
+	epslionPoint.resize(objective.size());
+	for (size_t i = 0; i < objective.size(); ++i)
+	{
+		assert(objectiveLower_[i] <= objective[i]);
+		epslionPoint[i] = (size_t)floor((objective[i] - objectiveLower_[i]) / epsilon_[i]);
+	}
+}
+
+template <typename _TReal, typename _TDecision, typename _TRandom>
 bool Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Dominate(const TIndividual &individual1, const TIndividual &individual2)
 {
 	return otl::utility::relation::Dominate(individual1.objective_, individual2.objective_);
@@ -138,25 +157,6 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 bool Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_Dominate(const TIndividual *individual1, const TIndividual *individual2)
 {
 	return Dominate(*individual1, *individual2);
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
-void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_CalcEpsilonPoint(TIndividual &individual) const
-{
-	_CalcEpsilonPoint(individual.objective_, individual.point_);
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
-void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_CalcEpsilonPoint(const std::vector<TReal> &objective, std::vector<size_t> &epslionPoint) const
-{
-	assert(objective.size() == epsilon_.size());
-	assert(objectiveLower_.size() == epsilon_.size());
-	epslionPoint.resize(objective.size());
-	for (size_t i = 0; i < objective.size(); ++i)
-	{
-		assert(objectiveLower_[i] <= objective[i]);
-		epslionPoint[i] = (size_t)floor((objective[i] - objectiveLower_[i]) / epsilon_[i]);
-	}
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -224,18 +224,19 @@ bool Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_SameGridCompare(const TIndivid
 		return false;
 	else
 	{
-		assert(individual1.objective_.size() == individual1.point_.size());
-		assert(individual2.objective_.size() == individual2.point_.size());
 		assert(individual1.objective_.size() == individual2.objective_.size());
 		assert(individual1.objective_.size() == epsilon_.size());
+		assert(objectiveLower_.size() == epsilon_.size());
+		assert(individual1.objective_.size() == individual1.point_.size());
+		assert(individual2.objective_.size() == individual2.point_.size());
 		TReal delta1 = 0;
 		TReal delta2 = 0;
 		for (size_t i = 0; i < individual1.objective_.size(); ++i)
 		{
 			TReal temp;
-			temp = (individual1.objective_[i] - individual1.point_[i]) / epsilon_[i];
+			temp = (individual1.objective_[i] - objectiveLower_[i] - individual1.point_[i]) / epsilon_[i];
 			delta1 += temp * temp;
-			temp = (individual2.objective_[i] - individual2.point_[i]) / epsilon_[i];
+			temp = (individual2.objective_[i] - objectiveLower_[i] - individual2.point_[i]) / epsilon_[i];
 			delta2 += temp * temp;
 		}
 		return delta1 < delta2;
