@@ -26,6 +26,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   publisher = {Springer},
   doi = {10.1007/978-3-642-01020-0_11}
 }
+
+@Conference{,
+  Title                    = {Enhancing Diversity for Average Ranking Method in Evolutionary Many-Objective Optimization},
+  Author                   = {Miqing Li and Jinhua Zheng and Ke Li and Qizhao Yuan and Ruimin Shen},
+  Booktitle                = {Parallel Problem Solving from Nature},
+  Year                     = {2010},
+  Month                    = {September 11-15},
+  Pages                    = {647-656},
+  Publisher                = {Springer},
+  Doi                      = {10.1007/978-3-642-15844-5_65}
+}
 */
 
 #pragma once
