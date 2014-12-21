@@ -227,12 +227,11 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer> _TPointer AR_DMO<_TReal, _TDecision, _TRandom>::_RandomPop(std::list<_TPointer> &front, const size_t size)
 {
 	assert(front.size() == size);
-	const size_t end = std::uniform_int_distribution<size_t>(1, size)(this->GetRandom());
-	auto individualIter = front.begin();
+	auto i = front.begin();
 	for (size_t count = std::uniform_int_distribution<size_t>(0, size - 1)(this->GetRandom()); count; --count)
-		++individualIter;
-	_TPointer individual = *individualIter;
-	front.erase(individualIter);
+		++i;
+	_TPointer individual = *i;
+	front.erase(i);
 	return individual;
 }
 
