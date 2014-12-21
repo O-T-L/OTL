@@ -27,6 +27,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   publisher = {Springer},
   doi = {10.1007/978-3-540-70928-2_56},
 }
+
+@Conference{,
+  Title                    = {Enhancing Diversity for Average Ranking Method in Evolutionary Many-Objective Optimization},
+  Author                   = {Miqing Li and Jinhua Zheng and Ke Li and Qizhao Yuan and Ruimin Shen},
+  Booktitle                = {Parallel Problem Solving from Nature},
+  Year                     = {2010},
+  Month                    = {September 11-15},
+  Pages                    = {647-656},
+  Publisher                = {Springer},
+  Doi                      = {10.1007/978-3-642-15844-5_65}
+}
 */
 
 #pragma once
@@ -188,6 +199,12 @@ const typename AR_CD_<_TReal, _TDecision, _TRandom>::TIndividual *AR_CD_<_TReal,
 	if (Dominate(*competition[0], *competition[1]))
 		return competition[0];
 	else if (Dominate(*competition[1], *competition[0]))
+		return competition[1];
+	assert(competition[0]->averageRank_ != -1);
+	assert(competition[1]->averageRank_ != -1);
+	if (competition[0]->averageRank_ < competition[1]->averageRank_)
+		return competition[0];
+	else if (competition[1]->averageRank_ < competition[0]->averageRank_)
 		return competition[1];
 	assert(competition[0]->crowdingDistance_ >= 0);
 	assert(competition[1]->crowdingDistance_ >= 0);
