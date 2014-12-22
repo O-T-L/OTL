@@ -17,28 +17,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <OTL/Utility/Relation/Pareto.h>
+#include <cassert>
+#include <vector>
+#include <cmath>
+#include <limits>
+#include <numeric>
 
 namespace otl
 {
 namespace indicator
 {
-namespace hypervolume
+namespace dm
 {
 template <typename _TReal>
-bool Dominate(const std::vector<_TReal> &point1, const std::vector<_TReal> &point2, const size_t dimension)
+std::vector<std::pair<_TReal, _TReal> > ExpandHalfBox(const std::vector<std::pair<_TReal, _TReal> > &boundary, const std::vector<size_t> &division)
 {
-	assert(dimension <= point1.size());
-	assert(point1.size() == point2.size());
-	bool existBetter = false;
-	for (size_t i = 0; i < dimension; ++i)
+	assert(division.size() == boundary.size());
+	std::vector<std::pair<_TReal, _TReal> > expandedBoundary(boundary.size());
+	for (size_t i = 0; i < boundary.size(); ++i)
 	{
-		if (point2[i] < point1[i])
-			return false;
-		if (point1[i] < point2[i])
-			existBetter = true;
+		assert(division[i] > 0);
+		assert(boundary[i].first <= boundary[i].second);
+		const _TReal move = (boundary[i].second - boundary[i].first) / division[i] / 2;
+		expandedBoundary[i].first = boundary[i].first - move;
+		expandedBoundary[i].second = boundary[i].second + move;
 	}
-	return existBetter;
+	return expandedBoundary;
 }
 }
 }

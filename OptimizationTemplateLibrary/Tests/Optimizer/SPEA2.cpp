@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/SPEA2/SPEA2.h>
 
+namespace spea2
+{
 BOOST_AUTO_TEST_CASE(SPEA2)
 {
 	typedef std::mt19937 _TRandom;
@@ -51,4 +53,5 @@ BOOST_AUTO_TEST_CASE(SPEA2)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }

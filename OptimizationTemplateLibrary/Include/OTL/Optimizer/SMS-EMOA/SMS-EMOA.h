@@ -75,11 +75,11 @@ protected:
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 	void _Reduce(TSolutionSet &population, TSolutionSet &solutionSet);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
-	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end) const;
+	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(const std::list<_TPointer> &population, std::list<_TPointer> &front, _TIterator begin, _TIterator end) const;
 
 private:
 	_TMakeHypervolume makeHypervolume_;
-	size_t nondominateRank_;
+	bool multiLayer_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom, typename _TMakeHypervolume>
@@ -89,7 +89,7 @@ SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::SMS_EMOA(TRandom rand
 	, makeHypervolume_(makeHypervolume)
 {
 #ifndef NDEBUG
-	nondominateRank_ = -1;
+	multiLayer_ = false;
 #endif
 	TSuper::solutionSet_.resize(initial.size());
 	for (size_t i = 0; i < initial.size(); ++i)
@@ -143,18 +143,19 @@ void SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_Reduce(TSolutio
 	std::list<_TPointer> _population;
 	for (size_t i = 0; i < population.size(); ++i)
 		_population.push_back(&population[i]);
-	nondominateRank_ = 0;
+	const std::list<_TPointer> pop = _population;
+	multiLayer_ = false;
 	otl::selection::NondominateSelection(_population, solutionSet.begin(), solutionSet.end(), &_Dominate
 		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectNoncritical(front, begin, end);}
-		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectCritical(front, begin, end);}
+		, [this, &pop](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectCritical(pop, front, begin, end);}
 	);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom, typename _TMakeHypervolume>
 template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
+	multiLayer_ = true;
 	assert(front.size() <= std::distance(begin, end));
-	++nondominateRank_;
 	_TIterator dest = begin;
 	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
 		*dest = **i;
@@ -162,12 +163,12 @@ template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom, typename _TMakeHypervolume>
-template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end) const
+template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::_SelectCritical(const std::list<_TPointer> &population, std::list<_TPointer> &front, _TIterator begin, _TIterator end) const
 {
-	if (nondominateRank_ > 0)
+	if (multiLayer_)
 	{
 		for (auto i = front.begin(); i != front.end(); ++i)
-			(**i).dominatingPoints_ = otl::optimizer::spea2::RawFitness(i, front.begin(), front.end(), &_Dominate);
+			(**i).dominatingPoints_ = otl::optimizer::spea2::RawFitness(i, population.begin(), population.end(), &_Dominate);
 		std::vector<_TPointer> _front(front.begin(), front.end());
 		std::partial_sort(_front.begin(), _front.begin() + std::distance(begin, end), _front.end()
 			, [](_TPointer individual1, _TPointer individual2)->bool{return individual1->dominatingPoints_ > individual2->dominatingPoints_;}

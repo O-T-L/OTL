@@ -32,6 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/MOEA-D/CoupleCouple/MOEA-D_PBI.h>
 #include <OTL/Utility/Weight/NormalBoundaryIntersection.h>
 
+namespace moea_d
+{
 BOOST_AUTO_TEST_CASE(MOEA_D_WeightedSum)
 {
 	typedef std::mt19937 _TRandom;
@@ -143,4 +145,5 @@ BOOST_AUTO_TEST_CASE(NormMOEA_D_Tchebycheff)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (1 + generation * 2) * initial.size());
 	}
+}
 }

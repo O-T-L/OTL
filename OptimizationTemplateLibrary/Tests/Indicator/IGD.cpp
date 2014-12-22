@@ -20,10 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <OTL/Indicator/Epsilon/AdditiveEpsilon.h>
-#include <OTL/Indicator/Epsilon/MultiplicativeEpsilon.h>
+#include <OTL/Indicator/IGD/InvertedGenerationalDistance.h>
 
-namespace epsilon
+namespace igd
 {
 template <typename _TReal>
 std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const size_t nPoints)
@@ -41,24 +40,10 @@ std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const 
 	return population;
 }
 
-BOOST_AUTO_TEST_CASE(AdditiveEpsilon)
+BOOST_AUTO_TEST_CASE(IGD)
 {
 	typedef double _TReal;
-	typedef otl::indicator::epsilon::AdditiveEpsilon<_TReal> _TIndicator;
-	typedef _TIndicator::TMetric _TMetric;
-	typedef _TIndicator::TPoint _TPoint;
-	const std::list<_TPoint> _pf = GenerateCirclePoints<_TReal>(1, 10000);
-	const std::vector<_TPoint> pf(_pf.begin(), _pf.end());
-	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
-	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(pf);
-	indicator(front);
-}
-
-BOOST_AUTO_TEST_CASE(MultiplicativeEpsilon)
-{
-	typedef double _TReal;
-	typedef otl::indicator::epsilon::MultiplicativeEpsilon<_TReal> _TIndicator;
+	typedef otl::indicator::igd::InvertedGenerationalDistance<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const std::list<_TPoint> _pf = GenerateCirclePoints<_TReal>(1, 10000);

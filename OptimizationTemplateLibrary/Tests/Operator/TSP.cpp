@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/InversionMutation.h>
 #include <OTL/Mutation/SpreadMutation.h>
 
+namespace tsp
+{
 template <typename _TCrossover, typename _TSolution>
 std::vector<_TSolution> MakeCrossover(_TCrossover &crossover, const std::vector<_TSolution> &ancestor, const size_t nOffspring)
 {
@@ -147,4 +149,5 @@ BOOST_AUTO_TEST_CASE(TSP)
 			TestSolution(offspring[i]);
 		}
 	}
+}
 }

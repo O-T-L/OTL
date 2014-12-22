@@ -39,7 +39,7 @@ public:
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
 
-	AdditiveEpsilon(const TFront &front);
+	AdditiveEpsilon(const std::vector<TPoint> &front);
 	virtual ~AdditiveEpsilon(void);
 
 protected:
@@ -49,7 +49,7 @@ protected:
 };
 
 template <typename _TReal>
-AdditiveEpsilon<_TReal>::AdditiveEpsilon(const TFront &front) : TSuper(front)
+AdditiveEpsilon<_TReal>::AdditiveEpsilon(const std::vector<TPoint> &front) : TSuper(front)
 {
 }
 
@@ -64,7 +64,7 @@ typename AdditiveEpsilon<_TReal>::TMetric AdditiveEpsilon<_TReal>::_DoEvaluate(c
 	TReal epsilon = std::numeric_limits<TReal>::min();
 	for (size_t i = 0; i < front.size(); ++i)
 	{
-		const TReal _epsilon = _Epsilon(front[i]);
+		const TReal _epsilon = _Epsilon(*front[i]);
 		if (epsilon < _epsilon)
 			epsilon = _epsilon;
 	}

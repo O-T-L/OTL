@@ -87,8 +87,8 @@ void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_ProduceOffspring(const TIndivi
 	this->GetMutation()(child2);
 	TSuper::GetProblem()(child1);
 	TSuper::GetProblem()(child2);
-	TSuper::_CalcEpsilonPoint(child1);
-	TSuper::_CalcEpsilonPoint(child2);
+	TSuper::Update(child1);
+	TSuper::Update(child2);
 }
 }
 }

@@ -17,32 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <cassert>
-#include <vector>
-#include <cmath>
-#include <limits>
-#include <numeric>
+#include <OTL/Utility/Weight/NormalBoundaryIntersection.h>
 
 namespace otl
 {
-namespace indicator
+namespace optimizer
 {
-namespace gd
+namespace nsga_iii
 {
-template <typename _TReal, typename _TIterator>
-_TReal Distance2Population(const std::vector<_TReal> &objective, _TIterator begin, _TIterator end)
+template <typename _TReal>
+std::list<std::vector<_TReal> > NBI2(const size_t dimension, const size_t divisionBoundary, const size_t divisionInside)
 {
-	_TReal minDistance = std::numeric_limits<_TReal>::max();
-	for (_TIterator i = begin; i != end; ++i)
+	auto points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(dimension, divisionBoundary);
+	auto inside = otl::utility::weight::NormalBoundaryIntersection<_TReal>(dimension, divisionInside);
+	const _TReal center = (_TReal)1 / dimension;
+	for (auto _point = inside.begin(); _point != inside.end(); ++_point)
 	{
-		auto &point = *i;
-		assert(point.size() == objective.size());
-		const _TReal distance = sqrt(std::inner_product(objective.begin(), objective.end(), point.begin(), (_TReal)0, std::plus<_TReal>()
-			, [](_TReal x, _TReal y)->_TReal{_TReal t = x - y; return t * t;}));
-		if (distance < minDistance)
-			minDistance = distance;
+		auto &point = *_point;
+		for (size_t i = 0; i < point.size(); ++i)
+			point[i] = (center + point[i]) / 2;
+		points.push_back(point);
 	}
-	return minDistance;
+	return points;
 }
 }
 }

@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <OTL/Indicator/GD/GenerationalDistance.h>
-#include <OTL/Indicator/InvertedGenerationalDistance.h>
 #include "Utility.h"
 
 #undef max
@@ -40,19 +39,19 @@ public:
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
 
-	FrontGD(const TFront &front);
+	FrontGD(const std::vector<TPoint> &front);
 	~FrontGD(void);
-	const TFront &GetFront(void) const;
+	const std::vector<TPoint> &GetFront(void) const;
 
 protected:
 	TReal _DoDistance2TruePF(const TPoint &objective);
 
 private:
-	const TFront front_;
+	const std::vector<TPoint> front_;
 };
 
 template <typename _TReal>
-FrontGD<_TReal>::FrontGD(const TFront &front) : front_(front)
+FrontGD<_TReal>::FrontGD(const std::vector<TPoint> &front) : front_(front)
 {
 }
 
@@ -62,7 +61,7 @@ FrontGD<_TReal>::~FrontGD(void)
 }
 
 template <typename _TReal>
-const typename FrontGD<_TReal>::TFront &FrontGD<_TReal>::GetFront(void) const
+const std::vector<typename FrontGD<_TReal>::TPoint> &FrontGD<_TReal>::GetFront(void) const
 {
 	return front_;
 }

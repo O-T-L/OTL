@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/Weight/NormalBoundaryIntersection.h>
 #include <boost/numeric/ublas/io.hpp>
 
+namespace msops
+{
 BOOST_AUTO_TEST_CASE(MSOPS)
 {
 	typedef std::mt19937 _TRandom;
@@ -55,4 +57,5 @@ BOOST_AUTO_TEST_CASE(MSOPS)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }

@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/Nondominate.h>
 #include <OTL/Utility/Relation/Pareto.h>
 
+namespace nondominate
+{
 template <typename _TRandom, typename _TReal>
 std::vector<_TReal> GeneratePoint(_TRandom &random, const std::vector<std::pair<_TReal, _TReal> > &boundary)
 {
@@ -83,4 +85,5 @@ BOOST_AUTO_TEST_CASE(Nondominate)
 	}
 	for (auto individual = population.begin(); individual != population.end(); ++individual)
 		BOOST_CHECK(ExistDominate(*individual, nondominate.begin(), nondominate.end(), dominate));
+}
 }

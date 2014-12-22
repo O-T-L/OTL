@@ -82,7 +82,7 @@ bool Hypervolume<_TReal>::IsValid(const TFront &front) const
 {
 	for (size_t i = 0; i < front.size(); ++i)
 	{
-		if (!IsValid(front[i]))
+		if (!IsValid(*front[i]))
 			return false;
 	}
 	return true;

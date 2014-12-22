@@ -26,6 +26,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   publisher = {Springer},
   doi = {10.1007/978-3-642-01020-0_11}
 }
+
+@Conference{,
+  Title                    = {Enhancing Diversity for Average Ranking Method in Evolutionary Many-Objective Optimization},
+  Author                   = {Miqing Li and Jinhua Zheng and Ke Li and Qizhao Yuan and Ruimin Shen},
+  Booktitle                = {Parallel Problem Solving from Nature},
+  Year                     = {2010},
+  Month                    = {September 11-15},
+  Pages                    = {647-656},
+  Publisher                = {Springer},
+  Doi                      = {10.1007/978-3-642-15844-5_65}
+}
 */
 
 #pragma once
@@ -43,7 +54,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include <OTL/Optimizer/AR/AverageRanking.h>
 #include <OTL/Optimizer/NSGA-II/CrowdingDistanceAssignment.h>
-#include <OTL/Indicator/MaximumSpread1.h>
+#include <OTL/Indicator/MS/MaximumSpread1.h>
 #include "Individual.h"
 
 namespace otl
@@ -65,7 +76,7 @@ public:
 	typedef typename TSuper::TProblem TProblem;
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
-	typedef otl::indicator::MaximumSpread1<TReal> TMaximumSpread;
+	typedef otl::indicator::ms::MaximumSpread1<TReal> TMaximumSpread;
 	typedef typename TMaximumSpread::TFront TFront;
 	typedef typename TMaximumSpread::TMinMax TMinMax;
 	typedef typename TMaximumSpread::TBoundary TBoundary;
@@ -82,7 +93,7 @@ protected:
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end, const bool randomSelection);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 	template <typename _TPointer> _TPointer _RandomPop(std::list<_TPointer> &front, const size_t size);
-	bool _ShouldRandomSelect(void);
+	template <typename _TIterator> bool _ShouldRandomSelect(_TIterator begin, _TIterator end);
 
 private:
 	TMaximumSpread maximumSpread_;
@@ -154,7 +165,7 @@ void AR_DMO<_TReal, _TDecision, _TRandom>::_DoStep(void)
 	TSolutionSet ancestor = TSuper::solutionSet_;
 	TSolutionSet offspring = MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
-	const bool randomSelection = _ShouldRandomSelect();
+	const bool randomSelection = _ShouldRandomSelect(TSuper::solutionSet_.begin(), TSuper::solutionSet_.end());
 	std::list<_TPointer> mix;
 	for (size_t i = 0; i < ancestor.size(); ++i)
 		mix.push_back(&ancestor[i]);
@@ -227,21 +238,24 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer> _TPointer AR_DMO<_TReal, _TDecision, _TRandom>::_RandomPop(std::list<_TPointer> &front, const size_t size)
 {
 	assert(front.size() == size);
-	const size_t end = std::uniform_int_distribution<size_t>(1, size)(this->GetRandom());
-	auto individualIter = front.begin();
+	auto i = front.begin();
 	for (size_t count = std::uniform_int_distribution<size_t>(0, size - 1)(this->GetRandom()); count; --count)
-		++individualIter;
-	_TPointer individual = *individualIter;
-	front.erase(individualIter);
+		++i;
+	_TPointer individual = *i;
+	front.erase(i);
 	return individual;
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-bool AR_DMO<_TReal, _TDecision, _TRandom>::_ShouldRandomSelect(void)
+template <typename _TIterator> bool AR_DMO<_TReal, _TDecision, _TRandom>::_ShouldRandomSelect(_TIterator begin, _TIterator end)
 {
-	TFront front(TSuper::solutionSet_.size());
-	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
-		front[i] = TSuper::solutionSet_[i].objective_;
+	TFront front(std::distance(begin, end));
+	size_t index = 0;
+	for (_TIterator i = begin; i != end; ++i)
+	{
+		front[index] = &i->objective_;
+		++index;
+	}
 	return maximumSpread_(front) > 1;
 }
 }

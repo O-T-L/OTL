@@ -89,8 +89,8 @@ std::vector<_TReal> Spacing<_TReal>::_CalculateDistance(const TFront &front)
 		{
 			if (i != j)
 			{
-				const TPoint &point1 = front[i];
-				const TPoint &point2 = front[j];
+				const TPoint &point1 = *front[i];
+				const TPoint &point2 = *front[j];
 				assert(point1.size() == point2.size());
 				const TReal newDistance = sqrt(std::inner_product(point1.begin(), point1.end(), point2.begin(), (TReal)0, std::plus<TReal>()
 					, [](TReal x, TReal y)->TReal{TReal t = x - y;return t * t;}));

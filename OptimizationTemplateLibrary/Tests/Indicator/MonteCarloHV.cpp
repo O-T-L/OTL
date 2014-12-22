@@ -46,10 +46,9 @@ BOOST_AUTO_TEST_CASE(MonteCarloHVCircle)
 	typedef otl::indicator::hypervolume::MonteCarloHV<_TReal, _TRandom &> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TFront _TFront;
 	const _TReal radius = 1;
 	const std::list<_TPoint> _points = GenerateCirclePoints(radius, 100);
-	const _TFront points(_points.begin(), _points.end());
+	const std::vector<_TPoint> points(_points.begin(), _points.end());
 	const _TReal referencePoint = radius + 1;
 	_TRandom random;
 	_TIndicator indicator(std::vector<_TReal>(2, referencePoint), random, 10000000);

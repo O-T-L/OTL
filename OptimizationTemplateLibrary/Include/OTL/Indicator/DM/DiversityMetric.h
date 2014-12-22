@@ -34,27 +34,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/dynamic_bitset.hpp>
 #include <OTL/Indicator/Indicator.h>
 #include <OTL/Utility/WithSpaceBoundary.h>
+#include "Utility.h"
 
 namespace otl
 {
 namespace indicator
 {
-template <typename _TReal>
-std::vector<std::pair<_TReal, _TReal> > ExpandHalfBox(const std::vector<std::pair<_TReal, _TReal> > &boundary, const std::vector<size_t> &division)
+namespace dm
 {
-	assert(division.size() == boundary.size());
-	std::vector<std::pair<_TReal, _TReal> > expandedBoundary(boundary.size());
-	for (size_t i = 0; i < boundary.size(); ++i)
-	{
-		assert(division[i] > 0);
-		assert(boundary[i].first <= boundary[i].second);
-		const _TReal move = (boundary[i].second - boundary[i].first) / division[i] / 2;
-		expandedBoundary[i].first = boundary[i].first - move;
-		expandedBoundary[i].second = boundary[i].second + move;
-	}
-	return expandedBoundary;
-}
-
 template <typename _TReal>
 class DiversityMetric : public Indicator<_TReal, _TReal>, public otl::utility::WithSpaceBoundary<_TReal>
 {
@@ -68,27 +55,28 @@ public:
 	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
 	typedef boost::dynamic_bitset<> TGridContainer;
 
-	DiversityMetric(const TBoundary &boundary, const std::vector<size_t> &division, const TFront &front);
+	DiversityMetric(const TBoundary &boundary, const std::vector<size_t> &division, const std::vector<TPoint> &front);
 	virtual ~DiversityMetric(void);
 	const std::vector<size_t> &GetDivision(void) const;
-	const TFront &GetFront(void) const;
+	const std::vector<TPoint> &GetFront(void) const;
 	bool IsCrossBorder(const std::vector<TReal> &coordinate) const;
 	std::vector<size_t> ConvertGridCoordinate(const std::vector<TReal> &coordinate) const;
 	std::vector<size_t> ConvertGridCoordinate(const size_t offset) const;
 	size_t ConvertOffset(const std::vector<size_t> &gridCoordinate) const;
+	template <typename _TIterator> TGridContainer FillGrid(_TIterator begin, _TIterator end);
 
 protected:
-	TMetric _DoEvaluate(const TFront &front);
 	template <typename _TIterator> TGridContainer _FillGrid(_TIterator begin, _TIterator end);
+	TMetric _DoEvaluate(const TFront &front);
 	TReal _CalcDM(const TGridContainer &gridContainer) const;
 
 private:
 	const std::vector<size_t> division_;
-	const TFront &front_;
+	const std::vector<TPoint> &front_;
 };
 
 template <typename _TReal>
-DiversityMetric<_TReal>::DiversityMetric(const TBoundary &boundary, const std::vector<size_t> &division, const TFront &front)
+DiversityMetric<_TReal>::DiversityMetric(const TBoundary &boundary, const std::vector<size_t> &division, const std::vector<TPoint> &front)
 	: otl::utility::WithSpaceBoundary<TReal>(ExpandHalfBox(boundary, division))
 	, division_(division)
 	, front_(front)
@@ -107,7 +95,7 @@ const std::vector<size_t> &DiversityMetric<_TReal>::GetDivision(void) const
 }
 
 template <typename _TReal>
-const typename DiversityMetric<_TReal>::TFront &DiversityMetric<_TReal>::GetFront(void) const
+const std::vector<typename DiversityMetric<_TReal>::TPoint> &DiversityMetric<_TReal>::GetFront(void) const
 {
 	return front_;
 }
@@ -165,11 +153,18 @@ size_t DiversityMetric<_TReal>::ConvertOffset(const std::vector<size_t> &gridCoo
 }
 
 template <typename _TReal>
-typename DiversityMetric<_TReal>::TMetric DiversityMetric<_TReal>::_DoEvaluate(const TFront &front)
+template <typename _TIterator> typename DiversityMetric<_TReal>::TGridContainer DiversityMetric<_TReal>::FillGrid(_TIterator begin, _TIterator end)
 {
-	const TReal dm1 = _CalcDM(_FillGrid(front.begin(), front.end()));
-	const TReal dm2 = _CalcDM(_FillGrid(front_.begin(), front_.end()));
-	return dm1 / dm2;
+	TGridContainer gridContainer(std::accumulate(division_.begin(), division_.end(), (size_t)1, std::multiplies<size_t>()));
+	for (_TIterator i = begin; i != end; ++i)
+	{
+		const auto &point = *i;
+		if (IsCrossBorder(point))
+			continue;
+		const auto gridCoordinate = ConvertGridCoordinate(point);
+		gridContainer.set(ConvertOffset(gridCoordinate));
+	}
+	return gridContainer;
 }
 
 template <typename _TReal>
@@ -178,12 +173,21 @@ template <typename _TIterator> typename DiversityMetric<_TReal>::TGridContainer 
 	TGridContainer gridContainer(std::accumulate(division_.begin(), division_.end(), (size_t)1, std::multiplies<size_t>()));
 	for (_TIterator i = begin; i != end; ++i)
 	{
-		if (IsCrossBorder(*i))
+		const auto &point = **i;
+		if (IsCrossBorder(point))
 			continue;
-		const auto gridCoordinate = ConvertGridCoordinate(*i);
+		const auto gridCoordinate = ConvertGridCoordinate(point);
 		gridContainer.set(ConvertOffset(gridCoordinate));
 	}
 	return gridContainer;
+}
+
+template <typename _TReal>
+typename DiversityMetric<_TReal>::TMetric DiversityMetric<_TReal>::_DoEvaluate(const TFront &front)
+{
+	const TReal dm1 = _CalcDM(_FillGrid(front.begin(), front.end()));
+	const TReal dm2 = _CalcDM(FillGrid(front_.begin(), front_.end()));
+	return dm1 / dm2;
 }
 
 template <typename _TReal>
@@ -276,6 +280,7 @@ _TReal DiversityMetric<_TReal>::_CalcDM(const TGridContainer &gridContainer) con
 		score += std::accumulate(scoreList.begin(), scoreList.end(), (TReal)0) / gridCoordinate.size();
 	}
 	return score / gridContainer.size();
+}
 }
 }
 }

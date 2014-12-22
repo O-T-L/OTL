@@ -39,7 +39,7 @@ public:
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
 
-	MultiplicativeEpsilon(const TFront &front);
+	MultiplicativeEpsilon(const std::vector<TPoint> &front);
 	virtual ~MultiplicativeEpsilon(void);
 
 protected:
@@ -49,7 +49,7 @@ protected:
 };
 
 template <typename _TReal>
-MultiplicativeEpsilon<_TReal>::MultiplicativeEpsilon(const TFront &front) : TSuper(front)
+MultiplicativeEpsilon<_TReal>::MultiplicativeEpsilon(const std::vector<TPoint> &front) : TSuper(front)
 {
 }
 
@@ -64,7 +64,7 @@ typename MultiplicativeEpsilon<_TReal>::TMetric MultiplicativeEpsilon<_TReal>::_
 	TReal epsilon = 0;
 	for (size_t i = 0; i < front.size(); ++i)
 	{
-		const TReal _epsilon = _Epsilon(front[i]);
+		const TReal _epsilon = _Epsilon(*front[i]);
 		assert(_epsilon >= 0);
 		if (epsilon < _epsilon)
 			epsilon = _epsilon;

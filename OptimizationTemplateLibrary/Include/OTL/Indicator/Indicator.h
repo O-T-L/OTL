@@ -32,11 +32,13 @@ public:
 	typedef _TReal TReal;
 	typedef _TMetric TMetric;
 	typedef std::vector<TReal> TPoint;
-	typedef std::vector<TPoint> TFront;
+	typedef const TPoint * TPointer;
+	typedef std::vector<TPointer> TFront;
 
 	Indicator(void);
 	virtual ~Indicator(void);
 	TMetric operator ()(const TFront &front);
+	TMetric operator ()(const std::vector<TPoint> &front);
 
 protected:
 	virtual TMetric _DoEvaluate(const TFront &front) = 0;
@@ -56,6 +58,15 @@ template <typename _TReal, typename _TMetric>
 _TMetric Indicator<_TReal, _TMetric>::operator ()(const TFront &front)
 {
 	return _DoEvaluate(front);
+}
+
+template <typename _TReal, typename _TMetric>
+_TMetric Indicator<_TReal, _TMetric>::operator ()(const std::vector<TPoint> &front)
+{
+	TFront _front(front.size());
+	for (size_t i = 0; i < front.size(); ++i)
+		_front[i] = &front[i];
+	return operator ()(_front);
 }
 }
 }

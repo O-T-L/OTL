@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <OTL/Indicator/Epsilon/AdditiveEpsilon.h>
-#include <OTL/Indicator/Epsilon/MultiplicativeEpsilon.h>
+#include <OTL/Indicator/MS/MaximumSpread.h>
+#include <OTL/Indicator/MS/MaximumSpread1.h>
+#include <OTL/Indicator/MS/MaximumSpread2.h>
 
-namespace epsilon
+namespace ms
 {
 template <typename _TReal>
 std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const size_t nPoints)
@@ -41,31 +42,43 @@ std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const 
 	return population;
 }
 
-BOOST_AUTO_TEST_CASE(AdditiveEpsilon)
+BOOST_AUTO_TEST_CASE(MS)
 {
 	typedef double _TReal;
-	typedef otl::indicator::epsilon::AdditiveEpsilon<_TReal> _TIndicator;
+	typedef otl::indicator::ms::MaximumSpread<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	const std::list<_TPoint> _pf = GenerateCirclePoints<_TReal>(1, 10000);
-	const std::vector<_TPoint> pf(_pf.begin(), _pf.end());
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(pf);
+	_TIndicator indicator;
 	indicator(front);
 }
 
-BOOST_AUTO_TEST_CASE(MultiplicativeEpsilon)
+BOOST_AUTO_TEST_CASE(MS1)
 {
 	typedef double _TReal;
-	typedef otl::indicator::epsilon::MultiplicativeEpsilon<_TReal> _TIndicator;
+	typedef otl::indicator::ms::MaximumSpread1<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	const std::list<_TPoint> _pf = GenerateCirclePoints<_TReal>(1, 10000);
-	const std::vector<_TPoint> pf(_pf.begin(), _pf.end());
+	typedef _TIndicator::TMinMax _TMinMax;
+	typedef _TIndicator::TBoundary _TBoundary;
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(pf);
+	_TIndicator indicator(_TBoundary(2, _TMinMax(0, 1)));
+	indicator(front);
+}
+
+BOOST_AUTO_TEST_CASE(MS2)
+{
+	typedef double _TReal;
+	typedef otl::indicator::ms::MaximumSpread2<_TReal> _TIndicator;
+	typedef _TIndicator::TMetric _TMetric;
+	typedef _TIndicator::TPoint _TPoint;
+	typedef _TIndicator::TMinMax _TMinMax;
+	typedef _TIndicator::TBoundary _TBoundary;
+	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
+	const std::vector<_TPoint> front(_front.begin(), _front.end());
+	_TIndicator indicator(_TBoundary(2, _TMinMax(0, 1)));
 	indicator(front);
 }
 }

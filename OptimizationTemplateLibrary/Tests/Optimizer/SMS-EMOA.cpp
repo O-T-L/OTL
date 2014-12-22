@@ -26,9 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/SMS-EMOA/MakeHypervolume.h>
 #include <OTL/Optimizer/SMS-EMOA/CoupleCouple/SMS-EMOA.h>
-#include <OTL/Optimizer/SMS-EMOA/Triple/SMS-EMOA.h>
+#include <OTL/Optimizer/SMS-EMOA/CoupleCouple/MonteCarloSMS-EMOA.h>
 #include <OTL/Indicator/Hypervolume/RecursiveHV.h>
 
+namespace sms_emoa
+{
 BOOST_AUTO_TEST_CASE(SMS_EMOA)
 {
 	typedef std::mt19937 _TRandom;
@@ -54,4 +56,30 @@ BOOST_AUTO_TEST_CASE(SMS_EMOA)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), initial.size() + 2 * generation);
 	}
+}
+
+BOOST_AUTO_TEST_CASE(MonteCarloSMS_EMOA)
+{
+	typedef std::mt19937 _TRandom;
+	typedef double _TReal;
+	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
+	typedef _TProblem::TDecision _TDecision;
+	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::optimizer::sms_emoa::couple_couple::MonteCarloSMS_EMOA<_TReal, _TDecision, _TRandom &> _TOptimizer;
+	const size_t nObjectives = 3;
+	const size_t populationSize = 100;
+	_TRandom random;
+	_TProblem problem(nObjectives);
+	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	_TCrossover crossover(random, 1, problem.GetBoundary(), 20);
+	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
+	_TOptimizer optimizer(random, problem, initial, crossover, mutation, 10000);
+	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
+	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
+	{
+		optimizer();
+		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), initial.size() + 2 * generation);
+	}
+}
 }

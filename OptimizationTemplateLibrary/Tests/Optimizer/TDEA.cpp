@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/TDEA/CoupleCouple/TDEA.h>
 
+namespace tdea
+{
 BOOST_AUTO_TEST_CASE(CoupleCoupleTDEA)
 {
 	typedef std::mt19937 _TRandom;
@@ -56,4 +58,5 @@ BOOST_AUTO_TEST_CASE(CoupleCoupleTDEA)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), initial.size() + 2 * generation);
 	}
+}
 }

@@ -23,9 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Problem/DTLZ/DTLZ2.h>
 #include <OTL/Initial/UniformReal.h>
 #include <OTL/Crossover/DifferentialEvolution.h>
-#include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/GDE3/GDE3.h>
 
+namespace gde3
+{
 BOOST_AUTO_TEST_CASE(GDE3)
 {
 	typedef std::mt19937 _TRandom;
@@ -33,7 +34,6 @@ BOOST_AUTO_TEST_CASE(GDE3)
 	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::DifferentialEvolution<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::gde3::GDE3<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
@@ -41,12 +41,12 @@ BOOST_AUTO_TEST_CASE(GDE3)
 	_TProblem problem(nObjectives);
 	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
 	_TCrossover crossover(random, 1, problem.GetBoundary(), 20);
-	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
-	_TOptimizer optimizer(random, problem, initial, crossover, mutation);
+	_TOptimizer optimizer(random, problem, initial, crossover);
 	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
 	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
 	{
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }

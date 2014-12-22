@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/G-NSGA-II/G-NSGA-II.h>
 
+namespace g_nsga_ii
+{
 BOOST_AUTO_TEST_CASE(G_NSGA_II)
 {
 	typedef std::mt19937 _TRandom;
@@ -52,4 +54,5 @@ BOOST_AUTO_TEST_CASE(G_NSGA_II)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
 	}
+}
 }

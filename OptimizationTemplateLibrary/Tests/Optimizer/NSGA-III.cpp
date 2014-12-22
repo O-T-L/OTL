@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/NSGA-III/NSGA-III.h>
 #include <OTL/Utility/Weight/NormalBoundaryIntersection.h>
 
+namespace nsga_iii
+{
 BOOST_AUTO_TEST_CASE(NSGA_III)
 {
 	typedef std::mt19937 _TRandom;
@@ -56,4 +58,5 @@ BOOST_AUTO_TEST_CASE(NSGA_III)
 		optimizer();
 		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * nPopulation);
 	}
+}
 }

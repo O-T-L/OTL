@@ -31,11 +31,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <OTL/Indicator/MaximumSpread.h>
+#include "Utility.h"
 
 namespace otl
 {
 namespace indicator
+{
+namespace ms
 {
 /*!
  * \brief Calculate $MS2=\sqrt{\frac{1}{m}\Sigma_{\imath=1}^{m}\left(\frac{\max\left(f_{\imath}^{\min},F_{\imath}^{\min}\right)-\min\left(f_{\imath}^{\max},F_{\imath}^{\max}\right)}{F_{\imath}^{\max}-F_{\imath}^{\min}}\right)^{2}}$
@@ -88,6 +90,7 @@ typename MaximumSpread2<_TReal>::TMetric MaximumSpread2<_TReal>::_DoEvaluate(con
 		sum += temp * temp;
 	}
 	return sqrt(sum / spaceBoundary.size());
+}
 }
 }
 }

@@ -27,7 +27,7 @@ namespace otl
 {
 namespace indicator
 {
-namespace gd
+namespace igd
 {
 template <typename _TReal, typename _TIterator>
 _TReal Distance2Population(const std::vector<_TReal> &objective, _TIterator begin, _TIterator end)
@@ -35,7 +35,7 @@ _TReal Distance2Population(const std::vector<_TReal> &objective, _TIterator begi
 	_TReal minDistance = std::numeric_limits<_TReal>::max();
 	for (_TIterator i = begin; i != end; ++i)
 	{
-		auto &point = *i;
+		auto &point = **i;
 		assert(point.size() == objective.size());
 		const _TReal distance = sqrt(std::inner_product(objective.begin(), objective.end(), point.begin(), (_TReal)0, std::plus<_TReal>()
 			, [](_TReal x, _TReal y)->_TReal{_TReal t = x - y; return t * t;}));

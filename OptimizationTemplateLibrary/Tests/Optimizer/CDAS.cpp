@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/CDAS/CDAS.h>
 
+namespace cdas
+{
 BOOST_AUTO_TEST_CASE(CDAS)
 {
 	typedef std::mt19937 _TRandom;
@@ -71,4 +73,5 @@ BOOST_AUTO_TEST_CASE(ConvertedObjective)
 		for (size_t i = 0; i < objective.size(); ++i)
 			BOOST_CHECK_CLOSE(objective[i], convertedObjective[i], 0.001);
 	}
+}
 }

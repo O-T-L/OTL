@@ -92,13 +92,18 @@ _TIterator LocateExtremeIndividual(const size_t axis, const _TReal epsilon, _TIt
 }
 
 template <typename _TIterator, typename _TReal>
-std::vector<typename std::iterator_traits<_TIterator>::value_type> ComputeExtremePoints(_TIterator begin, _TIterator end, const _TReal epsilon, const std::vector<_TReal> &idealPoint)
+boost::numeric::ublas::matrix<_TReal> ComputeExtremePoints(_TIterator begin, _TIterator end, const _TReal epsilon, const std::vector<_TReal> &idealPoint)
 {
-	typedef typename std::iterator_traits<_TIterator>::value_type _TPointer;
-	std::vector<_TPointer> extremeIndividuals(idealPoint.size());
-	for (size_t i = 0; i < extremeIndividuals.size(); ++i)
-		extremeIndividuals[i] = *LocateExtremeIndividual(i, epsilon, begin, end);
-	return extremeIndividuals;
+	typedef boost::numeric::ublas::matrix<_TReal> _TMatrix;
+	_TMatrix extremePoints(idealPoint.size(), idealPoint.size());
+	for (size_t row = 0; row < extremePoints.size1(); ++row)
+	{
+		auto extremeIndividual = LocateExtremeIndividual(row, epsilon, begin, end);
+		boost::numeric::ublas::matrix_row<_TMatrix> extremePoint(extremePoints, row);
+		for (size_t col = 0; col < extremePoint.size(); ++col)
+			extremePoint(col) = (**extremeIndividual).translatedObjective_[col];
+	}
+	return extremePoints;
 }
 
 template<class _TReal>
@@ -114,20 +119,11 @@ boost::numeric::ublas::matrix<_TReal> InvertMatrix(boost::numeric::ublas::matrix
 	return inverse;
 }
 
-template <typename _TReal, typename _TPointer>
-std::vector<_TReal> ComputeIntercept(const std::vector<_TPointer> &extremeIndividuals)
+template <typename _TReal>
+std::vector<_TReal> ComputeIntercept(boost::numeric::ublas::matrix<_TReal> &extremePoints)
 {
 	try
 	{
-		typedef boost::numeric::ublas::matrix<_TReal> _TMatrix;
-		_TMatrix extremePoints(extremeIndividuals.size(), extremeIndividuals.size());
-		for (size_t row = 0; row < extremePoints.size1(); ++row)
-		{
-			auto &extremeIndividual = *extremeIndividuals[row];
-			boost::numeric::ublas::matrix_row<_TMatrix> extremePoint(extremePoints, row);
-			for (size_t col = 0; col < extremePoint.size(); ++col)
-				extremePoint(col) = extremeIndividual.objective_[col];
-		}
 		const auto inverse = InvertMatrix(extremePoints);
 		assert(inverse.size1() == inverse.size2());
 		assert(inverse.size1() == extremePoints.size2());
@@ -141,9 +137,9 @@ std::vector<_TReal> ComputeIntercept(const std::vector<_TPointer> &extremeIndivi
 	}
 	catch (...)
 	{
-		std::vector<_TReal> intercepts(extremeIndividuals.size());
+		std::vector<_TReal> intercepts(extremePoints.size1());
 		for (size_t i = 0; i < intercepts.size(); ++i)
-			intercepts[i] = extremeIndividuals[i]->objective_[i];
+			intercepts[i] = extremePoints(i, i);
 		return intercepts;
 	}
 }
@@ -167,8 +163,8 @@ void Normalize(_TIterator begin, _TIterator end, const _TReal epsilon)
 {
 	const std::vector<_TReal> idealPoint = ComputeIdealPoint<_TReal>(begin, end);
 	ShiftPopulation(idealPoint, begin, end);
-	auto extremeIndividuals = ComputeExtremePoints(begin, end, epsilon, idealPoint);
-	const auto intercepts = ComputeIntercept<_TReal>(extremeIndividuals);
+	auto extremePoints = ComputeExtremePoints(begin, end, epsilon, idealPoint);
+	const auto intercepts = ComputeIntercept<_TReal>(extremePoints);
 	NormalizePopulation(idealPoint, intercepts, begin, end);
 }
 }
