@@ -54,7 +54,7 @@ namespace optimizer
 namespace gde3
 {
 template <typename _TReal, typename _TDecision, typename _TRandom>
-class GDE3 : public Metaheuristic<std::vector<otl::optimizer::nsga_ii::Individual<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithXTripleCrossover<_TReal, _TDecision>, public otl::mutation::WithMutation<_TReal, _TDecision>
+class GDE3 : public Metaheuristic<std::vector<otl::optimizer::nsga_ii::Individual<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithXTripleCrossover<_TReal, _TDecision>
 {
 public:
 	typedef _TReal TReal;
@@ -66,13 +66,10 @@ public:
 	typedef Metaheuristic<TSolutionSet> TSuper;
 	typedef typename TSuper::TProblem TProblem;
 	typedef typename otl::crossover::WithXTripleCrossover<TReal, TDecision>::TCrossover TCrossover;
-	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	GDE3(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation);
+	GDE3(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover);
 	~GDE3(void);
-	TOffspring MakeOffspring(const TSolutionSet &ancestor);
-	void MakeOffspring(const TIndividual &individual, const TSolutionSet &ancestor);
-	void EnvironmentalSelection(TOffspring &offspring, TSolutionSet &solutionSet);
+	TIndividual MakeOffspring(const TSolutionSet &population, const size_t index);
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 
 protected:
@@ -80,15 +77,17 @@ protected:
 	void _DoStep(void);
 	template <typename _TPointer, typename _TIterator> static _TIterator _SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 	template <typename _TPointer, typename _TIterator> static _TIterator _SelectCritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
-	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
+
+private:
+	std::uniform_int_distribution<size_t> dist_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-GDE3<_TReal, _TDecision, _TRandom>::GDE3(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation)
+GDE3<_TReal, _TDecision, _TRandom>::GDE3(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, otl::crossover::WithXTripleCrossover<TReal, TDecision>(crossover)
-	, otl::mutation::WithMutation<TReal, TDecision>(mutation)
+	, dist_(0, initial.size() - 1)
 {
 	TSuper::solutionSet_.resize(initial.size());
 	for (size_t i = 0; i < initial.size(); ++i)
@@ -96,17 +95,6 @@ GDE3<_TReal, _TDecision, _TRandom>::GDE3(TRandom random, TProblem &problem, cons
 		TIndividual &individual = TSuper::solutionSet_[i];
 		individual.decision_ = initial[i];
 		TSuper::GetProblem()(individual);
-	}
-
-	typedef typename TSolutionSet::pointer _TPointer;
-	std::list<_TPointer> solutionSet;
-	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
-		solutionSet.push_back(&TSuper::solutionSet_[i]);
-	while (!solutionSet.empty())
-	{
-		std::list<_TPointer> nondominate = otl::utility::ExtractNondominate(solutionSet, &_Dominate);
-		std::vector<_TPointer> _nondominate(nondominate.begin(), nondominate.end());
-		otl::optimizer::nsga_ii::CrowdingDistanceAssignment<TReal>(_nondominate.begin(), _nondominate.end());
 	}
 }
 
@@ -116,48 +104,25 @@ GDE3<_TReal, _TDecision, _TRandom>::~GDE3(void)
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-typename GDE3<_TReal, _TDecision, _TRandom>::TOffspring GDE3<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
+typename GDE3<_TReal, _TDecision, _TRandom>::TIndividual GDE3<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &population, const size_t index)
 {
-	typedef typename TSolutionSet::const_pointer _TConstPointer;
-	std::vector<_TConstPointer> _ancestor(ancestor.size());
-	for (size_t i = 0; i < ancestor.size(); ++i)
-		_ancestor[i] = &ancestor[i];
-	TOffspring offspring;
-	for (size_t i = 0; i < ancestor.size();)
+	size_t p1, p2, p3;
+	do
 	{
-		std::random_shuffle(_ancestor.begin(), _ancestor.end(), [this](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(this->GetRandom());});
-		for (size_t parent1 = 0; parent1 < ancestor.size() && i < ancestor.size(); parent1 += 3, ++i)
-		{
-			const size_t parent2 = (parent1 + 1) % ancestor.size();
-			const size_t parent3 = (parent2 + 1) % ancestor.size();
-			const TIndividual &parent = ancestor[i];
-			TIndividual child;
-			this->GetCrossover()(parent, *_ancestor[parent1], *_ancestor[parent2], *_ancestor[parent3], child);
-			this->GetMutation()(child);
-			TSuper::GetProblem()(child);
-			if (Dominate(parent, child))
-				offspring.push_back(parent);
-			else if(Dominate(child, parent))
-				offspring.push_back(child);
-			else
-			{
-				offspring.push_back(parent);
-				offspring.push_back(child);
-			}
-		}
-	}
-	return offspring;
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
-void GDE3<_TReal, _TDecision, _TRandom>::EnvironmentalSelection(TOffspring &offspring, TSolutionSet &solutionSet)
-{
-	typedef typename TOffspring::pointer _TPointer;
-	std::list<_TPointer> _offspring;
-	for (auto i = offspring.begin(); i != offspring.end(); ++i)
-		_offspring.push_back(&*i);
-	typedef typename TSolutionSet::iterator _TIterator;
-	otl::selection::NondominateSelection(_offspring, solutionSet.begin(), solutionSet.end(), &_Dominate, &_SelectNoncritical<_TPointer, _TIterator>, &_SelectCritical<_TPointer, _TIterator>);
+		p1 = dist_(this->GetRandom());
+	} while (p1 == index);
+	do
+	{
+		p2 = dist_(this->GetRandom());
+	} while (p2 == index || p2 == p1);
+	do
+	{
+		p3 = dist_(this->GetRandom());
+	} while (p3 == index || p3 == p1 || p3 == p2);
+	TIndividual child;
+	this->GetCrossover()(population[index], population[p1], population[p2], population[p3], child);
+	TSuper::GetProblem()(child);
+	return child;
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -175,19 +140,38 @@ bool GDE3<_TReal, _TDecision, _TRandom>::_Dominate(const TIndividual *individual
 template <typename _TReal, typename _TDecision, typename _TRandom>
 void GDE3<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
-	TOffspring offspring = MakeOffspring(TSuper::solutionSet_);
-	EnvironmentalSelection(offspring, TSuper::solutionSet_);
+	TSolutionSet population = TSuper::solutionSet_;
+	std::list<TIndividual> offspring;
+	typedef typename TSolutionSet::pointer _TPointer;
+	std::list<_TPointer> mix;
+	for (size_t i = 0; i < population.size(); ++i)
+	{
+		TIndividual &individual = population[i];
+		TIndividual child = MakeOffspring(population, i);
+		if (Dominate(individual, child))
+			mix.push_back(&individual);
+		else if(Dominate(child, individual))
+		{
+			offspring.push_back(child);
+			mix.push_back(&offspring.back());
+		}
+		else
+		{
+			mix.push_back(&individual);
+			offspring.push_back(child);
+			mix.push_back(&offspring.back());
+		}
+	}
+	typedef typename TSolutionSet::iterator _TIterator;
+	otl::selection::NondominateSelection(mix, TSuper::solutionSet_.begin(), TSuper::solutionSet_.end(), &_Dominate, &_SelectNoncritical<_TPointer, _TIterator>, &_SelectCritical<_TPointer, _TIterator>);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator GDE3<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
-	std::vector<_TPointer> _front(front.begin(), front.end());
-	otl::optimizer::nsga_ii::CrowdingDistanceAssignment<TReal>(_front.begin(), _front.end());
-	assert(_front.size() <= std::distance(begin, end));
 	_TIterator dest = begin;
-	for (size_t i = 0; i < _front.size(); ++i, ++dest)
-		*dest = *_front[i];
+	for (auto i = front.begin(); i != front.end(); ++i)
+		*dest = **i;
 	return dest;
 }
 
@@ -204,18 +188,6 @@ template <typename _TPointer, typename _TIterator> _TIterator GDE3<_TReal, _TDec
 	for (size_t i = 0; dest != end; ++i, ++dest)
 		*dest = *_front[i];
 	return dest;
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
-const typename GDE3<_TReal, _TDecision, _TRandom>::TIndividual *GDE3<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
-{
-	if (Dominate(*competition[0], *competition[1]))
-		return competition[0];
-	else if (Dominate(*competition[1], *competition[0]))
-		return competition[1];
-	assert(competition[0]->crowdingDistance_ >= 0);
-	assert(competition[1]->crowdingDistance_ >= 0);
-	return competition[0]->crowdingDistance_ > competition[1]->crowdingDistance_ ? competition[0] : competition[1];
 }
 }
 }
