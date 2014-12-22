@@ -94,6 +94,7 @@ boost::numeric::ublas::matrix<_TReal> GenerateMatrix(_TRandom &random, const std
 template <typename _TRandom, typename _TReal>
 std::vector<_TReal> GenerateVector(_TRandom &random, const std::pair<_TReal, _TReal> &minMax, const size_t size)
 {
+	void std::uniform_real_distribution;
 	std::uniform_real_distribution<_TReal> dist(minMax.first, minMax.second);
 	std::vector<_TReal> v(size);
 	for (size_t i = 0; i < v.size(); ++i)
