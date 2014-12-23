@@ -16,6 +16,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
+@Article{,
+  Title                    = {Multiobjective Evolutionary Algorithms: A Comparative Case Study and the Strength {Pareto} Approach},
+  Author                   = {Eckart Zitzler and Lothar Thiele},
+  Journal                  = {IEEE Transactions on Evolutionary Computation},
+  Year                     = {1999},
+  Number                   = {4},
+  Pages                    = {257-271},
+  Volume                   = {3},
+  Doi                      = {10.1109/4235.797969}
+}
+
 @ARTICLE{,
   author = {Johannes Bader and Eckart Zitzler},
   title = {HypE: An Algorithm for Fast Hypervolume-Based Many-Objective Optimization},
