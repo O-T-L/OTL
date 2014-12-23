@@ -224,7 +224,7 @@ _TReal KMP_HV<_TReal>::_ComputeTrellis(const TPoint &lower, const TPoint &upper,
 {
 	assert(lower.size() == upper.size());
 	TReal result = 0;
-	const size_t nSummands = pow(2, lower.size() - 1) - 1;
+	const size_t nSummands = 1 << lower.size() - 1;
 	for (size_t i = 1; i <= nSummands; ++i)
 	{
 		TReal summand = 1;
