@@ -198,6 +198,10 @@ template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDec
 template <typename _TReal, typename _TDecision, typename _TRandom>
 const typename HypE<_TReal, _TDecision, _TRandom>::TIndividual *HypE<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
 {
+	if (Dominate(*competition[0], *competition[1]))
+		return competition[0];
+	else if (Dominate(*competition[1], *competition[0]))
+		return competition[1];
 	assert(competition[0]->fitness_ >= 0);
 	assert(competition[1]->fitness_ >= 0);
 	return competition[0]->fitness_ > competition[1]->fitness_ ? competition[0] : competition[1];
