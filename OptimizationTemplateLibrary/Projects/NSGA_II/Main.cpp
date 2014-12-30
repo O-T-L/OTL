@@ -62,26 +62,40 @@ int main(void)
 				_TProblem &problem = problems[i];
 				const size_t nEvaluations = nEvaluationsList[i];
 				const clock_t start = clock();
+				const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), 100);
 				_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 				otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 				_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
-				const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), 100);
 				_TOptimizer optimizer(random, problem, initial, crossover, mutation);
 				for (size_t generation = 1; problem.GetNumberOfEvaluations() < nEvaluations; ++generation)
 					optimizer();
 				const clock_t end = clock();
-				const double duration = (double)(end - start) / CLOCKS_PER_SEC;
+				const _TReal duration = (_TReal)(end - start) / CLOCKS_PER_SEC;
 				std::cout << duration << std::endl;
 
 				boost::filesystem::path path = CMAKE_BINARY_DIR;
-				path /= "OTL";
+				path /= "Output";
+				path /= "NSGA-II";
 				path /= problemNames[i];
 				path /= (boost::format("%u") % nObjectives).str();
 				boost::filesystem::create_directories(path);
-				path /= (boost::format("%u.duration") % repeat).str();
-				boost::filesystem::ofstream ofs(path);
-				ofs << duration;
-				ofs.close();
+				{
+					boost::filesystem::ofstream ofs(path / (boost::format("%u.pf") % repeat).str());
+					const auto &population = optimizer.GetSolutionSet();
+					for (size_t i = 0; i < population.size(); ++i)
+					{
+						const auto &objective = population[i].objective_;
+						for (size_t j = 0; j < objective.size(); ++j)
+							ofs << objective[j] << '\t';
+						ofs << std::endl;
+					}
+					ofs.close();
+				}
+				{
+					boost::filesystem::ofstream ofs(path / (boost::format("%u.duration") % repeat).str());
+					ofs << duration;
+					ofs.close();
+				}
 			}
 		}
 	}
