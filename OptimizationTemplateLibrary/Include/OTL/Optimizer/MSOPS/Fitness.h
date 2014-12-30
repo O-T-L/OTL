@@ -37,7 +37,8 @@ _TReal WeightedMinMax(const std::vector<_TReal> &objective, const std::vector<_T
 	_TReal max = std::numeric_limits<_TReal>::min();
 	for(size_t i = 0; i < objective.size(); ++i)
 	{
-		const _TReal value = objective[i] * target[i];
+		assert(target[i] >= 0);
+		const _TReal value = objective[i] / (target[i] + std::numeric_limits<_TReal>::epsilon());
 		if(value > max)
 			max = value;
 	}
