@@ -107,8 +107,8 @@ std::vector<_TReal> CalculateAlphas(const size_t populationSize, const size_t re
 {
 	std::vector<_TReal> alphas(nMaxDominators + 1);
 	alphas[0] = 0;
-	for(size_t nDominators = 1; nDominators < alphas.size(); ++nDominators)
-		alphas[nDominators] = CalculateAlpha<_TReal>(populationSize, remove, nDominators);
+	for(size_t i = 1; i < alphas.size(); ++i)
+		alphas[i] = CalculateAlpha<_TReal>(populationSize, remove, i);
 	return alphas;
 }
 
