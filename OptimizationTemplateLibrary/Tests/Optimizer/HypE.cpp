@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
 #include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/HypE/HypE.h>
+#include <OTL/Optimizer/HypE/FastHypE.h>
 
 namespace hype
 {
@@ -92,6 +93,32 @@ BOOST_AUTO_TEST_CASE(HypE)
 	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
 	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::hype::HypE<_TReal, _TDecision, _TRandom &> _TOptimizer;
+	const size_t nObjectives = 3;
+	const size_t populationSize = 100;
+	_TRandom random;
+	_TProblem problem(nObjectives);
+	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
+	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
+	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
+	_TOptimizer optimizer(random, problem, initial, crossover, mutation, 10000);
+	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
+	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
+	{
+		optimizer();
+		BOOST_CHECK_EQUAL(problem.GetNumberOfEvaluations(), (generation + 1) * initial.size());
+	}
+}
+
+BOOST_AUTO_TEST_CASE(FastHypE)
+{
+	typedef std::mt19937 _TRandom;
+	typedef double _TReal;
+	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
+	typedef _TProblem::TDecision _TDecision;
+	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::optimizer::hype::FastHypE<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;

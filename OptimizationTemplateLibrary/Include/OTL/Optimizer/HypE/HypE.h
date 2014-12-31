@@ -42,8 +42,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Selection/NondominateSelection.h>
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include "Individual.h"
-#include "FitnessEstimation.h"
 #include "CalculateReferencePoint.h"
+#include "Fitness.h"
 
 namespace otl
 {
@@ -76,14 +76,10 @@ protected:
 	void _DoStep(void);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
-	std::vector<TIndividual *> _TournamentSelection(TSolutionSet &ancestor);
-	TSolutionSet _MakeNewPopulation(TSolutionSet &ancestor);
-	template <typename _TPointer> void _Reduce(std::list<_TPointer> &population, const size_t nArchive);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 
 private:
 	size_t nSample_;
-	std::vector<TReal> referencePoint_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -106,7 +102,7 @@ HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, cons
 	std::list<_TPointer> solutionSet;
 	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
 		solutionSet.push_back(&TSuper::solutionSet_[i]);
-	const std::vector<TReal> referencePoint = CalculateUpperReferencePoint<TReal>(solutionSet.begin(), solutionSet.end());
+	const std::vector<TReal> referencePoint = CalculateReferencePoint<TReal>(solutionSet.begin(), solutionSet.end());
 	while (!solutionSet.empty())
 	{
 		std::list<_TPointer> nondominate = otl::utility::ExtractNondominate(solutionSet, &_Dominate);
@@ -161,7 +157,6 @@ void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 		mix.push_back(&ancestor[i]);
 	for (size_t i = 0; i < offspring.size(); ++i)
 		mix.push_back(&offspring[i]);
-	referencePoint_ = CalculateUpperReferencePoint<TReal>(mix.begin(), mix.end());
 	typedef typename TSolutionSet::iterator _TIterator;
 	otl::selection::NondominateSelection(mix, TSuper::solutionSet_.begin(), TSuper::solutionSet_.end(), &_Dominate
 		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectNoncritical(front, begin, end);}
@@ -172,7 +167,8 @@ void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
-	FitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint_, nSample_, front.size());
+	const std::vector<TReal> referencePoint = CalculateReferencePoint<TReal>(front.begin(), front.end());
+	FitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint, nSample_, front.size());
 	_TIterator dest = begin;
 	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
 		*dest = **i;
@@ -182,10 +178,11 @@ template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDec
 template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
+	const std::vector<TReal> referencePoint = CalculateReferencePoint<TReal>(front.begin(), front.end());
 	assert(front.size() >= std::distance(begin, end));
 	for (size_t remove = front.size() - std::distance(begin, end); remove; --remove)
 	{
-		FitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint_, nSample_, remove);
+		FitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint, nSample_, remove);
 		auto worst = std::min_element(front.begin(), front.end(), [](_TPointer individual1, _TPointer individual2)->bool{return individual1->fitness_ < individual2->fitness_;});
 		front.erase(worst);
 	}

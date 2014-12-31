@@ -28,22 +28,23 @@ namespace optimizer
 namespace hype
 {
 template <typename _TReal, typename _TIterator>
-std::vector<_TReal> CalculateUpperReferencePoint(_TIterator begin, _TIterator end)
+std::vector<_TReal> CalculateReferencePoint(_TIterator begin, _TIterator end)
 {
 	assert(begin != end);
-	std::vector<_TReal> referencePoint((**begin).objective_.size());
-	for (size_t dimension = 0; dimension < referencePoint.size(); ++dimension)
+	std::vector<_TReal> upper((**begin).objective_.size());
+	for (size_t obj = 0; obj < upper.size(); ++obj)
 	{
-		referencePoint[dimension] = (**begin).objective_[dimension];
+		upper[obj] = (**begin).objective_[obj];
 		for (_TIterator i = ++_TIterator(begin); i != end; ++i)
 		{
-			const _TReal coordinate = (**i).objective_[dimension];
-			if (referencePoint[dimension] < coordinate)
-				referencePoint[dimension] = coordinate;
+			assert((**i).objective_.size() == upper.size());
+			const _TReal coordinate = (**i).objective_[obj];
+			if (upper[obj] < coordinate)
+				upper[obj] = coordinate;
 		}
-		referencePoint[dimension] += 1;
+		upper[obj] += 1;
 	}
-	return referencePoint;
+	return upper;
 }
 }
 }
