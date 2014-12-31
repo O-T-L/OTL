@@ -44,7 +44,6 @@ public:
 
 protected:
 	void _DoStep(void);
-	template <typename _TPointer, typename _TIterator> _TIterator _SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 };
 
@@ -78,24 +77,14 @@ void FastHypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TPointer, typename _TIterator> _TIterator FastHypE<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
-{
-	const std::vector<TReal> referencePoint = CalculateReferencePoint<TReal>(front.begin(), front.end());
-	FastFitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint, TSuper::GetSampleSize(), front.size());
-	_TIterator dest = begin;
-	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
-		*dest = **i;
-	return dest;
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator FastHypE<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
-	const std::vector<TReal> referencePoint = CalculateReferencePoint<TReal>(front.begin(), front.end());
+	const auto lower = FindLower<TReal>(front.begin(), front.end());
+	const auto upper = FindUpper<TReal>(front.begin(), front.end());
 	assert(front.size() >= std::distance(begin, end));
 	for (size_t remove = front.size() - std::distance(begin, end); remove; --remove)
 	{
-		FastFitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint, TSuper::GetSampleSize(), remove);
+		FastFitnessEstimation(this->GetRandom(), front.begin(), front.end(), lower, upper, TSuper::GetSampleSize(), remove);
 		auto worst = std::min_element(front.begin(), front.end(), [](_TPointer individual1, _TPointer individual2)->bool{return individual1->fitness_ < individual2->fitness_;});
 		front.erase(worst);
 	}

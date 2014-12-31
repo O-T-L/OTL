@@ -43,25 +43,6 @@ std::vector<_TReal> GeneratePoint(_TRandom &random, const std::vector<_TReal> &l
 	return point;
 }
 
-template <typename _TReal, typename _TIterator>
-std::vector<_TReal> FindLower(_TIterator begin, _TIterator end)
-{
-	assert(begin != end);
-	std::vector<_TReal> lower((**begin).objective_.size());
-	for (size_t obj = 0; obj < lower.size(); ++obj)
-	{
-		lower[obj] = (**begin).objective_[obj];
-		for (_TIterator i = ++_TIterator(begin); i != end; ++i)
-		{
-			assert((**i).objective_.size() == lower.size());
-			const _TReal coordinate = (**i).objective_[obj];
-			if (coordinate < lower[obj])
-				lower[obj] = coordinate;
-		}
-	}
-	return lower;
-}
-
 template <typename _TIterator, typename _TReal>
 std::list<typename std::iterator_traits<_TIterator>::value_type> FindDominators(_TIterator begin, _TIterator end, const std::vector<_TReal> &point)
 {
@@ -119,45 +100,43 @@ std::vector<_TReal> CalculateAlphas(const size_t populationSize, const size_t re
 }
 
 template <typename _TRandom, typename _TIterator, typename _TReal>
-void FitnessEstimation(_TRandom &random, _TIterator begin, _TIterator end, const std::vector<_TReal> &referencePoint, const size_t nSample, const size_t remove)
+void FitnessEstimation(_TRandom &random, _TIterator begin, _TIterator end, const std::vector<_TReal> &lower, const std::vector<_TReal> &upper, const size_t nSample, const size_t remove)
 {
 	assert(0 < remove && remove <= std::distance(begin, end));
-	const std::vector<_TReal> lower = FindLower<_TReal>(begin, end);
-	assert(referencePoint.size() == lower.size());
+	assert(lower.size() == upper.size());
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).fitness_ = 0;
 	const std::vector<_TReal> alphas = CalculateAlphas<_TReal>(std::distance(begin, end), remove);
 	for (size_t sample = 0; sample < nSample; ++sample)
 	{
-		const std::vector<_TReal> point = GeneratePoint(random, lower, referencePoint);
+		const std::vector<_TReal> point = GeneratePoint(random, lower, upper);
 		const auto dominators = FindDominators(begin, end, point);
 		const _TReal alpha = alphas[dominators.size()];
 		for (auto i = dominators.begin(); i != dominators.end(); ++i)
 			(**i).fitness_ += alpha;
 	}
-	const _TReal volume = std::inner_product(referencePoint.begin(), referencePoint.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
+	const _TReal volume = std::inner_product(upper.begin(), upper.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).fitness_ *= volume / nSample;
 }
 
 template <typename _TRandom, typename _TIterator, typename _TReal>
-void FastFitnessEstimation(_TRandom &random, _TIterator begin, _TIterator end, const std::vector<_TReal> &referencePoint, const size_t nSample, const size_t remove)
+void FastFitnessEstimation(_TRandom &random, _TIterator begin, _TIterator end, const std::vector<_TReal> &lower, const std::vector<_TReal> &upper, const size_t nSample, const size_t remove)
 {
 	assert(0 < remove && remove <= std::distance(begin, end));
-	const std::vector<_TReal> lower = FindLower<_TReal>(begin, end);
-	assert(referencePoint.size() == lower.size());
+	assert(lower.size() == upper.size());
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).fitness_ = 0;
 	const std::vector<_TReal> alphas = CalculateAlphas<_TReal>(std::distance(begin, end), remove, remove);
 	for (size_t sample = 0; sample < nSample; ++sample)
 	{
-		const std::vector<_TReal> point = GeneratePoint(random, lower, referencePoint);
+		const std::vector<_TReal> point = GeneratePoint(random, lower, upper);
 		const auto dominators = FindDominators(begin, end, point, remove);
 		const _TReal alpha = alphas[dominators.size()];
 		for (auto i = dominators.begin(); i != dominators.end(); ++i)
 			(**i).fitness_ += alpha;
 	}
-	const _TReal volume = std::inner_product(referencePoint.begin(), referencePoint.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
+	const _TReal volume = std::inner_product(upper.begin(), upper.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).fitness_ *= volume / nSample;
 }

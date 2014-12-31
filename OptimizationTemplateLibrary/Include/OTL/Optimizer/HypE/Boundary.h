@@ -28,7 +28,27 @@ namespace optimizer
 namespace hype
 {
 template <typename _TReal, typename _TIterator>
-std::vector<_TReal> CalculateReferencePoint(_TIterator begin, _TIterator end)
+std::vector<_TReal> FindLower(_TIterator begin, _TIterator end)
+{
+	assert(begin != end);
+	std::vector<_TReal> lower((**begin).objective_.size());
+	for (size_t obj = 0; obj < lower.size(); ++obj)
+	{
+		lower[obj] = (**begin).objective_[obj];
+		for (_TIterator i = ++_TIterator(begin); i != end; ++i)
+		{
+			assert((**i).objective_.size() == lower.size());
+			const _TReal coordinate = (**i).objective_[obj];
+			if (coordinate < lower[obj])
+				lower[obj] = coordinate;
+		}
+		lower[obj] -= 1;
+	}
+	return lower;
+}
+
+template <typename _TReal, typename _TIterator>
+std::vector<_TReal> FindUpper(_TIterator begin, _TIterator end)
 {
 	assert(begin != end);
 	std::vector<_TReal> upper((**begin).objective_.size());
