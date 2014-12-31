@@ -68,6 +68,7 @@ public:
 	HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample);
 	~HypE(void);
 	size_t GetSampleSize(void) const;
+	void AssignFitness(TSolutionSet &population);
 	TSolutionSet MakeOffspring(const TSolutionSet &ancestor);
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 
@@ -111,6 +112,18 @@ size_t HypE<_TReal, _TDecision, _TRandom>::GetSampleSize(void) const
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
+void HypE<_TReal, _TDecision, _TRandom>::AssignFitness(TSolutionSet &population)
+{
+	typedef typename TSolutionSet::pointer _TPointer;
+	std::list<_TPointer> _population;
+	for (size_t i = 0; i < population.size(); ++i)
+		_population.push_back(&population[i]);
+	const auto lower = FindLower<TReal>(_population.begin(), _population.end());
+	const auto upper = FindUpper<TReal>(_population.begin(), _population.end());
+	FitnessEstimation(this->GetRandom(), _population.begin(), _population.end(), lower, upper, nSample_, population.size());
+}
+
+template <typename _TReal, typename _TDecision, typename _TRandom>
 typename HypE<_TReal, _TDecision, _TRandom>::TSolutionSet HypE<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
 {
 	TSolutionSet offspring = otl::optimizer::nsga_ii::MakeOffspring(ancestor.size(), ancestor.begin(), ancestor.end(), this->GetRandom(), &_Compete, this->GetCrossover());
@@ -139,6 +152,7 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
+	AssignFitness(ancestor);
 	TSolutionSet offspring = MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
 	std::list<_TPointer> mix;
@@ -187,7 +201,9 @@ const typename HypE<_TReal, _TDecision, _TRandom>::TIndividual *HypE<_TReal, _TD
 		return competition[0];
 	else if (Dominate(*competition[1], *competition[0]))
 		return competition[1];
-	return competition[0];
+	assert(competition[0]->fitness_ >= 0);
+	assert(competition[1]->fitness_ >= 0);
+	return competition[0]->fitness_ < competition[1]->fitness_ ? competition[0] : competition[1];
 }
 }
 }

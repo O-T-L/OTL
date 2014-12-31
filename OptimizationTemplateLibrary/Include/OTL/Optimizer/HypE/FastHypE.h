@@ -62,6 +62,7 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 void FastHypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
+	TSuper::AssignFitness(ancestor);
 	TSolutionSet offspring = TSuper::MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
 	std::list<_TPointer> mix;
