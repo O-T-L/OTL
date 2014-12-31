@@ -62,7 +62,8 @@ _TReal CalculateMonteCarloHV(const std::vector<_TReal> &referencePoint, _TIterat
 			++index;
 		}
 	}
-	otl::optimizer::hype::FitnessEstimation(random, _population.begin(), _population.end(), referencePoint, nSample, _population.size());
+	const auto lower = otl::optimizer::hype::FindLower<_TReal>(_population.begin(), _population.end());
+	otl::optimizer::hype::FitnessEstimation(random, _population.begin(), _population.end(), lower, referencePoint, nSample, _population.size());
 	_TReal hv = 0;
 	for (size_t i = 0; i < population.size(); ++i)
 		hv += population[i].fitness_;
