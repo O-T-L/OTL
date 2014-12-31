@@ -38,7 +38,7 @@ public:
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
 
-	WFG3(const size_t nObjectives, const size_t posGroups = 2, const size_t distDecisions = 4);
+	WFG3(const size_t nObjectives, const size_t posGroups = 2, const size_t distDecisions = 20);
 	~WFG3(void);
 	static void Transition1(TDecision &decision, const size_t nPosDecisions);
 	static void Transition2(TDecision &decision, const size_t nPosDecisions);
