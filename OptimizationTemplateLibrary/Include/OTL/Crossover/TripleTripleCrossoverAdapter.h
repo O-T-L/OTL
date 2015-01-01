@@ -77,7 +77,7 @@ void TripleTripleCrossoverAdapter<_TReal, _TDecision, _TRandom>::_DoCrossover(st
 {
 	for (size_t child1 = 0; child1 < offspring.size();)
 	{
-		std::random_shuffle(ancestor.begin(), ancestor.end(), [this](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(this->GetRandom());});
+		std::random_shuffle(ancestor.begin(), ancestor.end(), [this](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(this->GetRandom());});
 		for (size_t parent1 = 0; child1 < offspring.size() && parent1 < ancestor.size(); child1 += 3, parent1 += 3)
 		{
 			const size_t parent2 = (parent1 + 1) % ancestor.size();

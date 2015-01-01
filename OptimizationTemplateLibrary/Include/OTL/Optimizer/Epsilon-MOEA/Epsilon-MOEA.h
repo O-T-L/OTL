@@ -181,7 +181,7 @@ const typename Epsilon_MOEA<_TReal, _TDecision, _TRandom>::TIndividual &Epsilon_
 	std::vector<size_t> indexList(population.size());
 	for (size_t i = 0; i < indexList.size(); ++i)
 		indexList[i] = i;
-	std::random_shuffle(indexList.begin(), indexList.end(), [this](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(this->GetRandom());});
+	std::random_shuffle(indexList.begin(), indexList.end(), [this](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(this->GetRandom());});
 	const TIndividual &individual1 = population[indexList[0]];
 	const TIndividual &individual2 = population[indexList[1]];
 	if (Dominate(individual1, individual2))

@@ -60,7 +60,7 @@ void RouletteWheelSelection(_TRandom &random, _TSrcIterator srcBegin, _TSrcItera
 	else
 	{
 		std::vector<_TPointer> population(srcBegin, srcEnd);
-		std::random_shuffle(population.begin(), population.end(), [&random](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(random);});
+		std::random_shuffle(population.begin(), population.end(), [&random](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(random);});
 		size_t index = 0;
 		for (_TDestIterator i = destBegin; i != destEnd; ++i)
 		{

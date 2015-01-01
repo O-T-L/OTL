@@ -196,7 +196,7 @@ template <typename _TPointer, typename _TIterator> _TIterator AR_DMO<_TReal, _TD
 	{
 		std::vector<_TPointer> _front(front.begin(), front.end());
 		otl::optimizer::nsga_ii::CrowdingDistanceAssignment<TReal>(_front.begin(), _front.end());
-		std::random_shuffle(_front.begin(), _front.end(), [this](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(this->GetRandom());});
+		std::random_shuffle(_front.begin(), _front.end(), [this](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(this->GetRandom());});
 		_TIterator dest = begin;
 		for (size_t i = 0; dest != end; ++i, ++dest)
 			*dest = *_front[i];

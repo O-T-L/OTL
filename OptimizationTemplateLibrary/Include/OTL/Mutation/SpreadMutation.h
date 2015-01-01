@@ -87,7 +87,7 @@ template <typename _TReal, typename _TRandom>
 void SpreadMutation<_TReal, _TRandom>::_Mutate(TDecision &decision, const size_t begin, const size_t end)
 {
 	assert(begin < end);
-	std::random_shuffle(decision.begin() + begin, decision.begin() + end, [this](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(this->GetRandom());});
+	std::random_shuffle(decision.begin() + begin, decision.begin() + end, [this](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(this->GetRandom());});
 }
 }
 }
