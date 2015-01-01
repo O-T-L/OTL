@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include "Individual.h"
 #include "Fitness.h"
-#include "Boundary.h"
+#include "ReferencePoint.h"
 
 namespace otl
 {
@@ -65,11 +65,11 @@ public:
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample);
+	HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand = 1);
 	~HypE(void);
 	size_t GetSampleSize(void) const;
-	void AssignFitness(TSolutionSet &population);
-	TSolutionSet MakeOffspring(const TSolutionSet &ancestor);
+	TReal GetExpand(void) const;
+	TSolutionSet MakeOffspring(TSolutionSet &ancestor);
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 
 protected:
@@ -80,16 +80,18 @@ protected:
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 
 private:
-	size_t nSample_;
+	const size_t nSample_;
+	const TReal expand_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample)
+HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, otl::crossover::WithCrossover<TReal, TDecision>(crossover)
 	, otl::mutation::WithMutation<TReal, TDecision>(mutation)
 	, nSample_(nSample)
+	, expand_(expand)
 {
 	TSuper::solutionSet_.resize(initial.size());
 	for (size_t i = 0; i < initial.size(); ++i)
@@ -112,21 +114,26 @@ size_t HypE<_TReal, _TDecision, _TRandom>::GetSampleSize(void) const
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void HypE<_TReal, _TDecision, _TRandom>::AssignFitness(TSolutionSet &population)
+_TReal HypE<_TReal, _TDecision, _TRandom>::GetExpand(void) const
 {
-	typedef typename TSolutionSet::pointer _TPointer;
-	std::list<_TPointer> _population;
-	for (size_t i = 0; i < population.size(); ++i)
-		_population.push_back(&population[i]);
-	const auto lower = FindLower<TReal>(_population.begin(), _population.end());
-	const auto upper = FindUpper<TReal>(_population.begin(), _population.end());
-	FitnessEstimation(this->GetRandom(), _population.begin(), _population.end(), lower, upper, nSample_, population.size());
+	return expand_;
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-typename HypE<_TReal, _TDecision, _TRandom>::TSolutionSet HypE<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
+typename HypE<_TReal, _TDecision, _TRandom>::TSolutionSet HypE<_TReal, _TDecision, _TRandom>::MakeOffspring(TSolutionSet &ancestor)
 {
-	TSolutionSet offspring = otl::optimizer::nsga_ii::MakeOffspring(ancestor.size(), ancestor.begin(), ancestor.end(), this->GetRandom(), &_Compete, this->GetCrossover());
+	typedef typename TSolutionSet::pointer _TPointer;
+	{
+		std::list<_TPointer> _ancestor;
+		for (size_t i = 0; i < ancestor.size(); ++i)
+			_ancestor.push_back(&ancestor[i]);
+		const auto lower = FindLower<TReal>(_ancestor.begin(), _ancestor.end());
+		const auto upper = FindUpper<TReal>(_ancestor.begin(), _ancestor.end());
+		const auto referencePoint = CalculateReferencePoint(lower, upper, expand_);
+		FitnessEstimation(this->GetRandom(), _ancestor.begin(), _ancestor.end(), lower, referencePoint, nSample_, ancestor.size());
+	}
+	const TSolutionSet &_ancestor = ancestor;
+	TSolutionSet offspring = otl::optimizer::nsga_ii::MakeOffspring(ancestor.size(), _ancestor.begin(), _ancestor.end(), this->GetRandom(), &_Compete, this->GetCrossover());
 	for (size_t i = 0; i < offspring.size(); ++i)
 	{
 		TIndividual &child = offspring[i];
@@ -152,7 +159,6 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
-	AssignFitness(ancestor);
 	TSolutionSet offspring = MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
 	std::list<_TPointer> mix;
@@ -181,10 +187,11 @@ template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDec
 {
 	const auto lower = FindLower<TReal>(front.begin(), front.end());
 	const auto upper = FindUpper<TReal>(front.begin(), front.end());
+	const auto referencePoint = CalculateReferencePoint(lower, upper, expand_);
 	assert(front.size() >= std::distance(begin, end));
 	for (size_t remove = front.size() - std::distance(begin, end); remove; --remove)
 	{
-		FitnessEstimation(this->GetRandom(), front.begin(), front.end(), lower, upper, nSample_, remove);
+		FitnessEstimation(this->GetRandom(), front.begin(), front.end(), lower, referencePoint, nSample_, remove);
 		auto worst = std::min_element(front.begin(), front.end(), [](_TPointer individual1, _TPointer individual2)->bool{return individual1->fitness_ < individual2->fitness_;});
 		front.erase(worst);
 	}

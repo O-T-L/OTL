@@ -39,7 +39,7 @@ public:
 	typedef typename TSuper::TCrossover TCrossover;
 	typedef typename TSuper::TMutation TMutation;
 
-	FastHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample);
+	FastHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand = 1);
 	~FastHypE(void);
 
 protected:
@@ -48,8 +48,8 @@ protected:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-FastHypE<_TReal, _TDecision, _TRandom>::FastHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample)
-	: TSuper(random, problem, initial, crossover, mutation, nSample)
+FastHypE<_TReal, _TDecision, _TRandom>::FastHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand)
+	: TSuper(random, problem, initial, crossover, mutation, nSample, expand)
 {
 }
 
@@ -62,7 +62,6 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 void FastHypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
-	TSuper::AssignFitness(ancestor);
 	TSolutionSet offspring = TSuper::MakeOffspring(ancestor);
 	typedef typename TSolutionSet::pointer _TPointer;
 	std::list<_TPointer> mix;
@@ -82,10 +81,11 @@ template <typename _TPointer, typename _TIterator> _TIterator FastHypE<_TReal, _
 {
 	const auto lower = FindLower<TReal>(front.begin(), front.end());
 	const auto upper = FindUpper<TReal>(front.begin(), front.end());
+	const auto referencePoint = CalculateReferencePoint(lower, upper, TSuper::GetExpand());
 	assert(front.size() >= std::distance(begin, end));
 	for (size_t remove = front.size() - std::distance(begin, end); remove; --remove)
 	{
-		FastFitnessEstimation(this->GetRandom(), front.begin(), front.end(), lower, upper, TSuper::GetSampleSize(), remove);
+		FastFitnessEstimation(this->GetRandom(), front.begin(), front.end(), lower, referencePoint, TSuper::GetSampleSize(), remove);
 		auto worst = std::min_element(front.begin(), front.end(), [](_TPointer individual1, _TPointer individual2)->bool{return individual1->fitness_ < individual2->fitness_;});
 		front.erase(worst);
 	}
