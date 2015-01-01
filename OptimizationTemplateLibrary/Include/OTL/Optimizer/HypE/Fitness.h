@@ -73,30 +73,30 @@ std::list<typename std::iterator_traits<_TIterator>::value_type> FindDominators(
 }
 
 template <typename _TReal>
-_TReal CalculateAlpha(const size_t populationSize, const size_t remove, const size_t nDominators)
+_TReal CalculateRatio(const size_t populationSize, const size_t remove, const size_t nDominators)
 {
 	assert(populationSize > 0);
 	assert(0 < nDominators && nDominators <= populationSize);
-	_TReal alpha = 1;
+	_TReal ratio = 1;
 	for (size_t i = 1; i < nDominators - 1; ++i)
-		alpha *= (_TReal)(remove - i) / (populationSize - i);
-	return alpha / nDominators;
+		ratio *= (_TReal)(remove - i) / (populationSize - i);
+	return ratio / nDominators;
 }
 
 template <typename _TReal>
-std::vector<_TReal> CalculateAlphas(const size_t populationSize, const size_t remove, const size_t nMaxDominators)
+std::vector<_TReal> CalculateRatios(const size_t populationSize, const size_t remove, const size_t nMaxDominators)
 {
-	std::vector<_TReal> alphas(nMaxDominators + 1);
-	alphas[0] = 0;
-	for(size_t i = 1; i < alphas.size(); ++i)
-		alphas[i] = CalculateAlpha<_TReal>(populationSize, remove, i);
-	return alphas;
+	std::vector<_TReal> ratios(nMaxDominators + 1);
+	ratios[0] = 0;
+	for(size_t i = 1; i < ratios.size(); ++i)
+		ratios[i] = CalculateRatio<_TReal>(populationSize, remove, i);
+	return ratios;
 }
 
 template <typename _TReal>
-std::vector<_TReal> CalculateAlphas(const size_t populationSize, const size_t remove)
+std::vector<_TReal> CalculateRatios(const size_t populationSize, const size_t remove)
 {
-	return CalculateAlphas<_TReal>(populationSize, remove, populationSize);
+	return CalculateRatios<_TReal>(populationSize, remove, populationSize);
 }
 
 template <typename _TRandom, typename _TIterator, typename _TReal>
@@ -106,14 +106,14 @@ void FitnessEstimation(_TRandom &random, _TIterator begin, _TIterator end, const
 	assert(lower.size() == upper.size());
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).fitness_ = 0;
-	const std::vector<_TReal> alphas = CalculateAlphas<_TReal>(std::distance(begin, end), remove);
+	const std::vector<_TReal> ratios = CalculateRatios<_TReal>(std::distance(begin, end), remove);
 	for (size_t sample = 0; sample < nSample; ++sample)
 	{
 		const std::vector<_TReal> point = GeneratePoint(random, lower, upper);
 		const auto dominators = FindDominators(begin, end, point);
-		const _TReal alpha = alphas[dominators.size()];
+		const _TReal ratio = ratios[dominators.size()];
 		for (auto i = dominators.begin(); i != dominators.end(); ++i)
-			(**i).fitness_ += alpha;
+			(**i).fitness_ += ratio;
 	}
 	const _TReal volume = std::inner_product(upper.begin(), upper.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
 	for (_TIterator i = begin; i != end; ++i)
@@ -127,14 +127,14 @@ void FastFitnessEstimation(_TRandom &random, _TIterator begin, _TIterator end, c
 	assert(lower.size() == upper.size());
 	for (_TIterator i = begin; i != end; ++i)
 		(**i).fitness_ = 0;
-	const std::vector<_TReal> alphas = CalculateAlphas<_TReal>(std::distance(begin, end), remove, remove);
+	const std::vector<_TReal> ratios = CalculateRatios<_TReal>(std::distance(begin, end), remove, remove);
 	for (size_t sample = 0; sample < nSample; ++sample)
 	{
 		const std::vector<_TReal> point = GeneratePoint(random, lower, upper);
 		const auto dominators = FindDominators(begin, end, point, remove);
-		const _TReal alpha = alphas[dominators.size()];
+		const _TReal ratio = ratios[dominators.size()];
 		for (auto i = dominators.begin(); i != dominators.end(); ++i)
-			(**i).fitness_ += alpha;
+			(**i).fitness_ += ratio;
 	}
 	const _TReal volume = std::inner_product(upper.begin(), upper.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
 	for (_TIterator i = begin; i != end; ++i)
