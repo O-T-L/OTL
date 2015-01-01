@@ -90,10 +90,9 @@ template <typename _TReal>
 _TReal MultiplicativeEpsilon<_TReal>::_Epsilon(const TPoint &point, const TPoint &reference)
 {
 	TReal epsilon = 0;
-	for (size_t k = 0; k < point.size(); ++k)
+	for (size_t i = 0; i < point.size(); ++i)
 	{
-		const TReal _epsilon = reference[k] / point[k];
-		assert(_epsilon >= 0);
+		const TReal _epsilon = reference[i] / point[i];
 		if (epsilon < _epsilon)
 			epsilon = _epsilon;
 	}
