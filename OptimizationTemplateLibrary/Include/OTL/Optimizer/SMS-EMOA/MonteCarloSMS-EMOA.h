@@ -55,7 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/SPEA2/RawFitness.h>
 #include "Individual.h"
 #include "ContributionEstimation.h"
-#include "CalculateReferencePoint.h"
+#include "ReferencePoint.h"
 
 namespace otl
 {
@@ -75,7 +75,7 @@ public:
 	typedef Metaheuristic<TSolutionSet> TSuper;
 	typedef typename TSuper::TProblem TProblem;
 
-	MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample);
+	MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample, const TReal expand = 1);
 	~MonteCarloSMS_EMOA(void);
 	size_t GetSampleSize(void) const;
 	std::vector<const TIndividual *> MatingSelection(const size_t offspringSize, const TSolutionSet &ancestor);
@@ -89,15 +89,17 @@ protected:
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(const std::list<_TPointer> &population, std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 
 private:
-	size_t nSample_;
+	const size_t nSample_;
+	const TReal expand_;
 	bool multiLayer_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-MonteCarloSMS_EMOA<_TReal, _TDecision, _TRandom>::MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample)
+MonteCarloSMS_EMOA<_TReal, _TDecision, _TRandom>::MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample, const TReal expand)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, nSample_(nSample)
+	, expand_(expand)
 {
 #ifndef NDEBUG
 	multiLayer_ = false;
@@ -197,8 +199,10 @@ template <typename _TPointer, typename _TIterator> _TIterator MonteCarloSMS_EMOA
 	}
 	else
 	{
-		const std::vector<_TReal> referencePoint = CalculateUpperReferencePoint<_TReal>(front.begin(), front.end());
-		ContributionEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint, nSample_);
+		const auto lower = FindLower<TReal>(front.begin(), front.end());
+		const auto upper = FindUpper<TReal>(front.begin(), front.end());
+		const auto referencePoint = CalculateReferencePoint(lower, upper, expand_);
+		ContributionEstimation(this->GetRandom(), front.begin(), front.end(), lower, referencePoint, nSample_);
 		std::vector<_TPointer> _front(front.begin(), front.end());
 		//the performance may get worse on 6-objective DTLZ3 if partial_sort is used here, but I don't know why.
 		std::sort(_front.begin(), _front.end()

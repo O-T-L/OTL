@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include <OTL/Optimizer/SPEA2/RawFitness.h>
 #include "ContributionAssignment.h"
-#include "CalculateReferencePoint.h"
+#include "ReferencePoint.h"
 #include "Individual.h"
 
 namespace otl
@@ -65,7 +65,7 @@ public:
 	typedef Metaheuristic<TSolutionSet> TSuper;
 	typedef typename TSuper::TProblem TProblem;
 
-	SMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, _TMakeHypervolume makeHypervolume);
+	SMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, _TMakeHypervolume makeHypervolume, const TReal expand = 1);
 	~SMS_EMOA(void);
 	std::vector<const TIndividual *> MatingSelection(const size_t offspringSize, const TSolutionSet &ancestor);
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
@@ -79,14 +79,16 @@ protected:
 
 private:
 	_TMakeHypervolume makeHypervolume_;
+	const TReal expand_;
 	bool multiLayer_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom, typename _TMakeHypervolume>
-SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::SMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, _TMakeHypervolume makeHypervolume)
+SMS_EMOA<_TReal, _TDecision, _TRandom, _TMakeHypervolume>::SMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, _TMakeHypervolume makeHypervolume, const TReal expand)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, makeHypervolume_(makeHypervolume)
+	, expand_(expand)
 {
 #ifndef NDEBUG
 	multiLayer_ = false;
@@ -180,7 +182,9 @@ template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _
 	}
 	else
 	{
-		const std::vector<_TReal> referencePoint = CalculateUpperReferencePoint<_TReal>(front.begin(), front.end());
+		const auto lower = FindLower<TReal>(front.begin(), front.end());
+		const auto upper = FindUpper<TReal>(front.begin(), front.end());
+		const auto referencePoint = CalculateReferencePoint(lower, upper, expand_);
 		ContributionAssignment(front.begin(), front.end(), referencePoint, makeHypervolume_);
 		std::vector<_TPointer> _front(front.begin(), front.end());
 		std::partial_sort(_front.begin(), _front.begin() + std::distance(begin, end), _front.end()
