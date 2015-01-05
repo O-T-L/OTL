@@ -59,10 +59,9 @@ public:
 protected:
 	static bool _Dominate(const TIndividual *individual1, const TIndividual *individual2);
 	void _DoStep(void);
-	template <typename _TPointer, typename _TIterator> static _TIterator _SelectNoncritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
-	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
+	template <typename _TPointer, typename _TIterator> static _TIterator _SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
+	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
-	template <typename _TPointer> _TPointer _RandomPop(std::list<_TPointer> &front, const size_t size);
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
@@ -126,12 +125,12 @@ void AR<_TReal, _TDecision, _TRandom>::_DoStep(void)
 	otl::optimizer::ar::AverageRanking(_mix.begin(), _mix.end());
 	typedef typename TSolutionSet::iterator _TIterator;
 	otl::selection::NondominateSelection(mix, TSuper::solutionSet_.begin(), TSuper::solutionSet_.end(), &_Dominate, &_SelectNoncritical<_TPointer, _TIterator>
-		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectCritical(front, begin, end);}
+		, [this](const std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectCritical(front, begin, end);}
 	);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TPointer, typename _TIterator> _TIterator AR<_TReal, _TDecision, _TRandom>::_SelectNoncritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
+template <typename _TPointer, typename _TIterator> _TIterator AR<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
 	_TIterator dest = begin;
 	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
@@ -140,11 +139,13 @@ template <typename _TPointer, typename _TIterator> _TIterator AR<_TReal, _TDecis
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TPointer, typename _TIterator> _TIterator AR<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
+template <typename _TPointer, typename _TIterator> _TIterator AR<_TReal, _TDecision, _TRandom>::_SelectCritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
+	std::vector<_TPointer> _front(front.begin(), front.end());
+	std::random_shuffle(_front.begin(), _front.end(), [this](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(this->GetRandom());});
 	_TIterator dest = begin;
-	for (size_t count = front.size(); count && dest != end; --count, ++dest)
-		*dest = *_RandomPop(front, count);
+	for (size_t i = 0; dest != end; ++i, ++dest)
+		*dest = *_front[i];
 	return dest;
 }
 
@@ -158,18 +159,6 @@ const typename AR<_TReal, _TDecision, _TRandom>::TIndividual *AR<_TReal, _TDecis
 	assert(competition[0]->averageRank_ >= 0);
 	assert(competition[1]->averageRank_ >= 0);
 	return competition[0]->averageRank_ < competition[1]->averageRank_ ? competition[0] : competition[1];
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TPointer> _TPointer AR<_TReal, _TDecision, _TRandom>::_RandomPop(std::list<_TPointer> &front, const size_t size)
-{
-	assert(front.size() == size);
-	auto i = front.begin();
-	for (size_t count = std::uniform_int_distribution<size_t>(0, size - 1)(this->GetRandom()); count; --count)
-		++i;
-	_TPointer individual = *i;
-	front.erase(i);
-	return individual;
 }
 }
 }

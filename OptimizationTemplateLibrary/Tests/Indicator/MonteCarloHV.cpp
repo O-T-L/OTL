@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/math/constants/constants.hpp>
 #include <OTL/Indicator/Hypervolume/MonteCarloHV.h>
 
+namespace montecarlo_hv
+{
 template <typename _TReal>
 std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const size_t nPoints)
 {
@@ -53,4 +55,5 @@ BOOST_AUTO_TEST_CASE(MonteCarloHVCircle)
 	_TRandom random;
 	_TIndicator indicator(std::vector<_TReal>(2, referencePoint), random, 10000000);
 	BOOST_CHECK_CLOSE(indicator(points), 3.2106680495668716, 0.1);
+}
 }

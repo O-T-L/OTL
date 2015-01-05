@@ -42,8 +42,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Selection/NondominateSelection.h>
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include "Individual.h"
-#include "FitnessEstimation.h"
-#include "CalculateReferencePoint.h"
+#include "Fitness.h"
+#include "ReferencePoint.h"
 
 namespace otl
 {
@@ -65,10 +65,11 @@ public:
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample);
+	HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand = 1);
 	~HypE(void);
 	size_t GetSampleSize(void) const;
-	TSolutionSet MakeOffspring(const TSolutionSet &ancestor);
+	TReal GetExpand(void) const;
+	TSolutionSet MakeOffspring(TSolutionSet &ancestor);
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 
 protected:
@@ -76,23 +77,21 @@ protected:
 	void _DoStep(void);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
-	std::vector<TIndividual *> _TournamentSelection(TSolutionSet &ancestor);
-	TSolutionSet _MakeNewPopulation(TSolutionSet &ancestor);
-	template <typename _TPointer> void _Reduce(std::list<_TPointer> &population, const size_t nArchive);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
 
 private:
-	size_t nSample_;
-	std::vector<TReal> referencePoint_;
+	const size_t nSample_;
+	const TReal expand_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample)
+HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, otl::crossover::WithCrossover<TReal, TDecision>(crossover)
 	, otl::mutation::WithMutation<TReal, TDecision>(mutation)
 	, nSample_(nSample)
+	, expand_(expand)
 {
 	TSuper::solutionSet_.resize(initial.size());
 	for (size_t i = 0; i < initial.size(); ++i)
@@ -100,17 +99,6 @@ HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, cons
 		TIndividual &individual = TSuper::solutionSet_[i];
 		individual.decision_ = initial[i];
 		TSuper::GetProblem()(individual);
-	}
-
-	typedef typename TSolutionSet::pointer _TPointer;
-	std::list<_TPointer> solutionSet;
-	for (size_t i = 0; i < TSuper::solutionSet_.size(); ++i)
-		solutionSet.push_back(&TSuper::solutionSet_[i]);
-	const std::vector<TReal> referencePoint = CalculateUpperReferencePoint<TReal>(solutionSet.begin(), solutionSet.end());
-	while (!solutionSet.empty())
-	{
-		std::list<_TPointer> nondominate = otl::utility::ExtractNondominate(solutionSet, &_Dominate);
-		FitnessEstimation(this->GetRandom(), nondominate.begin(), nondominate.end(), referencePoint, nSample_, nondominate.size());
 	}
 }
 
@@ -126,9 +114,26 @@ size_t HypE<_TReal, _TDecision, _TRandom>::GetSampleSize(void) const
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-typename HypE<_TReal, _TDecision, _TRandom>::TSolutionSet HypE<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &ancestor)
+_TReal HypE<_TReal, _TDecision, _TRandom>::GetExpand(void) const
 {
-	TSolutionSet offspring = otl::optimizer::nsga_ii::MakeOffspring(ancestor.size(), ancestor.begin(), ancestor.end(), this->GetRandom(), &_Compete, this->GetCrossover());
+	return expand_;
+}
+
+template <typename _TReal, typename _TDecision, typename _TRandom>
+typename HypE<_TReal, _TDecision, _TRandom>::TSolutionSet HypE<_TReal, _TDecision, _TRandom>::MakeOffspring(TSolutionSet &ancestor)
+{
+	typedef typename TSolutionSet::pointer _TPointer;
+	{
+		std::list<_TPointer> _ancestor;
+		for (size_t i = 0; i < ancestor.size(); ++i)
+			_ancestor.push_back(&ancestor[i]);
+		const auto lower = FindLower<TReal>(_ancestor.begin(), _ancestor.end());
+		const auto upper = FindUpper<TReal>(_ancestor.begin(), _ancestor.end());
+		const auto referencePoint = CalculateReferencePoint(lower, upper, expand_);
+		FitnessEstimation(this->GetRandom(), _ancestor.begin(), _ancestor.end(), lower, referencePoint, nSample_, ancestor.size());
+	}
+	const TSolutionSet &_ancestor = ancestor;
+	TSolutionSet offspring = otl::optimizer::nsga_ii::MakeOffspring(ancestor.size(), _ancestor.begin(), _ancestor.end(), this->GetRandom(), &_Compete, this->GetCrossover());
 	for (size_t i = 0; i < offspring.size(); ++i)
 	{
 		TIndividual &child = offspring[i];
@@ -161,7 +166,6 @@ void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 		mix.push_back(&ancestor[i]);
 	for (size_t i = 0; i < offspring.size(); ++i)
 		mix.push_back(&offspring[i]);
-	referencePoint_ = CalculateUpperReferencePoint<TReal>(mix.begin(), mix.end());
 	typedef typename TSolutionSet::iterator _TIterator;
 	otl::selection::NondominateSelection(mix, TSuper::solutionSet_.begin(), TSuper::solutionSet_.end(), &_Dominate
 		, [this](std::list<_TPointer> &front, _TIterator begin, _TIterator end)->_TIterator{return this->_SelectNoncritical(front, begin, end);}
@@ -172,7 +176,6 @@ void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
-	FitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint_, nSample_, front.size());
 	_TIterator dest = begin;
 	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
 		*dest = **i;
@@ -182,10 +185,13 @@ template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDec
 template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
+	const auto lower = FindLower<TReal>(front.begin(), front.end());
+	const auto upper = FindUpper<TReal>(front.begin(), front.end());
+	const auto referencePoint = CalculateReferencePoint(lower, upper, expand_);
 	assert(front.size() >= std::distance(begin, end));
 	for (size_t remove = front.size() - std::distance(begin, end); remove; --remove)
 	{
-		FitnessEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint_, nSample_, remove);
+		FitnessEstimation(this->GetRandom(), front.begin(), front.end(), lower, referencePoint, nSample_, remove);
 		auto worst = std::min_element(front.begin(), front.end(), [](_TPointer individual1, _TPointer individual2)->bool{return individual1->fitness_ < individual2->fitness_;});
 		front.erase(worst);
 	}
@@ -198,9 +204,13 @@ template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDec
 template <typename _TReal, typename _TDecision, typename _TRandom>
 const typename HypE<_TReal, _TDecision, _TRandom>::TIndividual *HypE<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
 {
+	if (Dominate(*competition[0], *competition[1]))
+		return competition[0];
+	else if (Dominate(*competition[1], *competition[0]))
+		return competition[1];
 	assert(competition[0]->fitness_ >= 0);
 	assert(competition[1]->fitness_ >= 0);
-	return competition[0]->fitness_ > competition[1]->fitness_ ? competition[0] : competition[1];
+	return competition[0]->fitness_ < competition[1]->fitness_ ? competition[0] : competition[1];
 }
 }
 }

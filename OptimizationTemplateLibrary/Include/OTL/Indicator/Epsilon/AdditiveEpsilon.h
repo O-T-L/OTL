@@ -88,9 +88,9 @@ template <typename _TReal>
 _TReal AdditiveEpsilon<_TReal>::_Epsilon(const TPoint &point, const TPoint &reference)
 {
 	TReal epsilon = std::numeric_limits<TReal>::min();
-	for (size_t k = 0; k < point.size(); ++k)
+	for (size_t i = 0; i < point.size(); ++i)
 	{
-		const TReal _epsilon = reference[k] - point[k];
+		const TReal _epsilon = reference[i] - point[i];
 		if (epsilon < _epsilon)
 			epsilon = _epsilon;
 	}

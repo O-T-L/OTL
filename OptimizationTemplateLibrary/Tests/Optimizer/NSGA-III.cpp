@@ -45,8 +45,7 @@ BOOST_AUTO_TEST_CASE(NSGA_III)
 	std::list<std::vector<_TReal> > points = otl::utility::weight::NormalBoundaryIntersection<_TReal>(nObjectives, 12);
 	std::vector<std::vector<_TReal> > referenceSet(points.begin(), points.end());
 	size_t nPopulation = referenceSet.size();
-	while (nPopulation % 4)
-		++nPopulation;
+	nPopulation += (4 - nPopulation % 4) % 4;
 	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), nPopulation);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);

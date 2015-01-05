@@ -39,7 +39,7 @@ _TDestIterator TournamentSelection(_TRandom &random, _TSrcIterator srcBegin, _TS
 		{
 			if (src == srcEnd)
 			{
-				std::random_shuffle(srcBegin, srcEnd, [&random](const size_t n)-> size_t{std::uniform_int_distribution<size_t> dist(0, n - 1);return dist(random);});
+				std::random_shuffle(srcBegin, srcEnd, [&random](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(random);});
 				src = srcBegin;
 			}
 			competition[i] = *src;

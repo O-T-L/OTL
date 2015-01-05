@@ -23,8 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/Weight/NormalBoundaryIntersection.h>
 #include <OTL/Problem/DTLZ/Shape/Utility.h>
 #include <OTL/Problem/DTLZ/Shape/Concave.h>
-#include <OTL/Indicator/Hypervolume/RecursiveHV.h>
+#include <OTL/Indicator/Hypervolume/KMP_HV.h>
 
+namespace kmp_hv
+{
 template <typename _TReal>
 std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const size_t nPoints)
 {
@@ -41,29 +43,10 @@ std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const 
 	return population;
 }
 
-template <typename _TReal>
-std::vector<std::vector<_TReal> > GenerateSphere(const size_t dimension, const size_t count)
-{
-	typedef std::vector<_TReal> _TPoint;
-	const std::list<_TPoint> decisions = otl::utility::weight::NormalBoundaryIntersection<_TReal>(dimension - 1, count);
-	std::vector<_TPoint> points(decisions.size());
-	typename std::list<_TPoint>::const_iterator src = decisions.begin();
-	for (size_t i = 0; i < points.size(); ++i)
-	{
-		points[i].resize(dimension);
-		_TPoint angle = *src;
-		otl::problem::dtlz::shape::ConvertAngles<_TReal>(angle.begin(), angle.end());
-		_TPoint &point = points[i];
-		otl::problem::dtlz::shape::Concave(angle.begin(), angle.end(), point.begin(), point.end(), (_TReal)1);
-		++src;
-	}
-	return points;
-}
-
-BOOST_AUTO_TEST_CASE(RecursiveHVInput2)
+BOOST_AUTO_TEST_CASE(KMP_HVInput2)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	_TPoint point(2);
@@ -83,10 +66,10 @@ BOOST_AUTO_TEST_CASE(RecursiveHVInput2)
 	BOOST_CHECK_CLOSE(indicator(front), 0.1 * 0.9 + 0.4 * 0.5 + 0.4 * 0.1, 0.0001);
 }
 
-BOOST_AUTO_TEST_CASE(RecursiveHVInput3)
+BOOST_AUTO_TEST_CASE(KMP_HVInput3)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	_TPoint point(3);
@@ -119,10 +102,10 @@ BOOST_AUTO_TEST_CASE(RecursiveHVInput3)
 	BOOST_CHECK_CLOSE(indicator(front), Volume1 + Volume2, 0.0001);
 }
 
-BOOST_AUTO_TEST_CASE(RecursiveHVCircle)
+BOOST_AUTO_TEST_CASE(KMP_HVCircle)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const _TReal radius = 1;
@@ -134,10 +117,10 @@ BOOST_AUTO_TEST_CASE(RecursiveHVCircle)
 	BOOST_CHECK_CLOSE(indicator(points), 3.2106680495668716, 0.00001);
 }
 
-BOOST_AUTO_TEST_CASE(RecursiveHVCircle2)
+BOOST_AUTO_TEST_CASE(KMP_HVCircle2)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const _TReal radius1 = 1;
@@ -154,10 +137,10 @@ BOOST_AUTO_TEST_CASE(RecursiveHVCircle2)
 	BOOST_CHECK_CLOSE(indicator(points), 6, 0.00001);
 }
 
-BOOST_AUTO_TEST_CASE(RecursiveHVFlat3)
+BOOST_AUTO_TEST_CASE(KMP_HVFlat3)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const size_t nObjectives = 3;
@@ -168,23 +151,10 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat3)
 	BOOST_CHECK_CLOSE(indicator(front), 7.7800000000000002, 0.00001);
 }
 
-BOOST_AUTO_TEST_CASE(RecursiveHVSphere3)
+BOOST_AUTO_TEST_CASE(KMP_HVFlat4)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
-	typedef _TIndicator::TMetric _TMetric;
-	typedef _TIndicator::TPoint _TPoint;
-	const size_t nObjectives = 3;
-	const std::vector<_TPoint> front = GenerateSphere<_TReal>(nObjectives - 1, 10);
-	const _TPoint refPoint(front.front().size(), 2);
-	_TIndicator indicator(refPoint);
-	BOOST_CHECK_CLOSE(indicator(front), 2, 0.00001);
-}
-
-BOOST_AUTO_TEST_CASE(RecursiveHVFlat4)
-{
-	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const size_t nObjectives = 4;
@@ -195,10 +165,10 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat4)
 	BOOST_CHECK_CLOSE(indicator(front), 15.888000000000002, 0.00001);
 }
 
-BOOST_AUTO_TEST_CASE(RecursiveHVFlat5)
+BOOST_AUTO_TEST_CASE(KMP_HVFlat5)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	const size_t nObjectives = 5;
@@ -209,10 +179,10 @@ BOOST_AUTO_TEST_CASE(RecursiveHVFlat5)
 	BOOST_CHECK_CLOSE(indicator(front), 31.913580246913583, 0.00001);
 }
 
-BOOST_AUTO_TEST_CASE(RecursiveHVSamePoints)
+BOOST_AUTO_TEST_CASE(KMP_HVSamePoints)
 {
 	typedef double _TReal;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _TIndicator;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
 	_TPoint point(3);
@@ -225,4 +195,5 @@ BOOST_AUTO_TEST_CASE(RecursiveHVSamePoints)
 		referencePoint[i] = point[i] + 1;
 	_TIndicator indicator(referencePoint);
 	BOOST_CHECK_CLOSE(indicator(points), 1, 0.00001);
+}
 }

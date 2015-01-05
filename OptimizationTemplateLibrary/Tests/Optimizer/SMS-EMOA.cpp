@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/SMS-EMOA/MakeHypervolume.h>
 #include <OTL/Optimizer/SMS-EMOA/CoupleCouple/SMS-EMOA.h>
 #include <OTL/Optimizer/SMS-EMOA/CoupleCouple/MonteCarloSMS-EMOA.h>
-#include <OTL/Indicator/Hypervolume/RecursiveHV.h>
+#include <OTL/Indicator/Hypervolume/KMP_HV.h>
 
 namespace sms_emoa
 {
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(SMS_EMOA)
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
 	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
-	typedef otl::indicator::hypervolume::RecursiveHV<_TReal> _THypervolume;
+	typedef otl::indicator::hypervolume::KMP_HV<_TReal> _THypervolume;
 	typedef otl::optimizer::sms_emoa::MakeHypervolume<_THypervolume> _TMakeHypervolume;
 	typedef otl::optimizer::sms_emoa::couple_couple::SMS_EMOA<_TReal, _TDecision, _TRandom &, _TMakeHypervolume> _TOptimizer;
 	const size_t nObjectives = 3;

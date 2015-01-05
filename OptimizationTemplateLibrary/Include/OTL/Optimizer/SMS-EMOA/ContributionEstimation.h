@@ -41,24 +41,6 @@ std::vector<_TReal> GeneratePoint(_TRandom &random, const std::vector<_TReal> &l
 }
 
 template <typename _TReal, typename _TIterator>
-std::vector<_TReal> FindLowerBoundary(_TIterator begin, _TIterator end)
-{
-	assert(begin != end);
-	std::vector<_TReal> lower((**begin).objective_.size());
-	for (size_t obj = 0; obj < lower.size(); ++obj)
-	{
-		lower[obj] = (**begin).objective_[obj];
-		for (_TIterator i = ++_TIterator(begin); i != end; ++i)
-		{
-			assert((**i).objective_.size() == lower.size());
-			if ((**i).objective_[obj] < lower[obj])
-				lower[obj] = (**i).objective_[obj];
-		}
-	}
-	return lower;
-}
-
-template <typename _TReal, typename _TIterator>
 bool IsInsideContributionArea(const std::vector<_TReal> &point, _TIterator current, _TIterator begin, _TIterator end)
 {
 	if (!otl::utility::relation::WeaklyDominate((**current).objective_, point))
@@ -96,12 +78,11 @@ std::vector<size_t> Sampling(const std::vector<_TReal> &lower, const std::vector
 }
 
 template <typename _TRandom, typename _TIterator, typename _TReal>
-void ContributionEstimation(_TRandom &random, _TIterator begin, _TIterator end, const std::vector<_TReal> &referencePoint, const size_t nSample)
+void ContributionEstimation(_TRandom &random, _TIterator begin, _TIterator end, const std::vector<_TReal> &lower, const std::vector<_TReal> &upper, const size_t nSample)
 {
 	typedef typename std::iterator_traits<_TIterator>::value_type _TPointer;
-	const std::vector<_TReal> lower = FindLowerBoundary<_TReal>(begin, end);
-	const std::vector<size_t> counters = Sampling(lower, referencePoint, begin, end, random, nSample);
-	const _TReal volume = std::inner_product(referencePoint.begin(), referencePoint.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
+	const std::vector<size_t> counters = Sampling(lower, upper, begin, end, random, nSample);
+	const _TReal volume = std::inner_product(upper.begin(), upper.end(), lower.begin(), (_TReal)1, std::multiplies<_TReal>(), std::minus<_TReal>());
 	size_t index = 0;
 	for (_TIterator i = begin; i != end; ++i)
 	{
