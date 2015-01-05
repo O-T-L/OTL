@@ -75,7 +75,7 @@ public:
 	typedef Metaheuristic<TSolutionSet> TSuper;
 	typedef typename TSuper::TProblem TProblem;
 
-	MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample, const TReal expand = 1);
+	MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample);
 	~MonteCarloSMS_EMOA(void);
 	size_t GetSampleSize(void) const;
 	std::vector<const TIndividual *> MatingSelection(const size_t offspringSize, const TSolutionSet &ancestor);
@@ -90,16 +90,14 @@ protected:
 
 private:
 	const size_t nSample_;
-	const TReal expand_;
 	bool multiLayer_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-MonteCarloSMS_EMOA<_TReal, _TDecision, _TRandom>::MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample, const TReal expand)
+MonteCarloSMS_EMOA<_TReal, _TDecision, _TRandom>::MonteCarloSMS_EMOA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const size_t nSample)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, nSample_(nSample)
-	, expand_(expand)
 {
 #ifndef NDEBUG
 	multiLayer_ = false;
@@ -200,8 +198,7 @@ template <typename _TPointer, typename _TIterator> _TIterator MonteCarloSMS_EMOA
 	else
 	{
 		const auto lower = FindLower<TReal>(front.begin(), front.end());
-		const auto upper = FindUpper<TReal>(front.begin(), front.end());
-		const auto referencePoint = CalculateReferencePoint(lower, upper, expand_);
+		const auto referencePoint = CalculateReferencePoint<TReal>(front.begin(), front.end());
 		ContributionEstimation(this->GetRandom(), front.begin(), front.end(), lower, referencePoint, nSample_);
 		std::vector<_TPointer> _front(front.begin(), front.end());
 		//the performance may get worse on 6-objective DTLZ3 if partial_sort is used here, but I don't know why.
