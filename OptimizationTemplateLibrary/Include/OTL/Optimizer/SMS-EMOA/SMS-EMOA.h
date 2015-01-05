@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include <OTL/Optimizer/SPEA2/RawFitness.h>
 #include "ContributionAssignment.h"
-#include "CalculateReferencePoint.h"
+#include "ReferencePoint.h"
 #include "Individual.h"
 
 namespace otl
@@ -180,7 +180,8 @@ template <typename _TPointer, typename _TIterator> _TIterator SMS_EMOA<_TReal, _
 	}
 	else
 	{
-		const std::vector<_TReal> referencePoint = CalculateUpperReferencePoint<_TReal>(front.begin(), front.end());
+		const auto lower = FindLower<TReal>(front.begin(), front.end());
+		const auto referencePoint = CalculateReferencePoint<TReal>(front.begin(), front.end());
 		ContributionAssignment(front.begin(), front.end(), referencePoint, makeHypervolume_);
 		std::vector<_TPointer> _front(front.begin(), front.end());
 		std::partial_sort(_front.begin(), _front.begin() + std::distance(begin, end), _front.end()

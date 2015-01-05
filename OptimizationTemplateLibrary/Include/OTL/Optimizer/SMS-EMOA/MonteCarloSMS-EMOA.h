@@ -55,7 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Optimizer/SPEA2/RawFitness.h>
 #include "Individual.h"
 #include "ContributionEstimation.h"
-#include "CalculateReferencePoint.h"
+#include "ReferencePoint.h"
 
 namespace otl
 {
@@ -89,7 +89,7 @@ protected:
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectCritical(const std::list<_TPointer> &population, std::list<_TPointer> &front, _TIterator begin, _TIterator end);
 
 private:
-	size_t nSample_;
+	const size_t nSample_;
 	bool multiLayer_;
 };
 
@@ -197,8 +197,9 @@ template <typename _TPointer, typename _TIterator> _TIterator MonteCarloSMS_EMOA
 	}
 	else
 	{
-		const std::vector<_TReal> referencePoint = CalculateUpperReferencePoint<_TReal>(front.begin(), front.end());
-		ContributionEstimation(this->GetRandom(), front.begin(), front.end(), referencePoint, nSample_);
+		const auto lower = FindLower<TReal>(front.begin(), front.end());
+		const auto referencePoint = CalculateReferencePoint<TReal>(front.begin(), front.end());
+		ContributionEstimation(this->GetRandom(), front.begin(), front.end(), lower, referencePoint, nSample_);
 		std::vector<_TPointer> _front(front.begin(), front.end());
 		//the performance may get worse on 6-objective DTLZ3 if partial_sort is used here, but I don't know why.
 		std::sort(_front.begin(), _front.end()
