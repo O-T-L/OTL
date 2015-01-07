@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Crossover/SimulatedBinaryCrossover.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
 #include <OTL/Mutation/PolynomialMutation.h>
-#include <OTL/Optimizer/HypE/HypE.h>
-#include <OTL/Optimizer/HypE/FastHypE.h>
+#include <OTL/Optimizer/HypE/MonteCarloHypE.h>
+#include <OTL/Optimizer/HypE/FastMonteCarloHypE.h>
 
 namespace hype
 {
@@ -70,7 +70,7 @@ _TReal CalculateMonteCarloHV(const std::vector<_TReal> &referencePoint, _TIterat
 	return hv;
 }
 
-BOOST_AUTO_TEST_CASE(HypE_Fitness)
+BOOST_AUTO_TEST_CASE(MonteCarloHypE_Fitness)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(HypE_Fitness)
 	BOOST_CHECK_CLOSE(hv, 3.2106680495668716, 0.01);
 }
 
-BOOST_AUTO_TEST_CASE(HypE)
+BOOST_AUTO_TEST_CASE(MonteCarloHypE)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(HypE)
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
 	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
-	typedef otl::optimizer::hype::HypE<_TReal, _TDecision, _TRandom &> _TOptimizer;
+	typedef otl::optimizer::hype::MonteCarloHypE<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(HypE)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(FastHypE)
+BOOST_AUTO_TEST_CASE(FastMonteCarloHypE)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(FastHypE)
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
 	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
-	typedef otl::optimizer::hype::FastHypE<_TReal, _TDecision, _TRandom &> _TOptimizer;
+	typedef otl::optimizer::hype::FastMonteCarloHypE<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;

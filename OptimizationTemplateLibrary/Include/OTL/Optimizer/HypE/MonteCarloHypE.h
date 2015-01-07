@@ -52,7 +52,7 @@ namespace optimizer
 namespace hype
 {
 template <typename _TReal, typename _TDecision, typename _TRandom>
-class HypE : public Metaheuristic<std::vector<Individual<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithCrossover<_TReal, _TDecision>, public otl::mutation::WithMutation<_TReal, _TDecision>
+class MonteCarloHypE : public Metaheuristic<std::vector<Individual<_TReal, _TDecision> > >, public otl::utility::WithRandom<_TRandom>, public otl::crossover::WithCrossover<_TReal, _TDecision>, public otl::mutation::WithMutation<_TReal, _TDecision>
 {
 public:
 	typedef _TReal TReal;
@@ -65,8 +65,8 @@ public:
 	typedef typename otl::crossover::WithCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand = 1);
-	~HypE(void);
+	MonteCarloHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand = 1);
+	~MonteCarloHypE(void);
 	size_t GetSampleSize(void) const;
 	TReal GetExpand(void) const;
 	TSolutionSet MakeOffspring(TSolutionSet &ancestor);
@@ -85,7 +85,7 @@ private:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand)
+MonteCarloHypE<_TReal, _TDecision, _TRandom>::MonteCarloHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
 	, otl::crossover::WithCrossover<TReal, TDecision>(crossover)
@@ -103,24 +103,24 @@ HypE<_TReal, _TDecision, _TRandom>::HypE(TRandom random, TProblem &problem, cons
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-HypE<_TReal, _TDecision, _TRandom>::~HypE(void)
+MonteCarloHypE<_TReal, _TDecision, _TRandom>::~MonteCarloHypE(void)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-size_t HypE<_TReal, _TDecision, _TRandom>::GetSampleSize(void) const
+size_t MonteCarloHypE<_TReal, _TDecision, _TRandom>::GetSampleSize(void) const
 {
 	return nSample_;
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-_TReal HypE<_TReal, _TDecision, _TRandom>::GetExpand(void) const
+_TReal MonteCarloHypE<_TReal, _TDecision, _TRandom>::GetExpand(void) const
 {
 	return expand_;
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-typename HypE<_TReal, _TDecision, _TRandom>::TSolutionSet HypE<_TReal, _TDecision, _TRandom>::MakeOffspring(TSolutionSet &ancestor)
+typename MonteCarloHypE<_TReal, _TDecision, _TRandom>::TSolutionSet MonteCarloHypE<_TReal, _TDecision, _TRandom>::MakeOffspring(TSolutionSet &ancestor)
 {
 	typedef typename TSolutionSet::pointer _TPointer;
 	{
@@ -144,19 +144,19 @@ typename HypE<_TReal, _TDecision, _TRandom>::TSolutionSet HypE<_TReal, _TDecisio
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-bool HypE<_TReal, _TDecision, _TRandom>::Dominate(const TIndividual &individual1, const TIndividual &individual2)
+bool MonteCarloHypE<_TReal, _TDecision, _TRandom>::Dominate(const TIndividual &individual1, const TIndividual &individual2)
 {
 	return otl::utility::relation::Dominate(individual1.objective_, individual2.objective_);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-bool HypE<_TReal, _TDecision, _TRandom>::_Dominate(const TIndividual *individual1, const TIndividual *individual2)
+bool MonteCarloHypE<_TReal, _TDecision, _TRandom>::_Dominate(const TIndividual *individual1, const TIndividual *individual2)
 {
 	return Dominate(*individual1, *individual2);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
+void MonteCarloHypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
 	TSolutionSet offspring = MakeOffspring(ancestor);
@@ -174,7 +174,7 @@ void HypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
+template <typename _TPointer, typename _TIterator> _TIterator MonteCarloHypE<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
 	_TIterator dest = begin;
 	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
@@ -183,7 +183,7 @@ template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDec
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
+template <typename _TPointer, typename _TIterator> _TIterator MonteCarloHypE<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
 	const auto lower = FindLower<TReal>(front.begin(), front.end());
 	const auto upper = FindUpper<TReal>(front.begin(), front.end());
@@ -202,7 +202,7 @@ template <typename _TPointer, typename _TIterator> _TIterator HypE<_TReal, _TDec
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-const typename HypE<_TReal, _TDecision, _TRandom>::TIndividual *HypE<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
+const typename MonteCarloHypE<_TReal, _TDecision, _TRandom>::TIndividual *MonteCarloHypE<_TReal, _TDecision, _TRandom>::_Compete(const std::vector<const TIndividual *> &competition)
 {
 	if (Dominate(*competition[0], *competition[1]))
 		return competition[0];

@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "HypE.h"
+#include "MonteCarloHypE.h"
 
 namespace otl
 {
@@ -26,21 +26,21 @@ namespace optimizer
 namespace hype
 {
 template <typename _TReal, typename _TDecision, typename _TRandom>
-class FastHypE : public HypE<_TReal, _TDecision, _TRandom>
+class FastMonteCarloHypE : public MonteCarloHypE<_TReal, _TDecision, _TRandom>
 {
 public:
 	typedef _TReal TReal;
 	typedef _TDecision TDecision;
 	typedef _TRandom TRandom;
-	typedef HypE<TReal, TDecision, TRandom> TSuper;
+	typedef MonteCarloHypE<TReal, TDecision, TRandom> TSuper;
 	typedef typename TSuper::TIndividual TIndividual;
 	typedef typename TSuper::TSolutionSet TSolutionSet;
 	typedef typename TSuper::TProblem TProblem;
 	typedef typename TSuper::TCrossover TCrossover;
 	typedef typename TSuper::TMutation TMutation;
 
-	FastHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand = 1);
-	~FastHypE(void);
+	FastMonteCarloHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand = 1);
+	~FastMonteCarloHypE(void);
 
 protected:
 	void _DoStep(void);
@@ -48,18 +48,18 @@ protected:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-FastHypE<_TReal, _TDecision, _TRandom>::FastHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand)
+FastMonteCarloHypE<_TReal, _TDecision, _TRandom>::FastMonteCarloHypE(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const size_t nSample, const TReal expand)
 	: TSuper(random, problem, initial, crossover, mutation, nSample, expand)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-FastHypE<_TReal, _TDecision, _TRandom>::~FastHypE(void)
+FastMonteCarloHypE<_TReal, _TDecision, _TRandom>::~FastMonteCarloHypE(void)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void FastHypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
+void FastMonteCarloHypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
 	TSolutionSet ancestor = TSuper::solutionSet_;
 	TSolutionSet offspring = TSuper::MakeOffspring(ancestor);
@@ -77,7 +77,7 @@ void FastHypE<_TReal, _TDecision, _TRandom>::_DoStep(void)
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-template <typename _TPointer, typename _TIterator> _TIterator FastHypE<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
+template <typename _TPointer, typename _TIterator> _TIterator FastMonteCarloHypE<_TReal, _TDecision, _TRandom>::_SelectCritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
 	const auto lower = FindLower<TReal>(front.begin(), front.end());
 	const auto upper = FindUpper<TReal>(front.begin(), front.end());

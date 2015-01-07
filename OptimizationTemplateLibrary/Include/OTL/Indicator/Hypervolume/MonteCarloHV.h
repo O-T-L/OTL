@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 @ARTICLE{,
   author = {Johannes Bader and Eckart Zitzler},
-  title = {HypE: An Algorithm for Fast Hypervolume-Based Many-Objective Optimization},
+  title = {{HypE}: An Algorithm for Fast Hypervolume-Based Many-Objective Optimization},
   journal = {Evolutionary Computation},
   year = {2011},
   volume = {19},
