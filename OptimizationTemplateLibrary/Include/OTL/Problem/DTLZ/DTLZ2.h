@@ -37,7 +37,7 @@ public:
 	typedef DTLZ<TReal> TSuper;
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 
 	DTLZ2(const size_t nObjectives, const size_t distDecisions = 10);

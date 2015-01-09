@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <OTL/Indicator/Indicator.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 #include "Utility.h"
 
 namespace otl
@@ -46,7 +46,7 @@ namespace ms
  * \param[in] _TReal The type of objective, must be a real number type
  */
 template <typename _TReal>
-class MaximumSpread1 : public Indicator<_TReal, _TReal>, public otl::utility::WithSpaceBoundary<_TReal>
+class MaximumSpread1 : public Indicator<_TReal, _TReal>, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -54,8 +54,8 @@ public:
 	typedef Indicator<TReal, TMetric> TSuper;
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	MaximumSpread1(const TBoundary &boundary);
 	~MaximumSpread1(void);
@@ -66,7 +66,7 @@ protected:
 
 template <typename _TReal>
 MaximumSpread1<_TReal>::MaximumSpread1(const TBoundary &boundary)
-	: otl::utility::WithSpaceBoundary<TReal>(boundary)
+	: otl::utility::WithBoundary<TReal>(boundary)
 {
 }
 

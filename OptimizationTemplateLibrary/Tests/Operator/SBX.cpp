@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(SBX)
 	typedef _TCrossover::TDecision _TDecision;
 	typedef _TCrossover::TSolution _TSolution;
 	typedef _TCrossover::TBoundary _TBoundary;
-	typedef _TCrossover::TMinMax _TMinMax;
-	_TBoundary boundary(10, _TMinMax(0, 1));
+	typedef _TCrossover::TRange _TRange;
+	_TBoundary boundary(10, _TRange(0, 1));
 	_TRandom random;
 	_TSolution parent1, parent2, child1, child2;
 	parent1.decision_ = GeneratePoint(random, boundary);

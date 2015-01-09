@@ -40,7 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/Nondominate.h>
 #include <OTL/Utility/Relation/Pareto.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 #include "Individual.h"
 
 namespace otl
@@ -61,8 +61,8 @@ public:
 	typedef std::vector<TIndividual> TPopulation;
 	typedef Metaheuristic<TSolutionSet> TSuper;
 	typedef typename TSuper::TProblem TProblem;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	TDEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const TBoundary &objectiveBoundary, const TReal territorySize);
 	~TDEA(void);
@@ -156,12 +156,12 @@ void TDEA<_TReal, _TDecision, _TRandom>::_Scaling(const std::vector<TReal> &obje
 	scaledObjective.resize(objective.size());
 	for (size_t i = 0; i < objective.size(); ++i)
 	{
-		const auto &minMax = objectiveBoundary_[i];
-		assert(minMax.first <= minMax.second);
-		scaledObjective[i] = objective[i] - minMax.first;
-		const TReal range = minMax.second - minMax.first;
-		if (scaledObjective[i] <= range)
-			scaledObjective[i] = (scaledObjective[i] / range) * (1.0 / (1 + exp(-1 * range / factor)) - 0.5) * 2.0;
+		const auto &range = objectiveBoundary_[i];
+		assert(range.first <= range.second);
+		scaledObjective[i] = objective[i] - range.first;
+		const TReal width = range.second - range.first;
+		if (scaledObjective[i] <= width)
+			scaledObjective[i] = (scaledObjective[i] / width) * (1.0 / (1 + exp(-1 * width / factor)) - 0.5) * 2.0;
 		else
 			scaledObjective[i] = (1.0 / (1 + exp(-1 * scaledObjective[i] / factor)) - 0.5) * 2.0;
 	}

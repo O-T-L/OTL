@@ -31,22 +31,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <OTL/Problem/Problem.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 
 namespace otl
 {
 namespace problem
 {
 template <typename _TReal>
-class Rectangle : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithSpaceBoundary<_TReal>
+class Rectangle : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
 	typedef std::vector<TReal> TDecision;
 	typedef Problem<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	Rectangle(const TBoundary &boundary, const TBoundary &boundaryOptimal);
 	~Rectangle(void);
@@ -69,11 +69,11 @@ private:
 template <typename _TReal>
 Rectangle<_TReal>::Rectangle(const TBoundary &boundary, const TBoundary &boundaryOptimal)
 	: TSuper(boundary.size() * 2)
-	, otl::utility::WithSpaceBoundary<TReal>(boundary)
+	, otl::utility::WithBoundary<TReal>(boundary)
 	, boundaryOptimal_(boundaryOptimal)
 {
 	assert(boundary.size() == boundaryOptimal.size());
-	assert(otl::utility::WithSpaceBoundary<TReal>::_Check(boundaryOptimal));
+	assert(otl::utility::WithBoundary<TReal>::_Check(boundaryOptimal));
 	assert(_Check());
 }
 
@@ -133,7 +133,7 @@ template <typename _TReal>
 template<class _TArchive> void Rectangle<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
-	archive & boost::serialization::base_object<otl::utility::WithSpaceBoundary<TReal> >(*this);
+	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
 }
 }
 }

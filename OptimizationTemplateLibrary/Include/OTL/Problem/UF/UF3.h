@@ -36,7 +36,7 @@ public:
 	typedef UF<TReal> TSuper;
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 
 	UF3(const size_t nDistDecisions = 29);
@@ -49,7 +49,7 @@ protected:
 
 template <typename _TReal>
 UF3<_TReal>::UF3(const size_t nDistDecisions)
-	: TSuper(2, TBoundary(1 + nDistDecisions, TMinMax(0, 1)))
+	: TSuper(2, TBoundary(1 + nDistDecisions, TRange(0, 1)))
 {
 }
 

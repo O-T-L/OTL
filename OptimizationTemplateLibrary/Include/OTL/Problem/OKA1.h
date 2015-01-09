@@ -20,22 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <boost/math/constants/constants.hpp>
 #include <OTL/Problem/Problem.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 
 namespace otl
 {
 namespace problem
 {
 template <typename _TReal>
-class OKA1 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithSpaceBoundary<_TReal>
+class OKA1 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
 	typedef std::vector<TReal> TDecision;
 	typedef Problem<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	OKA1(void);
 	~OKA1(void);
@@ -55,7 +55,7 @@ private:
 template <typename _TReal>
 OKA1<_TReal>::OKA1(void)
 	: TSuper(2)
-	, otl::utility::WithSpaceBoundary<TReal>(_GetDecisionSpaceBoundary())
+	, otl::utility::WithBoundary<TReal>(_GetDecisionSpaceBoundary())
 {
 }
 
@@ -102,7 +102,7 @@ template <typename _TReal>
 template<class _TArchive> void OKA1<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
-	archive & boost::serialization::base_object<otl::utility::WithSpaceBoundary<TReal> >(*this);
+	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
 }
 }
 }

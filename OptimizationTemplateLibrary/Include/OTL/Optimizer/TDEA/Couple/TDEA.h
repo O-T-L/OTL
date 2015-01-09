@@ -41,7 +41,7 @@ public:
 	typedef typename TSuper::TSolutionSet TSolutionSet;
 	typedef typename TSuper::TPopulation TPopulation;
 	typedef typename TSuper::TProblem TProblem;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 	typedef typename otl::crossover::WithCoupleCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;

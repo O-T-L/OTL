@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Crossover/XTripleCrossover.h>
 #include <OTL/Utility/WithProbability.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 
 #undef min
 #undef max
@@ -48,7 +48,7 @@ namespace otl
 namespace crossover
 {
 template <typename _TReal, typename _TRandom>
-class DifferentialEvolution : public XTripleCrossover<_TReal, std::vector<_TReal> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithSpaceBoundary<_TReal>
+class DifferentialEvolution : public XTripleCrossover<_TReal, std::vector<_TReal> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -56,8 +56,8 @@ public:
 	typedef std::vector<TReal> TDecision;
 	typedef XTripleCrossover<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	DifferentialEvolution(TRandom random, const TReal probability, const TBoundary &boundary, const TReal scalingFactor = 0.5);
 	~DifferentialEvolution(void);
@@ -76,7 +76,7 @@ template <typename _TReal, typename _TRandom>
 DifferentialEvolution<_TReal, _TRandom>::DifferentialEvolution(TRandom random, const TReal probability, const TBoundary &boundary, const TReal scalingFactor)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
-	, otl::utility::WithSpaceBoundary<TReal>(boundary)
+	, otl::utility::WithBoundary<TReal>(boundary)
 	, dist_(0, 1)
 	, scalingFactor_(scalingFactor)
 {
@@ -112,7 +112,7 @@ void DifferentialEvolution<_TReal, _TRandom>::_Crossover(const TDecision &parent
 	for (size_t i = 0; i < this->GetBoundary().size(); ++i)
 	{
 		if (dist_(this->GetRandom()) < this->GetProbability() || i == randIndex)
-			child[i] = otl::utility::Fix(parent3[i] + scalingFactor_ * (parent1[i] - parent2[i]), this->GetBoundary()[i]);
+			child[i] = otl::utility::FixIntoBoundary(parent3[i] + scalingFactor_ * (parent1[i] - parent2[i]), this->GetBoundary()[i]);
 		else
 			child[i] = parent[i];
 	}

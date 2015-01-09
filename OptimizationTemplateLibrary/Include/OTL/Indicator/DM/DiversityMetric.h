@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <numeric>
 #include <boost/dynamic_bitset.hpp>
 #include <OTL/Indicator/Indicator.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 #include "Utility.h"
 
 namespace otl
@@ -43,7 +43,7 @@ namespace indicator
 namespace dm
 {
 template <typename _TReal>
-class DiversityMetric : public Indicator<_TReal, _TReal>, public otl::utility::WithSpaceBoundary<_TReal>
+class DiversityMetric : public Indicator<_TReal, _TReal>, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -51,8 +51,8 @@ public:
 	typedef Indicator<TReal, TMetric> TSuper;
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 	typedef boost::dynamic_bitset<> TGridContainer;
 
 	DiversityMetric(const TBoundary &boundary, const std::vector<size_t> &division, const std::vector<TPoint> &front);
@@ -77,7 +77,7 @@ private:
 
 template <typename _TReal>
 DiversityMetric<_TReal>::DiversityMetric(const TBoundary &boundary, const std::vector<size_t> &division, const std::vector<TPoint> &front)
-	: otl::utility::WithSpaceBoundary<TReal>(ExpandHalfBox(boundary, division))
+	: otl::utility::WithBoundary<TReal>(ExpandHalfBox(boundary, division))
 	, division_(division)
 	, front_(front)
 {

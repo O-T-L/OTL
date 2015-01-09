@@ -63,9 +63,9 @@ BOOST_AUTO_TEST_CASE(Nondominate)
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
 	typedef std::vector<_TReal> _TPoint;
-	typedef std::pair<_TReal, _TReal> _TMinMax;
-	typedef std::vector<_TMinMax> _TBoundary;
-	_TBoundary boundary(10, _TMinMax(0, 1));
+	typedef std::pair<_TReal, _TReal> _TRange;
+	typedef std::vector<_TRange> _TBoundary;
+	_TBoundary boundary(10, _TRange(0, 1));
 	_TRandom random;
 	const size_t points = 200;
 	auto population = GeneratePoints(random, boundary, points);

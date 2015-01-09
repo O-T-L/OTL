@@ -46,7 +46,7 @@ namespace ms
  * \param[in] _TReal The type of objective, must be a real number type
  */
 template <typename _TReal>
-class MaximumSpread2 : public Indicator<_TReal, _TReal>, public otl::utility::WithSpaceBoundary<_TReal>
+class MaximumSpread2 : public Indicator<_TReal, _TReal>, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -54,8 +54,8 @@ public:
 	typedef Indicator<TReal, TMetric> TSuper;
 	typedef typename TSuper::TPoint TPoint;
 	typedef typename TSuper::TFront TFront;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	MaximumSpread2(const TBoundary &boundary);
 	~MaximumSpread2(void);
@@ -66,7 +66,7 @@ protected:
 
 template <typename _TReal>
 MaximumSpread2<_TReal>::MaximumSpread2(const TBoundary &boundary)
-	: otl::utility::WithSpaceBoundary<TReal>(boundary)
+	: otl::utility::WithBoundary<TReal>(boundary)
 {
 }
 

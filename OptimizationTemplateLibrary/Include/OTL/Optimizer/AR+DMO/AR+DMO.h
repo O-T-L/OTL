@@ -78,7 +78,7 @@ public:
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 	typedef otl::indicator::ms::MaximumSpread1<TReal> TMaximumSpread;
 	typedef typename TMaximumSpread::TFront TFront;
-	typedef typename TMaximumSpread::TMinMax TMinMax;
+	typedef typename TMaximumSpread::TRange TRange;
 	typedef typename TMaximumSpread::TBoundary TBoundary;
 
 	AR_DMO(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const TBoundary &boundary);

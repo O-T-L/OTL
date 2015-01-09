@@ -29,20 +29,20 @@ namespace otl
 namespace utility
 {
 template <typename _TCoordinate>
-class WithSpaceBoundary
+class WithBoundary
 {
 public:
 	typedef _TCoordinate TCoordinate;
-	typedef std::pair<TCoordinate, TCoordinate> TMinMax;
-	typedef std::vector<TMinMax> TBoundary;
+	typedef std::pair<TCoordinate, TCoordinate> TRange;
+	typedef std::vector<TRange> TBoundary;
 
-	WithSpaceBoundary(const TBoundary &boundary);
-	~WithSpaceBoundary(void);
+	WithBoundary(const TBoundary &boundary);
+	~WithBoundary(void);
 	const TBoundary &GetBoundary(void) const;
 	template <typename _TPoint> void Fix(_TPoint &point) const;
 
 protected:
-	static bool _Check(const TBoundary &boundary);
+	static bool _Validate(const TBoundary &boundary);
 
 private:
 	const TBoundary boundary_;
@@ -53,45 +53,61 @@ private:
 };
 
 template <typename _TCoordinate>
-_TCoordinate Fix(const _TCoordinate coordinate, const typename WithSpaceBoundary<_TCoordinate>::TMinMax &minMax)
+bool IsInsideBoundary(const std::vector<_TCoordinate> &point, const typename WithBoundary<_TCoordinate>::TBoundary &boundary)
 {
-	assert(minMax.first < minMax.second);
-	if (coordinate < minMax.first)
-		return minMax.first;
-	else if (coordinate > minMax.second)
-		return minMax.second;
+	assert(point.size() == boundary.size());
+	for (size_t i = point.size(); i < point.size(); ++i)
+	{
+		const _TCoordinate coordinate = point[i];
+		const auto &range = boundary[i];
+		if (coordinate < range.first)
+			return false;
+		else if (coordinate > range.second)
+			return false;
+	}
+	return true;
+}
+
+template <typename _TCoordinate>
+_TCoordinate FixIntoBoundary(const _TCoordinate coordinate, const typename WithBoundary<_TCoordinate>::TRange &range)
+{
+	assert(range.first < range.second);
+	if (coordinate < range.first)
+		return range.first;
+	else if (coordinate > range.second)
+		return range.second;
 	else
 		return coordinate;
 }
 
 template <typename _TCoordinate>
-WithSpaceBoundary<_TCoordinate>::WithSpaceBoundary(const TBoundary &boundary)
+WithBoundary<_TCoordinate>::WithBoundary(const TBoundary &boundary)
 	: boundary_(boundary)
 {
-	assert(_Check(boundary));
+	assert(_Validate(boundary));
 }
 
 template <typename _TCoordinate>
-WithSpaceBoundary<_TCoordinate>::~WithSpaceBoundary(void)
+WithBoundary<_TCoordinate>::~WithBoundary(void)
 {
 }
 
 template <typename _TCoordinate>
-const typename WithSpaceBoundary<_TCoordinate>::TBoundary &WithSpaceBoundary<_TCoordinate>::GetBoundary(void) const
+const typename WithBoundary<_TCoordinate>::TBoundary &WithBoundary<_TCoordinate>::GetBoundary(void) const
 {
 	return boundary_;
 }
 
 template <typename _TCoordinate>
-template <typename _TPoint> void WithSpaceBoundary<_TCoordinate>::Fix(_TPoint &point) const
+template <typename _TPoint> void WithBoundary<_TCoordinate>::Fix(_TPoint &point) const
 {
 	assert(point.size() == GetBoundary().size());
 	for (size_t i = 0; i < boundary_.size(); ++i)
-		point[i] = otl::utility::Fix(point[i], boundary_[i]);
+		point[i] = otl::utility::FixIntoBoundary(point[i], boundary_[i]);
 }
 
 template <typename _TCoordinate>
-bool WithSpaceBoundary<_TCoordinate>::_Check(const TBoundary &boundary)
+bool WithBoundary<_TCoordinate>::_Validate(const TBoundary &boundary)
 {
 	for (size_t i = 0; i < boundary.size(); ++i)
 	{
@@ -102,7 +118,7 @@ bool WithSpaceBoundary<_TCoordinate>::_Check(const TBoundary &boundary)
 }
 
 template <typename _TCoordinate>
-template<class _TArchive> void WithSpaceBoundary<_TCoordinate>::serialize(_TArchive &archive, const unsigned version)
+template<class _TArchive> void WithBoundary<_TCoordinate>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boundary_;
 }

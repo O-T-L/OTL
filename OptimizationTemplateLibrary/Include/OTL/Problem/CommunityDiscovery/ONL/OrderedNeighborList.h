@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <OTL/Problem/Problem.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 #include <OTL/Problem/CommunityDiscovery/Metric/Metric.h>
 #include "Decode.h"
 
@@ -46,7 +46,7 @@ namespace community_discovery
 namespace onl
 {
 template <typename _TReal, typename _TMatrix>
-class OrderedNeighborList : public Problem<_TReal, std::vector<size_t> >, public otl::utility::WithSpaceBoundary<size_t>
+class OrderedNeighborList : public Problem<_TReal, std::vector<size_t> >, public otl::utility::WithBoundary<size_t>
 {
 public:
 	typedef _TReal TReal;
@@ -54,8 +54,8 @@ public:
 	typedef std::vector<size_t> TDecision;
 	typedef Problem<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<size_t>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<size_t>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<size_t>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<size_t>::TBoundary TBoundary;
 	typedef std::set<size_t> TCommunity;
 	typedef std::vector<TCommunity> TCommunities;
 	typedef otl::problem::community_discovery::metric::Metric<TReal, TMatrix> TMetric;
@@ -84,7 +84,7 @@ private:
 template <typename _TReal, typename _TMatrix>
 OrderedNeighborList<_TReal, _TMatrix>::OrderedNeighborList(const TMatrix &graph, const std::vector<TMetric *> &metrics)
 	: TSuper(metrics.size())
-	, otl::utility::WithSpaceBoundary<size_t>(TBoundary(graph.size1(), TMinMax(0, graph.size1() - 1)))
+	, otl::utility::WithBoundary<size_t>(TBoundary(graph.size1(), TRange(0, graph.size1() - 1)))
 	, graph_(graph)
 	, metrics_(metrics)
 	, list_(MakeOrderedNeighborList(graph))
@@ -152,7 +152,7 @@ template <typename _TReal, typename _TMatrix>
 template<class _TArchive> void OrderedNeighborList<_TReal, _TMatrix>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
-	archive & boost::serialization::base_object<otl::utility::WithSpaceBoundary<TReal> >(*this);
+	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
 }
 }
 }

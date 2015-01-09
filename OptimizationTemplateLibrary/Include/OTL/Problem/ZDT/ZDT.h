@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <utility>
 #include <OTL/Problem/Problem.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 
 namespace otl
 {
@@ -44,14 +44,14 @@ namespace problem
 namespace zdt
 {
 template <typename _TReal>
-class ZDT : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithSpaceBoundary<_TReal>
+class ZDT : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
 	typedef std::vector<TReal> TDecision;
 	typedef Problem<TReal, TDecision> TSuper;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	ZDT(const TBoundary &boundary);
 	~ZDT(void);
@@ -68,7 +68,7 @@ private:
 template <typename _TReal>
 ZDT<_TReal>::ZDT(const TBoundary &boundary)
 	: TSuper(2)
-	, otl::utility::WithSpaceBoundary<TReal>(boundary)
+	, otl::utility::WithBoundary<TReal>(boundary)
 {
 }
 
@@ -86,7 +86,7 @@ template <typename _TReal>
 template<class _TArchive> void ZDT<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
-	archive & boost::serialization::base_object<otl::utility::WithSpaceBoundary<TReal> >(*this);
+	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
 }
 }
 }

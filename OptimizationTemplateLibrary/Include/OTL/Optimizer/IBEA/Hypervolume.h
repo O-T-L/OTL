@@ -33,16 +33,16 @@ namespace ibea
 template <typename _TReal>
 _TReal CalculateHypervolume(const size_t axis, const std::vector<std::pair<_TReal, _TReal> > &boundary, const std::vector<_TReal> &point1, const std::vector<_TReal> &point2)
 {
-	const std::pair<_TReal, _TReal> &minMax = boundary[axis];
-	assert(minMax.first < minMax.second);
-	const _TReal upper = minMax.second;
-	const _TReal range = upper - boundary[axis].first;
+	const std::pair<_TReal, _TReal> &range = boundary[axis];
+	assert(range.first < range.second);
+	const _TReal upper = range.second;
+	const _TReal width = upper - boundary[axis].first;
 	const _TReal p1 = point1[axis];
 	const _TReal p2 = point2[axis];
 	if (!axis)
 	{
 		if (p1 < p2)
-			return (p2 - p1) / range;
+			return (p2 - p1) / width;
 		else
 			return 0;
 	}
@@ -52,11 +52,11 @@ _TReal CalculateHypervolume(const size_t axis, const std::vector<std::pair<_TRea
 	{
 		std::vector<_TReal> _point2 = point2;
 		_point2[axisNext] = boundary[axisNext].second;
-		volume = CalculateHypervolume(axisNext, boundary, point1, _point2) * (p2 - p1) / range;
-		volume += CalculateHypervolume(axisNext, boundary, point1, point2) * (upper - p2) / range;
+		volume = CalculateHypervolume(axisNext, boundary, point1, _point2) * (p2 - p1) / width;
+		volume += CalculateHypervolume(axisNext, boundary, point1, point2) * (upper - p2) / width;
 	}
 	else
-		volume = CalculateHypervolume(axisNext, boundary, point1, point2) * (upper - p2) / range;
+		volume = CalculateHypervolume(axisNext, boundary, point1, point2) * (upper - p2) / width;
 	return volume;
 }
 }

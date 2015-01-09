@@ -19,22 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <OTL/Problem/Problem.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 
 namespace otl
 {
 namespace problem
 {
 template <typename _TReal>
-class Viennet3 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithSpaceBoundary<_TReal>
+class Viennet3 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
 	typedef std::vector<TReal> TDecision;
 	typedef Problem<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	Viennet3(void);
 	~Viennet3(void);
@@ -53,7 +53,7 @@ private:
 template <typename _TReal>
 Viennet3<_TReal>::Viennet3(void)
 	: TSuper(3)
-	, otl::utility::WithSpaceBoundary<TReal>(2, TMinMax(-3, 3))
+	, otl::utility::WithBoundary<TReal>(2, TRange(-3, 3))
 {
 }
 
@@ -90,7 +90,7 @@ template <typename _TReal>
 template<class _TArchive> void Viennet3<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
-	archive & boost::serialization::base_object<otl::utility::WithSpaceBoundary<TReal> >(*this);
+	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
 }
 }
 }

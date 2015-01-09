@@ -34,18 +34,18 @@ std::vector<std::pair<_TReal, _TReal> > CalculateBoundary(_TIterator begin, _TIt
 	std::vector<std::pair<_TReal, _TReal> > boundary(fetcher(*begin).size());
 	for (size_t axis = 0; axis < boundary.size(); ++axis)
 	{
-		std::pair<_TReal, _TReal> &minMax = boundary[axis];
-		minMax.first = fetcher(*begin)[axis];
-		minMax.second = minMax.first;
+		std::pair<_TReal, _TReal> &range = boundary[axis];
+		range.first = fetcher(*begin)[axis];
+		range.second = range.first;
 		for (_TIterator i = ++_TIterator(begin); i != end; ++i)
 		{
 			const _TReal coordinate = fetcher(*i)[axis];
-			if (coordinate < minMax.first)
-				minMax.first = coordinate;
-			if (coordinate > minMax.second)
-				minMax.second = coordinate;
+			if (coordinate < range.first)
+				range.first = coordinate;
+			if (coordinate > range.second)
+				range.second = coordinate;
 		}
-		minMax.second += 1;
+		range.second += 1;
 	}
 	return boundary;
 }

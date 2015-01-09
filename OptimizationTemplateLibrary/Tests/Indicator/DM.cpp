@@ -46,13 +46,13 @@ BOOST_AUTO_TEST_CASE(DM)
 	typedef otl::indicator::dm::DiversityMetric<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TMinMax _TMinMax;
+	typedef _TIndicator::TRange _TRange;
 	typedef _TIndicator::TBoundary _TBoundary;
 	const std::list<_TPoint> _pf = GenerateCirclePoints<_TReal>(1, 10000);
 	const std::vector<_TPoint> pf(_pf.begin(), _pf.end());
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(_TBoundary(2, _TMinMax(0, 1)), std::vector<size_t>(2, 10), pf);
+	_TIndicator indicator(_TBoundary(2, _TRange(0, 1)), std::vector<size_t>(2, 10), pf);
 	indicator(front);
 }
 }

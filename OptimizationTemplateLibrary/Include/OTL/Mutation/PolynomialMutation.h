@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 #include "Mutation.h"
 
 namespace otl
@@ -85,7 +85,7 @@ _TReal CalculateAmplificationUpper(const _TReal distributionIndex, const _TReal 
 }
 
 template <typename _TReal, typename _TRandom>
-class PolynomialMutation : public Mutation<_TReal, std::vector<_TReal> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithSpaceBoundary<_TReal>
+class PolynomialMutation : public Mutation<_TReal, std::vector<_TReal> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -93,8 +93,8 @@ public:
 	typedef std::vector<TReal> TDecision;
 	typedef Mutation<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	PolynomialMutation(TRandom random, const TReal probability, const TBoundary &boundary, const TReal distributionIndex);
 	~PolynomialMutation(void);
@@ -103,7 +103,7 @@ public:
 protected:
 	void _DoMutate(TSolution &solution);
 	void _Mutate(TDecision &decision);
-	TReal _Mutate(const TReal coding, const TMinMax &range);
+	TReal _Mutate(const TReal coding, const TRange &range);
 
 private:
 	std::uniform_real_distribution<TReal> dist_;
@@ -114,7 +114,7 @@ template <typename _TReal, typename _TRandom>
 PolynomialMutation<_TReal, _TRandom>::PolynomialMutation(TRandom random, const TReal probability, const TBoundary &boundary, const TReal distributionIndex)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
-	, otl::utility::WithSpaceBoundary<TReal>(boundary)
+	, otl::utility::WithBoundary<TReal>(boundary)
 	, dist_(0, 1)
 {
 	assert(distributionIndex >= 0);
@@ -152,7 +152,7 @@ void PolynomialMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 }
 
 template <typename _TReal, typename _TRandom>
-_TReal PolynomialMutation<_TReal, _TRandom>::_Mutate(const TReal coding, const TMinMax &range)
+_TReal PolynomialMutation<_TReal, _TRandom>::_Mutate(const TReal coding, const TRange &range)
 {
 	assert(range.first < range.second);
 	const TReal maxDistance = range.second - range.first;
@@ -162,7 +162,7 @@ _TReal PolynomialMutation<_TReal, _TRandom>::_Mutate(const TReal coding, const T
 	const TReal pandom01 = dist_(this->GetRandom());
 	assert(0 <= pandom01 && pandom01 < 1);
 	const TReal perturbanceFactor = CalculatePerturbanceFactor(GetDistributionIndex(), perturbanceFactorLower, perturbanceFactorUpper, pandom01);
-	return otl::utility::Fix(coding + perturbanceFactor * maxDistance, range);
+	return otl::utility::FixIntoBoundary(coding + perturbanceFactor * maxDistance, range);
 }
 }
 }

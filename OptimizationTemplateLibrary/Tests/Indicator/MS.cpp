@@ -60,11 +60,11 @@ BOOST_AUTO_TEST_CASE(MS1)
 	typedef otl::indicator::ms::MaximumSpread1<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TMinMax _TMinMax;
+	typedef _TIndicator::TRange _TRange;
 	typedef _TIndicator::TBoundary _TBoundary;
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(_TBoundary(2, _TMinMax(0, 1)));
+	_TIndicator indicator(_TBoundary(2, _TRange(0, 1)));
 	indicator(front);
 }
 
@@ -74,11 +74,11 @@ BOOST_AUTO_TEST_CASE(MS2)
 	typedef otl::indicator::ms::MaximumSpread2<_TReal> _TIndicator;
 	typedef _TIndicator::TMetric _TMetric;
 	typedef _TIndicator::TPoint _TPoint;
-	typedef _TIndicator::TMinMax _TMinMax;
+	typedef _TIndicator::TRange _TRange;
 	typedef _TIndicator::TBoundary _TBoundary;
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(_TBoundary(2, _TMinMax(0, 1)));
+	_TIndicator indicator(_TBoundary(2, _TRange(0, 1)));
 	indicator(front);
 }
 }

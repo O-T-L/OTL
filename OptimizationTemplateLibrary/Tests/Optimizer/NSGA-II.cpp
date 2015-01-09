@@ -81,9 +81,9 @@ std::vector<boost::numeric::ublas::symmetric_matrix<_TReal> > GenerateAdjacencyM
 }
 
 template <typename _TRandom, typename _TReal>
-boost::numeric::ublas::matrix<_TReal> GenerateMatrix(_TRandom &random, const std::pair<_TReal, _TReal> &minMax, const size_t row, const size_t col)
+boost::numeric::ublas::matrix<_TReal> GenerateMatrix(_TRandom &random, const std::pair<_TReal, _TReal> &range, const size_t row, const size_t col)
 {
-	std::uniform_real_distribution<_TReal> dist(minMax.first, minMax.second);
+	std::uniform_real_distribution<_TReal> dist(range.first, range.second);
 	boost::numeric::ublas::matrix<_TReal> matrix(row, col);
 	for (size_t i = 0; i < matrix.size1(); ++i)
 	{
@@ -94,9 +94,9 @@ boost::numeric::ublas::matrix<_TReal> GenerateMatrix(_TRandom &random, const std
 }
 
 template <typename _TRandom, typename _TReal>
-std::vector<_TReal> GenerateVector(_TRandom &random, const std::pair<_TReal, _TReal> &minMax, const size_t size)
+std::vector<_TReal> GenerateVector(_TRandom &random, const std::pair<_TReal, _TReal> &range, const size_t size)
 {
-	std::uniform_real_distribution<_TReal> dist(minMax.first, minMax.second);
+	std::uniform_real_distribution<_TReal> dist(range.first, range.second);
 	std::vector<_TReal> v(size);
 	for (size_t i = 0; i < v.size(); ++i)
 		v[i] = dist(random);
@@ -192,8 +192,8 @@ BOOST_AUTO_TEST_CASE(NSGA_II_TSP)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
-	typedef std::pair<_TReal, _TReal> _TMinMax;
-	typedef std::vector<_TMinMax> _TBoundary;
+	typedef std::pair<_TReal, _TReal> _TRange;
+	typedef std::vector<_TRange> _TBoundary;
 	typedef otl::problem::tsp::TSP<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::OrderBasedCrossover<_TReal, _TRandom &> _TCrossover;
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(NSGA_II_TSP)
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t populationSize = 100;
 	_TRandom random;
-	auto cities = GenerateCities(random, _TBoundary(2, _TMinMax(0, 1)), 30);
+	auto cities = GenerateCities(random, _TBoundary(2, _TRange(0, 1)), 30);
 	auto adjacencyMatrix = otl::problem::tsp::CalculateAdjacencyMatrix<_TReal>(cities.begin(), cities.end());
 	_TProblem problem(adjacencyMatrix);
 	const std::vector<_TDecision> initial = otl::initial::PopulationShuffleTSP(random, problem.GetNumberOfCities(), populationSize);
@@ -221,8 +221,8 @@ BOOST_AUTO_TEST_CASE(NSGA_II_MOTSP)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
-	typedef std::pair<_TReal, _TReal> _TMinMax;
-	typedef std::vector<_TMinMax> _TBoundary;
+	typedef std::pair<_TReal, _TReal> _TRange;
+	typedef std::vector<_TRange> _TBoundary;
 	typedef otl::problem::tsp::MOTSP<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::crossover::OrderBasedCrossover<_TReal, _TRandom &> _TCrossover;
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(NSGA_II_MOTSP)
 	const size_t populationSize = 100;
 	const size_t nCities = 30;
 	_TRandom random;
-	auto adjacencyMatrics = GenerateAdjacencyMatrics(random, _TBoundary(2, _TMinMax(0, 1)), nCities, nObjectives);
+	auto adjacencyMatrics = GenerateAdjacencyMatrics(random, _TBoundary(2, _TRange(0, 1)), nCities, nObjectives);
 	otl::problem::tsp::CorrelateAdjacencyMatrics(std::vector<_TReal>(adjacencyMatrics.size() - 1, 0), adjacencyMatrics);
 	_TProblem problem(adjacencyMatrics);
 	const std::vector<_TDecision> initial = otl::initial::PopulationShuffleTSP(random, nCities, populationSize);

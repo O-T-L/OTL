@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <cmath>
 #include <OTL/Problem/DynamicProblem.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 
 namespace otl
 {
@@ -46,14 +46,14 @@ namespace problem
 namespace fda
 {
 template <typename _TReal>
-class FDA : public DynamicProblem<_TReal, std::vector<_TReal> >, public otl::utility::WithSpaceBoundary<_TReal>
+class FDA : public DynamicProblem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
 	typedef std::vector<TReal> TDecision;
 	typedef DynamicProblem<TReal, TDecision> TSuper;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	FDA(const size_t nObjectives, const size_t &progress, const size_t nFixedSteps, const size_t nDistinctSteps, const TBoundary &boundary);
 	~FDA(void);
@@ -72,7 +72,7 @@ private:
 template <typename _TReal>
 FDA<_TReal>::FDA(const size_t nObjectives, const size_t &progress, const size_t nFixedSteps, const size_t nDistinctSteps, const TBoundary &boundary)
 	: TSuper(nObjectives, progress)
-	, otl::utility::WithSpaceBoundary<TReal>(boundary)
+	, otl::utility::WithBoundary<TReal>(boundary)
 	, nFixedSteps_(nFixedSteps)
 	, nDistinctSteps_(nDistinctSteps)
 {

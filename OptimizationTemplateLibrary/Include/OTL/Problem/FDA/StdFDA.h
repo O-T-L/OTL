@@ -35,7 +35,7 @@ public:
 	typedef FDA<TReal> TSuper;
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 
 	StdFDA(const size_t nObjectives, const size_t &progress, const size_t nFixedSteps, const size_t nDistinctSteps, const size_t distDecisions);

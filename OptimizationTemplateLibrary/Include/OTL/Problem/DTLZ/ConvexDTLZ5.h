@@ -35,7 +35,7 @@ public:
 	typedef DTLZ5<TReal> TSuper;
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 
 	ConvexDTLZ5(const size_t nObjectives);

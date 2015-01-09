@@ -33,7 +33,7 @@ public:
 	typedef Rectangle<TReal> TSuper;
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 	typedef boost::numeric::ublas::matrix<TReal> TMatrix;
 

@@ -37,7 +37,7 @@ public:
 	typedef UF<TReal> TSuper;
 	typedef typename TSuper::TDecision TDecision;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 
 	UF5(const size_t nDistDecisions = 29, const TReal epsilon = 0.1, const size_t n = 10);

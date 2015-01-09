@@ -31,7 +31,7 @@ class StdWFG : public WFG<_TReal>
 public:
 	typedef _TReal TReal;
 	typedef WFG<TReal> TSuper;
-	typedef typename TSuper::TMinMax TMinMax;
+	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 
 	StdWFG(const size_t nObjectives, const size_t posGroups, const size_t distDecisions);

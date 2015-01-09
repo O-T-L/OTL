@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include <OTL/Utility/WithSpaceBoundary.h>
+#include <OTL/Utility/WithBoundary.h>
 #include "CoupleCoupleCrossover.h"
 
 #undef min
@@ -81,7 +81,7 @@ _TReal CalculateAmplificationFactor(const _TReal distributionIndex, const _TReal
 }
 
 template <typename _TReal, typename _TRandom>
-class SimulatedBinaryCrossover : public CoupleCoupleCrossover<_TReal, std::vector<_TReal> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithSpaceBoundary<_TReal>
+class SimulatedBinaryCrossover : public CoupleCoupleCrossover<_TReal, std::vector<_TReal> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -89,8 +89,8 @@ public:
 	typedef std::vector<TReal> TDecision;
 	typedef CoupleCoupleCrossover<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TMinMax TMinMax;
-	typedef typename otl::utility::WithSpaceBoundary<TReal>::TBoundary TBoundary;
+	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
+	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
 	SimulatedBinaryCrossover(TRandom random, const TReal probability, const TBoundary &boundary, const TReal distributionIndex, const TReal componentProbability = 0.5);
 	~SimulatedBinaryCrossover(void);
@@ -100,7 +100,7 @@ public:
 protected:
 	void _DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2);
 	void _Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2);
-	void _Crossover(const TReal parent1, const TReal parent2, TReal &child1, TReal &child2, const TMinMax &range);
+	void _Crossover(const TReal parent1, const TReal parent2, TReal &child1, TReal &child2, const TRange &range);
 
 private:
 	std::uniform_real_distribution<TReal> dist_;
@@ -112,7 +112,7 @@ template <typename _TReal, typename _TRandom>
 SimulatedBinaryCrossover<_TReal, _TRandom>::SimulatedBinaryCrossover(TRandom random, const TReal probability, const TBoundary &boundary, const TReal distributionIndex, const TReal componentProbability)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
-	, otl::utility::WithSpaceBoundary<TReal>(boundary)
+	, otl::utility::WithBoundary<TReal>(boundary)
 	, dist_(0, 1)
 	, distributionIndex_(distributionIndex)
 	, componentProbability_(componentProbability)
@@ -173,7 +173,7 @@ void SimulatedBinaryCrossover<_TReal, _TRandom>::_Crossover(const TDecision &par
 }
 
 template <typename _TReal, typename _TRandom>
-void SimulatedBinaryCrossover<_TReal, _TRandom>::_Crossover(const TReal parent1, const TReal parent2, TReal &child1, TReal &child2, const TMinMax &range)
+void SimulatedBinaryCrossover<_TReal, _TRandom>::_Crossover(const TReal parent1, const TReal parent2, TReal &child1, TReal &child2, const TRange &range)
 {
 	assert(range.first < range.second);
 	const TReal distance = std::fabs(parent1 - parent2);
@@ -195,8 +195,8 @@ void SimulatedBinaryCrossover<_TReal, _TRandom>::_Crossover(const TReal parent1,
 	const TReal spreadFactor2 = CalculateSpreadFactor(GetDistributionIndex(), spreadFactorAttenuationUpper, random01);
 	const TReal middle = (parent1 + parent2) / 2;
 	const TReal halfDistance = distance / 2;
-	child1 = otl::utility::Fix(middle - spreadFactor1 * halfDistance, range);
-	child2 = otl::utility::Fix(middle + spreadFactor2 * halfDistance, range);
+	child1 = otl::utility::FixIntoBoundary(middle - spreadFactor1 * halfDistance, range);
+	child2 = otl::utility::FixIntoBoundary(middle + spreadFactor2 * halfDistance, range);
 	if (dist_(this->GetRandom()) < 0.5)
 		std::swap(child1, child2);
 }
