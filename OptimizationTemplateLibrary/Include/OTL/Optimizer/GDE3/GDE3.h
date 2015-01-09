@@ -43,7 +43,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/Relation/Pareto.h>
 #include <OTL/Utility/Nondominate.h>
 #include <OTL/Selection/NondominateSelection.h>
-#include <OTL/Optimizer/NSGA-II/Offspring.h>
 #include <OTL/Optimizer/NSGA-II/CrowdingDistanceAssignment.h>
 #include <OTL/Optimizer/NSGA-II/Individual.h>
 
@@ -69,7 +68,7 @@ public:
 
 	GDE3(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover);
 	~GDE3(void);
-	TIndividual MakeOffspring(const TSolutionSet &population, const size_t index);
+	TIndividual MakeChild(const TSolutionSet &population, const size_t index);
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 
 protected:
@@ -104,7 +103,7 @@ GDE3<_TReal, _TDecision, _TRandom>::~GDE3(void)
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-typename GDE3<_TReal, _TDecision, _TRandom>::TIndividual GDE3<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &population, const size_t index)
+typename GDE3<_TReal, _TDecision, _TRandom>::TIndividual GDE3<_TReal, _TDecision, _TRandom>::MakeChild(const TSolutionSet &population, const size_t index)
 {
 	assert(population.size() > 3);
 	size_t p1, p2, p3;
@@ -144,14 +143,14 @@ bool GDE3<_TReal, _TDecision, _TRandom>::_Dominate(const TIndividual *individual
 template <typename _TReal, typename _TDecision, typename _TRandom>
 void GDE3<_TReal, _TDecision, _TRandom>::_DoStep(void)
 {
-	TSolutionSet population = TSuper::solutionSet_;
+	TSolutionSet ancestor = TSuper::solutionSet_;
 	std::list<TIndividual> offspring;
 	typedef typename TSolutionSet::pointer _TPointer;
 	std::list<_TPointer> mix;
-	for (size_t i = 0; i < population.size(); ++i)
+	for (size_t i = 0; i < ancestor.size(); ++i)
 	{
-		TIndividual &individual = population[i];
-		TIndividual child = MakeOffspring(population, i);
+		TIndividual &individual = ancestor[i];
+		TIndividual child = MakeChild(ancestor, i);
 		if (Dominate(individual, child))
 			mix.push_back(&individual);
 		else if(Dominate(child, individual))
