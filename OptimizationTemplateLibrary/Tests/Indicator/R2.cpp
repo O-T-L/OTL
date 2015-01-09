@@ -32,10 +32,12 @@ std::list<std::vector<_TReal> > GenerateCirclePoints(const _TReal radius, const 
 	std::list<_TPoint> population;
 	for (size_t i = 0; i < nPoints; ++i)
 	{
-		const _TReal angle = i * boost::math::constants::pi<_TReal>() / 2 / (nPoints - 1);
+		const _TReal angle = i * boost::math::constants::pi<_TReal>() / 2 / nPoints;
 		std::vector<_TReal> point(2);
 		point[0] = radius * cos(angle);
+		assert(point[0] >= 0);
 		point[1] = radius * sin(angle);
+		assert(point[1] >= 0);
 		population.push_back(point);
 	}
 	return population;
@@ -51,7 +53,7 @@ BOOST_AUTO_TEST_CASE(R2)
 	std::vector<_TPoint> weightVectors(_weightVectors.begin(), _weightVectors.end());
 	const std::list<_TPoint> _front = GenerateCirclePoints<_TReal>(2, 100);
 	const std::vector<_TPoint> front(_front.begin(), _front.end());
-	_TIndicator indicator(_TPoint(2, 1), weightVectors);
+	_TIndicator indicator(_TPoint(2, 0), weightVectors);
 	indicator(front);
 }
 }
