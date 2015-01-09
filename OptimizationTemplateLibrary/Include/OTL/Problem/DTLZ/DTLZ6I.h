@@ -87,6 +87,7 @@ size_t DTLZ6I<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void DTLZ6I<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const size_t posDecisions = TSuper::GetNumberOfObjectives() - 1;
 	const TReal distance = distance::Distance3<TReal>(decision.begin() + posDecisions, decision.end(), 0.1);

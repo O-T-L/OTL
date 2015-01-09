@@ -77,6 +77,7 @@ void ParetoBox<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void ParetoBox<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 2);
 	objective[0] = sqrt((decision[0] - 50) * (decision[0] - 50) + (decision[1] - 88) * (decision[1] - 88));

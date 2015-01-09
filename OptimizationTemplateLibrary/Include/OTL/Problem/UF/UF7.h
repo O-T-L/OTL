@@ -84,6 +84,7 @@ size_t UF7<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void UF7<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const TReal x = decision[0];
 	const TReal bias = pow(x, 0.2);

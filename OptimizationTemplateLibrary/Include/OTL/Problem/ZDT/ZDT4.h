@@ -83,6 +83,7 @@ size_t ZDT4<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void ZDT4<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const TReal distance = 1 + distance::Distance2<TReal>(decision.begin() + 1, decision.end());
 	objective[0] = decision[0];

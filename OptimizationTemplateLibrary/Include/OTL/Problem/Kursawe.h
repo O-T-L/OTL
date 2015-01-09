@@ -77,6 +77,7 @@ void Kursawe<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void Kursawe<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	objective[0] = 0;
 	for (size_t i = 0; i < this->GetBoundary().size() - 1; ++i)

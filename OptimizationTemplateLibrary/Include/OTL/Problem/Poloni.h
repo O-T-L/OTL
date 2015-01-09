@@ -78,6 +78,7 @@ void Poloni<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void Poloni<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 2);
 	static const TReal A1 = 0.5 * sin((TReal)1) - 2 * cos((TReal)1) + sin((TReal)2) - 1.5 * cos((TReal)2);

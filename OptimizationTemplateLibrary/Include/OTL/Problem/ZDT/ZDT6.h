@@ -69,6 +69,7 @@ size_t ZDT6<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void ZDT6<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const TReal distance = 1 + 9 * pow(distance::Distance1<TReal>(decision.begin() + 1, decision.end()), 0.25);
 	objective[0] = transform::Bias(decision[0]);

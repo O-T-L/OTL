@@ -77,6 +77,7 @@ void Shubert<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void Shubert<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 2);
 	TReal part1 = 0;

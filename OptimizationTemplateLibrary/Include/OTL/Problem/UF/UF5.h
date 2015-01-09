@@ -90,6 +90,7 @@ size_t UF5<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void UF5<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const TReal x = decision[0];
 	const TReal temp = (0.5 / n_ + epsilon_) * std::fabs(sin(2 * n_ * boost::math::constants::pi<TReal>() * x));

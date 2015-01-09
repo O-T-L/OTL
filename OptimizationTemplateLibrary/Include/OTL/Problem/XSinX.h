@@ -90,6 +90,7 @@ void XSinX<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void XSinX<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 1);
 	objective[0] = -(decision[0] * sin(10 * boost::math::constants::pi<_TReal>() * decision[0]) + 2);

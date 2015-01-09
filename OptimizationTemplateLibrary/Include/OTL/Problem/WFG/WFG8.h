@@ -106,6 +106,7 @@ size_t WFG8<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void WFG8<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	TDecision _decision = decision;
 	Normalize(_decision);

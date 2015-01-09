@@ -78,6 +78,7 @@ void Binh<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void Binh<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 2);
 	objective[0] = decision[0] * decision[0] + decision[1] * decision[1];

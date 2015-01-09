@@ -39,10 +39,9 @@ public:
 	WithBoundary(const TBoundary &boundary);
 	~WithBoundary(void);
 	const TBoundary &GetBoundary(void) const;
+	bool IsInside(const std::vector<_TCoordinate> &point) const;
 	template <typename _TPoint> void Fix(_TPoint &point) const;
-
-protected:
-	static bool _Validate(const TBoundary &boundary);
+	static bool Validate(const TBoundary &boundary);
 
 private:
 	const TBoundary boundary_;
@@ -51,22 +50,6 @@ private:
 
 	friend class boost::serialization::access;
 };
-
-template <typename _TCoordinate>
-bool IsInsideBoundary(const std::vector<_TCoordinate> &point, const typename WithBoundary<_TCoordinate>::TBoundary &boundary)
-{
-	assert(point.size() == boundary.size());
-	for (size_t i = point.size(); i < point.size(); ++i)
-	{
-		const _TCoordinate coordinate = point[i];
-		const auto &range = boundary[i];
-		if (coordinate < range.first)
-			return false;
-		else if (coordinate > range.second)
-			return false;
-	}
-	return true;
-}
 
 template <typename _TCoordinate>
 _TCoordinate FixIntoBoundary(const _TCoordinate coordinate, const typename WithBoundary<_TCoordinate>::TRange &range)
@@ -84,12 +67,28 @@ template <typename _TCoordinate>
 WithBoundary<_TCoordinate>::WithBoundary(const TBoundary &boundary)
 	: boundary_(boundary)
 {
-	assert(_Validate(boundary));
+	assert(Validate(boundary));
 }
 
 template <typename _TCoordinate>
 WithBoundary<_TCoordinate>::~WithBoundary(void)
 {
+}
+
+template <typename _TCoordinate>
+bool WithBoundary<_TCoordinate>::IsInside(const std::vector<_TCoordinate> &point) const
+{
+	assert(point.size() == boundary_.size());
+	for (size_t i = point.size(); i < point.size(); ++i)
+	{
+		const _TCoordinate coordinate = point[i];
+		const auto &range = boundary_[i];
+		if (coordinate < range.first)
+			return false;
+		else if (coordinate > range.second)
+			return false;
+	}
+	return true;
 }
 
 template <typename _TCoordinate>
@@ -107,7 +106,7 @@ template <typename _TPoint> void WithBoundary<_TCoordinate>::Fix(_TPoint &point)
 }
 
 template <typename _TCoordinate>
-bool WithBoundary<_TCoordinate>::_Validate(const TBoundary &boundary)
+bool WithBoundary<_TCoordinate>::Validate(const TBoundary &boundary)
 {
 	for (size_t i = 0; i < boundary.size(); ++i)
 	{

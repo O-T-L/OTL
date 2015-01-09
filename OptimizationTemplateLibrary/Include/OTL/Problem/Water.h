@@ -79,6 +79,7 @@ void Water<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void Water<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective, std::vector<TReal> &inequality)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 3);
 	objective[0] = 106780.37 * (decision[1] + decision[2]) + 61704.67;

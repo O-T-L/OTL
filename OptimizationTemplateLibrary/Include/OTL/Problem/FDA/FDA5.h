@@ -68,6 +68,7 @@ size_t FDA5<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void FDA5<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const size_t posDecisions = TSuper::GetNumberOfObjectives() - 1;
 	const TReal cycle = sin(TSuper::CalculateEnvironment() * boost::math::constants::pi<_TReal>() / 2);

@@ -79,6 +79,7 @@ void OKA1<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void OKA1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 2);
 	const TReal x0 = cos(boost::math::constants::pi<TReal>() / 12) * decision[0] - sin(boost::math::constants::pi<TReal>() / 12) * decision[1];

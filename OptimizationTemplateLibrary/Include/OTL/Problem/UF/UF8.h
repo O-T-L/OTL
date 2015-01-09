@@ -87,6 +87,7 @@ size_t UF8<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void UF8<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const TReal alpha = decision[0] * boost::math::constants::pi<TReal>() / 2;
 	const TReal beta = decision[1] * boost::math::constants::pi<TReal>() / 2;

@@ -73,7 +73,7 @@ Rectangle<_TReal>::Rectangle(const TBoundary &boundary, const TBoundary &boundar
 	, boundaryOptimal_(boundaryOptimal)
 {
 	assert(boundary.size() == boundaryOptimal.size());
-	assert(otl::utility::WithBoundary<TReal>::_Check(boundaryOptimal));
+	assert(otl::utility::WithBoundary<TReal>::Validate(boundaryOptimal));
 	assert(_Check());
 }
 
@@ -103,6 +103,7 @@ void Rectangle<_TReal>::_DoFix(std::vector<TReal> &objective)
 template <typename _TReal>
 void Rectangle<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == this->GetBoundary().size());
 	for (size_t i = 0; i < decision.size(); ++i)

@@ -83,6 +83,7 @@ size_t UF2<_TReal>::_DoEvaluate(TSolution &solution)
 template <typename _TReal>
 void UF2<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
+	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const TReal x = decision[0];
 	objective[0] = x + 2 * distance::Distance2_2(decision, 2);
