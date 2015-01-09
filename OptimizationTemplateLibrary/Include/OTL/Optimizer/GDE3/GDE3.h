@@ -119,6 +119,9 @@ typename GDE3<_TReal, _TDecision, _TRandom>::TIndividual GDE3<_TReal, _TDecision
 	{
 		p3 = dist_(this->GetRandom());
 	} while (p3 == index || p3 == p1 || p3 == p2);
+	assert(p1 != index && p2 != index && p3 != index);
+	assert(p2 != p1 && p3 != p1);
+	assert(p3 != p2);
 	TIndividual child;
 	this->GetCrossover()(population[index], population[p1], population[p2], population[p3], child);
 	TSuper::GetProblem()(child);
@@ -170,7 +173,7 @@ template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TPointer, typename _TIterator> _TIterator GDE3<_TReal, _TDecision, _TRandom>::_SelectNoncritical(const std::list<_TPointer> &front, _TIterator begin, _TIterator end)
 {
 	_TIterator dest = begin;
-	for (auto i = front.begin(); i != front.end(); ++i)
+	for (auto i = front.begin(); i != front.end(); ++i, ++dest)
 		*dest = **i;
 	return dest;
 }
