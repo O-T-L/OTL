@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(GDE3)
 	_TRandom random;
 	_TProblem problem(nObjectives);
 	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
-	_TCrossover crossover(random, 1, problem.GetBoundary(), 20);
+	_TCrossover crossover(random, 0.5, problem.GetBoundary(), 0.5);
 	_TOptimizer optimizer(random, problem, initial, crossover);
 	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
 	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
