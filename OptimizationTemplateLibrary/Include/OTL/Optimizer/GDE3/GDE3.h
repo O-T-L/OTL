@@ -106,6 +106,7 @@ GDE3<_TReal, _TDecision, _TRandom>::~GDE3(void)
 template <typename _TReal, typename _TDecision, typename _TRandom>
 typename GDE3<_TReal, _TDecision, _TRandom>::TIndividual GDE3<_TReal, _TDecision, _TRandom>::MakeOffspring(const TSolutionSet &population, const size_t index)
 {
+	assert(population.size() > 3);
 	size_t p1, p2, p3;
 	do
 	{
