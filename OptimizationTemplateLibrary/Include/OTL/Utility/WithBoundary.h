@@ -40,7 +40,6 @@ public:
 	~WithBoundary(void);
 	const TBoundary &GetBoundary(void) const;
 	bool IsInside(const std::vector<_TCoordinate> &point) const;
-	template <typename _TPoint> void Fix(_TPoint &point) const;
 	static bool Validate(const TBoundary &boundary);
 
 private:
@@ -50,18 +49,6 @@ private:
 
 	friend class boost::serialization::access;
 };
-
-template <typename _TCoordinate>
-_TCoordinate FixIntoBoundary(const _TCoordinate coordinate, const typename WithBoundary<_TCoordinate>::TRange &range)
-{
-	assert(range.first < range.second);
-	if (coordinate < range.first)
-		return range.first;
-	else if (coordinate > range.second)
-		return range.second;
-	else
-		return coordinate;
-}
 
 template <typename _TCoordinate>
 WithBoundary<_TCoordinate>::WithBoundary(const TBoundary &boundary)
@@ -95,14 +82,6 @@ template <typename _TCoordinate>
 const typename WithBoundary<_TCoordinate>::TBoundary &WithBoundary<_TCoordinate>::GetBoundary(void) const
 {
 	return boundary_;
-}
-
-template <typename _TCoordinate>
-template <typename _TPoint> void WithBoundary<_TCoordinate>::Fix(_TPoint &point) const
-{
-	assert(point.size() == GetBoundary().size());
-	for (size_t i = 0; i < boundary_.size(); ++i)
-		point[i] = otl::utility::FixIntoBoundary(point[i], boundary_[i]);
 }
 
 template <typename _TCoordinate>

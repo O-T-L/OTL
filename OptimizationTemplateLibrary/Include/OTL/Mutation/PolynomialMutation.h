@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
 #include <OTL/Utility/WithBoundary.h>
+#include <OTL/Utility/Fix/Truncate.h>
 #include "Mutation.h"
 
 namespace otl
@@ -162,7 +163,7 @@ _TReal PolynomialMutation<_TReal, _TRandom>::_Mutate(const TReal coding, const T
 	const TReal pandom01 = dist_(this->GetRandom());
 	assert(0 <= pandom01 && pandom01 < 1);
 	const TReal perturbanceFactor = CalculatePerturbanceFactor(GetDistributionIndex(), perturbanceFactorLower, perturbanceFactorUpper, pandom01);
-	return otl::utility::FixIntoBoundary(coding + perturbanceFactor * maxDistance, range);
+	return otl::utility::fix::Truncate(coding + perturbanceFactor * maxDistance, range);
 }
 }
 }

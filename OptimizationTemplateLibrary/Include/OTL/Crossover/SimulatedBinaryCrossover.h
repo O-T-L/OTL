@@ -36,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
 #include <OTL/Utility/WithBoundary.h>
+#include <OTL/Utility/Fix/Truncate.h>
 #include "CoupleCoupleCrossover.h"
 
 #undef min
@@ -195,8 +196,8 @@ void SimulatedBinaryCrossover<_TReal, _TRandom>::_Crossover(const TReal parent1,
 	const TReal spreadFactor2 = CalculateSpreadFactor(GetDistributionIndex(), spreadFactorAttenuationUpper, random01);
 	const TReal middle = (parent1 + parent2) / 2;
 	const TReal halfDistance = distance / 2;
-	child1 = otl::utility::FixIntoBoundary(middle - spreadFactor1 * halfDistance, range);
-	child2 = otl::utility::FixIntoBoundary(middle + spreadFactor2 * halfDistance, range);
+	child1 = otl::utility::fix::Truncate(middle - spreadFactor1 * halfDistance, range);
+	child2 = otl::utility::fix::Truncate(middle + spreadFactor2 * halfDistance, range);
 	if (dist_(this->GetRandom()) < 0.5)
 		std::swap(child1, child2);
 }

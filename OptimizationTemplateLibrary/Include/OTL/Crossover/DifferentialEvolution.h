@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Crossover/XTripleCrossover.h>
 #include <OTL/Utility/WithProbability.h>
 #include <OTL/Utility/WithBoundary.h>
+#include <OTL/Utility/Fix/Truncate.h>
 
 #undef min
 #undef max
@@ -112,7 +113,7 @@ void DifferentialEvolution<_TReal, _TRandom>::_Crossover(const TDecision &parent
 	for (size_t i = 0; i < this->GetBoundary().size(); ++i)
 	{
 		if (dist_(this->GetRandom()) < this->GetProbability() || i == randIndex)
-			child[i] = otl::utility::FixIntoBoundary(parent3[i] + scalingFactor_ * (parent1[i] - parent2[i]), this->GetBoundary()[i]);
+			child[i] = otl::utility::fix::Truncate(parent3[i] + scalingFactor_ * (parent1[i] - parent2[i]), this->GetBoundary()[i]);
 		else
 			child[i] = parent[i];
 	}
