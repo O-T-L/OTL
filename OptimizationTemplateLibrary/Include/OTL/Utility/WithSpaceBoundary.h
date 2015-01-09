@@ -87,7 +87,7 @@ template <typename _TPoint> void WithSpaceBoundary<_TCoordinate>::Fix(_TPoint &p
 {
 	assert(point.size() == GetBoundary().size());
 	for (size_t i = 0; i < boundary_.size(); ++i)
-		point[i] = Fix(point[i], boundary_[i]);
+		point[i] = otl::utility::Fix(point[i], boundary_[i]);
 }
 
 template <typename _TCoordinate>
