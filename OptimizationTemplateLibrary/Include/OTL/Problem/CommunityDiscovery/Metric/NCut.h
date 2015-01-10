@@ -1,4 +1,4 @@
-/*!
+/*
 Copyright (C) 2014, 林继森 (Jisen Lin)
 
 This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,19 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
+@Article{,
+  Title                    = {Quantitative function for community detection},
+  Author                   = {Zhenping Li and Shihua Zhang and Rui-Sheng Wang and Xiang-Sun Zhang and Luonan Chen},
+  Journal                  = {Physical Review E},
+  Year                     = {2008},
+  Number                   = {3},
+  Pages                    = {036109},
+  Volume                   = {77},
+  Doi                      = {10.1103/PhysRevE.77.036109}
+}
 */
 
 #pragma once
@@ -30,52 +43,45 @@ namespace community_discovery
 namespace metric
 {
 template <typename _TReal, typename _TMatrix>
-class Silhouette : public Metric<_TReal, _TMatrix>
+class NCut : public Metric<_TReal, _TMatrix>
 {
 public:
 	typedef _TReal TReal;
 	typedef _TMatrix TMatrix;
 	typedef Metric<TReal, TMatrix> TSuper;
 
-	Silhouette(void);
-	~Silhouette(void);
+	NCut(void);
+	~NCut(void);
 
 protected:
 	TReal _DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities);
 };
 
 template <typename _TReal, typename _TMatrix>
-Silhouette<_TReal, _TMatrix>::Silhouette(void)
+NCut<_TReal, _TMatrix>::NCut(void)
 	: TSuper(true)
 {
 }
 
 template <typename _TReal, typename _TMatrix>
-Silhouette<_TReal, _TMatrix>::~Silhouette(void)
+NCut<_TReal, _TMatrix>::~NCut(void)
 {
 }
 
 template <typename _TReal, typename _TMatrix>
-_TReal Silhouette<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
+_TReal NCut<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std::vector<std::set<size_t> > &communities)
 {
-//	const TReal degree = CommunityDegree(graph);
-	TReal gs = 0;
+	TReal nc = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{
-		TReal temp = 0;
 		const std::set<size_t> &community = communities[i];
-		const TReal bi = Bi(graph, communities, community);
-		for (auto j = community.begin(); j != community.end(); ++j)
-		{
-			assert(0 <= *j && *j < graph.size1());
-			const TReal ai = Ai(graph, community, *j);
-			temp += ai - bi;
-			temp /= std::max(ai, bi);
-		}
-		gs += 1.0 / community.size() * temp;
+		const TReal innerDegree = CommunityInnerDegree(graph, community);
+		const TReal outerDegree = CommunityOuterDegree(graph, communities, i);
+//		const TReal e = E(graph, communities);
+		const TReal e = CommunityDegree(graph);
+		nc += outerDegree / (2 * innerDegree + outerDegree) + outerDegree / (2 * (e - innerDegree) + outerDegree);
 	}
-	gs /= communities.size();
-	return gs;
+	return nc;
 }
 }
 }

@@ -189,6 +189,77 @@ _TReal AverageOuterDegree(const boost::numeric::ublas::symmetric_matrix<_TReal> 
 	}
 	return min;
 }
+
+template <typename _TReal>
+_TReal Ai(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph, const std::set<size_t> &community, const size_t point)
+{
+	assert(graph.size1() == graph.size2());
+	_TReal ai = 0;
+	for (auto i = community.begin(); i != community.end(); ++i)
+	{
+		assert(0 <= *i && *i < graph.size1());
+		if (*i != point)
+			ai += graph(point, *i);
+	}
+	ai /= community.size() - 1;
+	return ai;
+}
+
+
+template <typename _TReal>
+_TReal Bi(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph, const std::vector<std::set<size_t> > &communities,const std::set<size_t> &community)
+{
+	assert(graph.size1() == graph.size2());
+	_TReal bi = 0;
+	for (auto k = community.begin(); k != community.end(); ++k)
+		for (size_t i = 0; i < communities.size(); ++i)
+		{
+			_TReal degree = 0;
+			const std::set<size_t> &community1 = communities[i];
+			if (community1.find(*k) == community1.end())
+			{
+				for (auto j = community1.begin(); j != community1.end(); ++j)
+				{
+					assert(0 <= *j && *j < graph.size1());
+					degree += graph(*k, *j);
+				}
+				degree /= community1.size();
+			}
+			assert(0 <= degree && degree <= 1);
+			if(bi < degree)
+			   bi = degree;
+		}
+	return bi;
+}
+
+
+template <typename _TReal>
+_TReal E(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph, const std::vector<std::set<size_t> > &communities)
+{
+	assert(graph.size1() == graph.size2());
+	_TReal e = 0;
+
+	for (size_t i = 0; i < communities.size(); ++i)
+	{
+		const std::set<size_t> &community = communities[i];
+		for (auto j = community.begin(); j != community.end(); ++j)
+		{
+			for (size_t k = 0; k < communities.size(); ++k)
+			{
+				const std::set<size_t> &community1 = communities[k];
+//				if (community.find(*j) == community.end())
+					for (auto m = community1.begin(); m != community1.end(); ++m)
+						{
+							assert(0 <= *m && *m < graph.size1());
+							if (*j != *m)
+							   e += graph(*j, *m);
+						}
+			}
+		}
+//	e /= 2;
+	return e;
+}
+}
 }
 }
 }
