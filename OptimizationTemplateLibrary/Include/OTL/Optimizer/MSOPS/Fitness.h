@@ -87,7 +87,7 @@ std::list<std::vector<std::pair<_TReal, _TIterator> > > CalculateScores(const st
 		for (_TIterator individual = begin; individual != end; ++individual, ++i)
 		{
 			_TScore &score = scores.back()[i];
-			score.first = aggregation((**individual).direction_, targets[n]);
+			score.first = aggregation(**individual, targets[n]);
 			score.second = individual;
 		}
 	}

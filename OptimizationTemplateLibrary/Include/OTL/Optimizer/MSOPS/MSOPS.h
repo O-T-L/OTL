@@ -130,8 +130,8 @@ template <typename _TIterator> void MSOPS<_TReal, _TDecision, _TRandom>::Fitness
 		TIndividual &individual = **i;
 		individual.direction_ = ComputeDirection(ideal, individual.objective_);
 	}
-	auto scores = CalculateScores(targets_, begin, end, &WeightedMinMax<TReal>);
-	auto _scores = CalculateScores(targets_, begin, end, [this](const std::vector<TReal> &objective, const std::vector<TReal> &target)->TReal{return VectorAngleDistanceScaling(objective, target, this->factor_);});
+	auto scores = CalculateScores(targets_, begin, end, [](const TIndividual &individual, const std::vector<TReal> &target)->TReal{return WeightedMinMax(individual.direction_, target);});
+	auto _scores = CalculateScores(targets_, begin, end, [this](const TIndividual &individual, const std::vector<TReal> &target)->TReal{return VectorAngleDistanceScaling(individual.direction_, target, this->factor_);});
 	scores.splice(scores.end(), _scores, _scores.begin(), _scores.end());
 	AssignRanks(scores);
 	SortFitness(begin, end);
