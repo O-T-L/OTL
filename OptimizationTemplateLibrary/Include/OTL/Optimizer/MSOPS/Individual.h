@@ -34,6 +34,7 @@ public:
 	typedef _TDecision TDecision;
 	typedef Solution<TReal, TDecision> TSuper;
 
+	std::vector<TReal> direction_;
 	std::vector<size_t> fitness_;
 
 	Individual(void);

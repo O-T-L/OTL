@@ -64,6 +64,7 @@ public:
 protected:
 	void _DoStep(void);
 	static const TIndividual *_Compete(const std::vector<const TIndividual *> &competition);
+	template <typename _TIterator> std::vector<TReal> _CalculateIdealPoint(_TIterator begin, _TIterator end) const;
 
 private:
 	TTargets targets_;
@@ -123,6 +124,12 @@ typename MSOPS<_TReal, _TDecision, _TRandom>::TSolutionSet MSOPS<_TReal, _TDecis
 template <typename _TReal, typename _TDecision, typename _TRandom>
 template <typename _TIterator> void MSOPS<_TReal, _TDecision, _TRandom>::FitnessAssignment(_TIterator begin, _TIterator end)
 {
+	const auto ideal = _CalculateIdealPoint(begin, end);
+	for (_TIterator i = begin; i != end; ++i)
+	{
+		TIndividual &individual = **i;
+		individual.direction_ = ComputeDirection(ideal, individual.objective_);
+	}
 	auto scores = CalculateScores(targets_, begin, end, &WeightedMinMax<TReal>);
 	auto _scores = CalculateScores(targets_, begin, end, [this](const std::vector<TReal> &objective, const std::vector<TReal> &target)->TReal{return VectorAngleDistanceScaling(objective, target, this->factor_);});
 	scores.splice(scores.end(), _scores, _scores.begin(), _scores.end());
@@ -168,6 +175,15 @@ const typename MSOPS<_TReal, _TDecision, _TRandom>::TIndividual *MSOPS<_TReal, _
 	else if (Dominate(*competition[1], *competition[0]))
 		return competition[1];
 	return competition[0]->fitness_ < competition[1]->fitness_ ? competition[0] : competition[1];
+}
+
+template <typename _TReal, typename _TDecision, typename _TRandom>
+template <typename _TIterator> std::vector<_TReal> MSOPS<_TReal, _TDecision, _TRandom>::_CalculateIdealPoint(_TIterator begin, _TIterator end) const
+{
+	std::vector<TReal> ideal(TSuper::GetProblem().GetNumberOfObjectives());
+	for (size_t i = 0; i < ideal.size(); ++i)
+		ideal[i] = (**std::min_element(begin, end, [i](const TIndividual *individual1, const TIndividual *individual2)->bool{return individual1->objective_[i] < individual2->objective_[i];})).objective_[i];
+	return ideal;
 }
 }
 }

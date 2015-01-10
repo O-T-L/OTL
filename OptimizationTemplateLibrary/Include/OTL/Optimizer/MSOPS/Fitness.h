@@ -31,6 +31,19 @@ namespace optimizer
 namespace msops
 {
 template <typename _TReal>
+std::vector<_TReal> ComputeDirection(const std::vector<_TReal> &ideal, const std::vector<_TReal> &objective)
+{
+	assert(objective.size() == ideal.size());
+	std::vector<_TReal> direction(objective.size());
+	for (size_t i = 0; i < direction.size(); ++i)
+	{
+		direction[i] = objective[i] - ideal[i];
+		assert(direction[i] >= 0);
+	}
+	return direction;
+}
+
+template <typename _TReal>
 _TReal WeightedMinMax(const std::vector<_TReal> &objective, const std::vector<_TReal> &target)
 {
 	assert(objective.size() == target.size());
@@ -67,14 +80,14 @@ std::list<std::vector<std::pair<_TReal, _TIterator> > > CalculateScores(const st
 	typedef std::pair<_TReal, _TIterator> _TScore;
 	typedef std::vector<_TScore> _TColumn;
 	std::list<_TColumn> scores;
-	for (size_t j = 0; j < targets.size(); ++j)
+	for (size_t n = 0; n < targets.size(); ++n)
 	{
 		scores.push_back(_TColumn(std::distance(begin, end)));
 		size_t i = 0;
 		for (_TIterator individual = begin; individual != end; ++individual, ++i)
 		{
 			_TScore &score = scores.back()[i];
-			score.first = aggregation((*individual)->objective_, targets[j]);
+			score.first = aggregation((**individual).direction_, targets[n]);
 			score.second = individual;
 		}
 	}
