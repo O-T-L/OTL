@@ -47,6 +47,7 @@ public:
 
 	SinglePointCrossover(TRandom random, const TReal probability, const std::vector<size_t> &decisionBits);
 	~SinglePointCrossover(void);
+	bool ShouldCrossover(void);
 	const std::vector<size_t> &GetDecisionBits(void) const;
 
 protected:
@@ -74,6 +75,12 @@ SinglePointCrossover<_TReal, _TInteger, _TRandom>::~SinglePointCrossover(void)
 }
 
 template <typename _TReal, typename _TInteger, typename _TRandom>
+bool SinglePointCrossover<_TReal, _TInteger, _TRandom>::ShouldCrossover(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TInteger, typename _TRandom>
 const std::vector<size_t> &SinglePointCrossover<_TReal, _TInteger, _TRandom>::GetDecisionBits(void) const
 {
 	return decisionBits_;
@@ -91,7 +98,7 @@ void SinglePointCrossover<_TReal, _TInteger, _TRandom>::_Crossover(const TDecisi
 	assert(!decisionBits_.empty());
 	assert(parent1.size() == decisionBits_.size());
 	assert(parent2.size() == decisionBits_.size());
-	if (dist_(this->GetRandom()) < this->GetProbability())
+	if (ShouldCrossover())
 	{
 		child1.resize(parent1.size());
 		child2.resize(parent2.size());

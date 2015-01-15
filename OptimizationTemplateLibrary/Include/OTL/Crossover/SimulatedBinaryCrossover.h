@@ -95,6 +95,7 @@ public:
 
 	SimulatedBinaryCrossover(TRandom random, const TReal probability, const TBoundary &boundary, const TReal distributionIndex, const TReal componentProbability = 0.5);
 	~SimulatedBinaryCrossover(void);
+	bool ShouldCrossover(void);
 	TReal GetDistributionIndex(void) const;
 	TReal GetComponentProbability(void) const;
 
@@ -128,6 +129,12 @@ SimulatedBinaryCrossover<_TReal, _TRandom>::~SimulatedBinaryCrossover(void)
 }
 
 template <typename _TReal, typename _TRandom>
+bool SimulatedBinaryCrossover<_TReal, _TRandom>::ShouldCrossover(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TRandom>
 typename SimulatedBinaryCrossover<_TReal, _TRandom>::TReal SimulatedBinaryCrossover<_TReal, _TRandom>::GetDistributionIndex(void) const
 {
 	return distributionIndex_;
@@ -151,7 +158,7 @@ void SimulatedBinaryCrossover<_TReal, _TRandom>::_Crossover(const TDecision &par
 	assert(!this->GetBoundary().empty());
 	assert(parent1.size() == this->GetBoundary().size());
 	assert(parent2.size() == this->GetBoundary().size());
-	if (dist_(this->GetRandom()) < this->GetProbability())
+	if (ShouldCrossover())
 	{
 		child1.resize(parent1.size());
 		child2.resize(parent2.size());

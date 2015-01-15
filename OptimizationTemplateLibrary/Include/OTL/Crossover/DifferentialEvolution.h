@@ -62,6 +62,7 @@ public:
 
 	DifferentialEvolution(TRandom random, const TReal probability, const TBoundary &boundary, const TReal scalingFactor = 0.5);
 	~DifferentialEvolution(void);
+	bool ShouldCrossover(void);
 	TReal GetScalingFactor(void) const;
 
 protected:
@@ -89,6 +90,12 @@ DifferentialEvolution<_TReal, _TRandom>::~DifferentialEvolution(void)
 }
 
 template <typename _TReal, typename _TRandom>
+bool DifferentialEvolution<_TReal, _TRandom>::ShouldCrossover(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TRandom>
 _TReal DifferentialEvolution<_TReal, _TRandom>::GetScalingFactor(void) const
 {
 	return scalingFactor_;
@@ -112,7 +119,7 @@ void DifferentialEvolution<_TReal, _TRandom>::_Crossover(const TDecision &parent
 	child.resize(this->GetBoundary().size());
 	for (size_t i = 0; i < this->GetBoundary().size(); ++i)
 	{
-		if (dist_(this->GetRandom()) < this->GetProbability() || i == randIndex)
+		if (ShouldCrossover() || i == randIndex)
 			child[i] = otl::utility::fix::Truncate(parent3[i] + scalingFactor_ * (parent1[i] - parent2[i]), this->GetBoundary()[i]);
 		else
 			child[i] = parent[i];

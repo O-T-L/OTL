@@ -48,6 +48,7 @@ public:
 
 	PartiallyMappedCrossover(TRandom random, const TReal probability);
 	~PartiallyMappedCrossover(void);
+	bool ShouldCrossover(void);
 
 protected:
 	void _DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2);
@@ -72,6 +73,12 @@ PartiallyMappedCrossover<_TReal, _TRandom>::~PartiallyMappedCrossover(void)
 }
 
 template <typename _TReal, typename _TRandom>
+bool PartiallyMappedCrossover<_TReal, _TRandom>::ShouldCrossover(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TRandom>
 void PartiallyMappedCrossover<_TReal, _TRandom>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
 {
 	_Crossover(parent1.decision_, parent2.decision_, child1.decision_, child2.decision_);
@@ -82,7 +89,7 @@ void PartiallyMappedCrossover<_TReal, _TRandom>::_Crossover(const TDecision &par
 {
 	child1 = parent1;
 	child2 = parent2;
-	if (dist_(this->GetRandom()) < this->GetProbability())
+	if (ShouldCrossover())
 	{
 		std::uniform_int_distribution<size_t> dist(0, child1.size() - 1);
 		const size_t position1 = dist(this->GetRandom());

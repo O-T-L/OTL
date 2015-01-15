@@ -39,6 +39,7 @@ public:
 
 	PositionBasedCrossover(TRandom random, const TReal probability);
 	~PositionBasedCrossover(void);
+	bool ShouldCrossover(void);
 
 protected:
 	void _DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2);
@@ -62,6 +63,12 @@ PositionBasedCrossover<_TReal, _TRandom>::~PositionBasedCrossover(void)
 }
 
 template <typename _TReal, typename _TRandom>
+bool PositionBasedCrossover<_TReal, _TRandom>::ShouldCrossover(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TRandom>
 void PositionBasedCrossover<_TReal, _TRandom>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
 {
 	_Crossover(parent1.decision_, parent2.decision_, child1.decision_, child2.decision_);
@@ -70,7 +77,7 @@ void PositionBasedCrossover<_TReal, _TRandom>::_DoCrossover(const TSolution &par
 template <typename _TReal, typename _TRandom>
 void PositionBasedCrossover<_TReal, _TRandom>::_Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2)
 {
-	if (dist_(this->GetRandom()) >= this->GetProbability() || parent2 == parent1)
+	if (ShouldCrossover() || parent2 == parent1)
 	{
 		child1 = parent1;
 		child2 = parent2;
