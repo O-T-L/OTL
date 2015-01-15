@@ -99,6 +99,7 @@ public:
 
 	PolynomialMutation(TRandom random, const TReal probability, const TBoundary &boundary, const TReal distributionIndex);
 	~PolynomialMutation(void);
+	bool ShouldMutate(void);
 	TReal GetDistributionIndex(void) const;
 
 protected:
@@ -128,6 +129,12 @@ PolynomialMutation<_TReal, _TRandom>::~PolynomialMutation(void)
 }
 
 template <typename _TReal, typename _TRandom>
+bool PolynomialMutation<_TReal, _TRandom>::ShouldMutate(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TRandom>
 typename PolynomialMutation<_TReal, _TRandom>::TReal PolynomialMutation<_TReal, _TRandom>::GetDistributionIndex(void) const
 {
 	assert(distributionIndex_ >= 0);
@@ -147,7 +154,7 @@ void PolynomialMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 	assert(decision.size() == this->GetBoundary().size());
 	for (size_t i = 0; i < this->GetBoundary().size(); ++i)
 	{
-		if (dist_(this->GetRandom()) < this->GetProbability())
+		if (ShouldMutate())
 			decision[i] = _Mutate(decision[i], this->GetBoundary()[i]);
 	}
 }

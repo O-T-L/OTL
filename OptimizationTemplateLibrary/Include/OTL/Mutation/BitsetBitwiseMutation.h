@@ -40,6 +40,7 @@ public:
 
 	BitsetBitwiseMutation(TRandom random, const TReal probability);
 	~BitsetBitwiseMutation(void);
+	bool ShouldMutate(void);
 
 protected:
 	void _DoMutate(TSolution &solution);
@@ -63,6 +64,12 @@ BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::~BitsetBitwiseMutation(void
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
+bool BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::ShouldMutate(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TDecision, typename _TRandom>
 void BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::_DoMutate(TSolution &solution)
 {
 	_Mutate(solution.decision_);
@@ -73,7 +80,7 @@ void BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::_Mutate(TDecision &dec
 {
 	for (size_t i = 0; i < decision.size(); ++i)
 	{
-		if (dist_(this->GetRandom()) < this->GetProbability())
+		if (ShouldMutate())
 			decision[i].flip();
 	}
 }

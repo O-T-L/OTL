@@ -38,6 +38,7 @@ public:
 
 	ExchangeMutation(TRandom random, const TReal probability);
 	~ExchangeMutation(void);
+	bool ShouldMutate(void);
 
 protected:
 	void _DoMutate(TSolution &solution);
@@ -61,6 +62,12 @@ ExchangeMutation<_TReal, _TRandom>::~ExchangeMutation(void)
 }
 
 template <typename _TReal, typename _TRandom>
+bool ExchangeMutation<_TReal, _TRandom>::ShouldMutate(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TRandom>
 void ExchangeMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
 {
 	_Mutate(solution.decision_);
@@ -70,7 +77,7 @@ template <typename _TReal, typename _TRandom>
 void ExchangeMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 {
 	std::uniform_int_distribution<size_t> dist(0, decision.size() - 1);
-	if (dist_(this->GetRandom()) < this->GetProbability())
+	if (ShouldMutate())
 		std::swap(decision[dist(this->GetRandom())], decision[dist(this->GetRandom())]);
 }
 }

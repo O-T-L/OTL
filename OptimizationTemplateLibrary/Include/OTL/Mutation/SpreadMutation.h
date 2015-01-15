@@ -39,6 +39,7 @@ public:
 
 	SpreadMutation(TRandom random, const TReal probability);
 	~SpreadMutation(void);
+	bool ShouldMutate(void);
 
 protected:
 	void _DoMutate(TSolution &solution);
@@ -63,6 +64,12 @@ SpreadMutation<_TReal, _TRandom>::~SpreadMutation(void)
 }
 
 template <typename _TReal, typename _TRandom>
+bool SpreadMutation<_TReal, _TRandom>::ShouldMutate(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
+}
+
+template <typename _TReal, typename _TRandom>
 void SpreadMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
 {
 	_Mutate(solution.decision_);
@@ -71,7 +78,7 @@ void SpreadMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
 template <typename _TReal, typename _TRandom>
 void SpreadMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 {
-	if (dist_(this->GetRandom()) < this->GetProbability())
+	if (ShouldMutate())
 	{
 		std::uniform_int_distribution<size_t> dist(0, decision.size() - 1);
 		const size_t position1 = dist(this->GetRandom());

@@ -41,6 +41,7 @@ public:
 
 	BitwiseMutation(TRandom random, const TReal probability, const std::vector<size_t> &decisionBits);
 	~BitwiseMutation(void);
+	bool ShouldMutate(void);
 	const std::vector<size_t> &GetDecisionBits(void) const;
 
 protected:
@@ -65,6 +66,12 @@ BitwiseMutation<_TReal, _TInteger, _TRandom>::BitwiseMutation(TRandom random, co
 template <typename _TReal, typename _TInteger, typename _TRandom>
 BitwiseMutation<_TReal, _TInteger, _TRandom>::~BitwiseMutation(void)
 {
+}
+
+template <typename _TReal, typename _TInteger, typename _TRandom>
+bool BitwiseMutation<_TReal, _TInteger, _TRandom>::ShouldMutate(void)
+{
+	return dist_(this->GetRandom()) < this->GetProbability();
 }
 
 template <typename _TReal, typename _TInteger, typename _TRandom>
@@ -94,7 +101,7 @@ _TInteger BitwiseMutation<_TReal, _TInteger, _TRandom>::_Mutate(TInteger coding,
 	TInteger mask = 1;
 	for (size_t i = 0; i < nBits; ++i)
 	{
-		if (dist_(this->GetRandom()) < this->GetProbability())
+		if (ShouldMutate())
 			coding ^= mask;
 		mask <<= 1;
 	}
