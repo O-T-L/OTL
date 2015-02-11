@@ -37,7 +37,7 @@ public:
 
 	Constraint(void);
 	~Constraint(void);
-	bool operator ()(void);
+	bool operator ()(void) const;
 
 private:
 	template<class _TArchive> void serialize(_TArchive &archive, const unsigned version);
@@ -56,11 +56,11 @@ Constraint<_TReal>::~Constraint(void)
 }
 
 /*!
- * \brief Check violation
+ * \brief Checking violation
  * \return No constraint violation detected
  */
 template <typename _TReal>
-bool Constraint<_TReal>::operator ()(void)
+bool Constraint<_TReal>::operator ()(void) const
 {
 	for (size_t i = 0; i < inequality_.size(); ++i)
 	{

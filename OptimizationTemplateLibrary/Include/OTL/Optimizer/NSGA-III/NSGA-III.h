@@ -77,6 +77,8 @@ public:
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 
 protected:
+	std::list<TIndividual *> noncritical_;
+
 	static bool _Dominate(const TIndividual *individual1, const TIndividual *individual2);
 	void _DoStep(void);
 	template <typename _TPointer, typename _TIterator> _TIterator _SelectNoncritical(std::list<_TPointer> &front, _TIterator begin, _TIterator end);
@@ -89,7 +91,6 @@ protected:
 
 private:
 	std::vector<TPoint> referenceSet_;
-	std::list<TIndividual *> noncritical_;
 	const TReal epsilon_;
 };
 
