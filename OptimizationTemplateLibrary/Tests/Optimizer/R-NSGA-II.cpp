@@ -47,8 +47,9 @@ BOOST_AUTO_TEST_CASE(R_NSGA_II)
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
 	const std::vector<_TReal> referencePoint(nObjectives, 0.5);
+	const std::vector<_TReal> weight = {0.3, 0.3, 0.4};
 	const _TReal threshold = 0.2;
-	_TOptimizer optimizer(random, problem, initial, crossover, mutation, referencePoint, threshold);
+	_TOptimizer optimizer(random, problem, initial, crossover, mutation, referencePoint, weight, threshold);
 	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
 	for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
 	{
