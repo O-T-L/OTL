@@ -30,10 +30,12 @@ template <typename _TReal>
 class Constraint
 {
 public:
+	//! \cond Doxygen_Suppress
 	typedef _TReal TReal;
+	//! \endcond
 
-	std::vector<TReal> inequality_;
-	std::vector<TReal> equality_;
+	std::vector<TReal> inequality_; //!< The inequality constraint
+	std::vector<TReal> equality_; //!< The equality constraint
 
 	Constraint(void);
 	~Constraint(void);

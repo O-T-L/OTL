@@ -31,7 +31,7 @@ namespace otl
 namespace problem
 {
 /*!
- * \brief The optimization problem base class
+ * \brief The optimization problem base class, and minimization is stipulated
  * \param[in] _TReal The type of objective value, must be a real number type
  * \param[in] _TDecision The type of the decision, can be any data structure
  */
@@ -39,9 +39,11 @@ template <typename _TReal, typename _TDecision>
 class Problem
 {
 public:
+	//! \cond Doxygen_Suppress
 	typedef _TReal TReal;
 	typedef _TDecision TDecision;
 	typedef Solution<TReal, TDecision> TSolution;
+	//! \endcond
 
 	Problem(const size_t nObjectives);
 	virtual ~Problem(void);
@@ -51,12 +53,19 @@ public:
 	void Fix(std::vector<TReal> &objective);
 
 protected:
+	/*!
+	 * \brief Evaluating a solution. The maximization objectives can be converted into their opposite values.
+	 * \return The number of evaluations
+	 */
 	virtual size_t _DoEvaluate(TSolution &solution) = 0;
+	/*!
+	 * \brief Get the original objective values.
+	 */
 	virtual void _DoFix(std::vector<TReal> &objective) = 0;
 
 private:
-	size_t nObjectives_;
-	size_t nEvaluations_;
+	size_t nObjectives_; //!< The number of objectives
+	size_t nEvaluations_; //!< The number of evaluations
 
 	template<class _TArchive> void serialize(_TArchive &archive, const unsigned version);
 
@@ -64,7 +73,6 @@ private:
 };
 
 /*!
- * \brief Constructor
  * \param[in] nObjectives The number of objectives
  */
 template <typename _TReal, typename _TDecision>
@@ -81,7 +89,7 @@ Problem<_TReal, _TDecision>::~Problem(void)
 }
 
 /*!
- * \brief Get number of objectives
+ * \brief Get the number of objectives
  * \return The number of objectives
  */
 template <typename _TReal, typename _TDecision>
@@ -91,8 +99,8 @@ size_t Problem<_TReal, _TDecision>::GetNumberOfObjectives(void) const
 }
 
 /*!
- * \brief Get number of evaluation
- * \return The number of evaluation
+ * \brief Get the number of evaluations
+ * \return The number of evaluations
  */
 template <typename _TReal, typename _TDecision>
 size_t Problem<_TReal, _TDecision>::GetNumberOfEvaluations(void) const
@@ -101,7 +109,7 @@ size_t Problem<_TReal, _TDecision>::GetNumberOfEvaluations(void) const
 }
 
 /*!
- * \brief Evaluate a solution
+ * \brief Evaluating a solution
  * \param[in, out] solution The solution which need be evaluated
  */
 template <typename _TReal, typename _TDecision>
@@ -112,6 +120,10 @@ void Problem<_TReal, _TDecision>::operator ()(TSolution &solution)
 	nEvaluations_ += nEvaluation;
 }
 
+/*!
+ * \brief Since this is a minimization optimization problem, this method is used to get the original objective values.
+ * \param[in, out] objective The minimized objective vector
+ */
 template <typename _TReal, typename _TDecision>
 void Problem<_TReal, _TDecision>::Fix(std::vector<TReal> &objective)
 {
@@ -124,11 +136,5 @@ template<class _TArchive> void Problem<_TReal, _TDecision>::serialize(_TArchive 
 	archive & nObjectives_;
 	archive & nEvaluations_;
 }
-
-/*!
- * \fn Problem::_DoEvaluate(TSolution &solution)
- * \brief Evaluate a solution
- * \return Number of evaluation
- */
 }
 }

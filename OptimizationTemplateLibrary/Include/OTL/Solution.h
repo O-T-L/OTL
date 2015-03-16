@@ -33,12 +33,14 @@ template <typename _TReal, typename _TDecision>
 class Solution : public Constraint<_TReal>
 {
 public:
+	//! \cond Doxygen_Suppress
 	typedef _TReal TReal;
 	typedef _TDecision TDecision;
 	typedef Constraint<TReal> TSuper;
+	//! \endcond
 
-	std::vector<TReal> objective_;
-	TDecision decision_;
+	std::vector<TReal> objective_; //!< The objective vector
+	TDecision decision_; //!< The decision variable
 
 	Solution(void);
 	~Solution(void);
