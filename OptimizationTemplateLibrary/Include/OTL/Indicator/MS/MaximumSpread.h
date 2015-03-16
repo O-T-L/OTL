@@ -46,7 +46,7 @@ namespace ms
 /*!
  * \brief Calculate $MS=\sqrt{\Sigma_{\imath=1}^{m}\left(f_{\imath}^{\max}-f_{\imath}^{\min}\right)^{2}}$
  * where $f_{\imath}^{\min}$ and $f_{\imath}^{\max}$ are the minimum and maximum of the ith objective in the evolved population.
- * \param[in] _TReal The type of objective, must be a real number type
+ * \param[in] _TReal The type of objective value, must be a real number type
  */
 template <typename _TReal>
 class MaximumSpread : public Indicator<_TReal, _TReal>

@@ -32,7 +32,7 @@ namespace problem
 {
 /*!
  * \brief The optimization problem base class
- * \param[in] _TReal The type of objective, must be a real number type
+ * \param[in] _TReal The type of objective value, must be a real number type
  * \param[in] _TDecision The type of the decision, can be any data structure
  */
 template <typename _TReal, typename _TDecision>

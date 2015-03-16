@@ -26,8 +26,8 @@ namespace otl
 {
 /*!
  * \brief The solution base class
- * \param[in] _TReal The type of objective, must be a real number type
- * \param[in] _TDecision The type of the decision, could be any data structure
+ * \param[in] _TReal The type of objective value, must be a real number type
+ * \param[in] _TDecision The type of the decision, can be any data structure
  */
 template <typename _TReal, typename _TDecision>
 class Solution : public Constraint<_TReal>
@@ -42,7 +42,6 @@ public:
 
 	Solution(void);
 	~Solution(void);
-	bool operator ==(const Solution<TReal, TDecision> &solution) const;
 
 private:
 	template<class _TArchive> void serialize(_TArchive &archive, const unsigned version);
@@ -58,12 +57,6 @@ Solution<_TReal, _TDecision>::Solution(void)
 template <typename _TReal, typename _TDecision>
 Solution<_TReal, _TDecision>::~Solution(void)
 {
-}
-
-template <typename _TReal, typename _TDecision>
-bool Solution<_TReal, _TDecision>::operator ==(const Solution<TReal, TDecision> &solution) const
-{
-	return decision_ == solution.decision_;
 }
 
 template <typename _TReal, typename _TDecision>

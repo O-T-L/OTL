@@ -43,7 +43,7 @@ namespace ms
  * \brief Calculate $MS1=\frac{\sqrt{\Sigma_{\imath=1}^{m}\left(f_{\imath}^{\max}-f_{\imath}^{\min}\right)^{2}}}{\sqrt{\Sigma_{\imath=1}^{m}\left(F_{\imath}^{\max}-F_{\imath}^{\min}\right)^{2}}}$
  * where $f_{\imath}^{\min}$ and $f_{\imath}^{\max}$ are the minimum and maximum of the ith objective in the evolved population,
  * respectively, $F_{\imath}^{\min}$ and $F_{\imath}^{\max}$ are the minimum and maximum of the ith objective in the true Pareto front.
- * \param[in] _TReal The type of objective, must be a real number type
+ * \param[in] _TReal The type of objective value, must be a real number type
  */
 template <typename _TReal>
 class MaximumSpread1 : public Indicator<_TReal, _TReal>, public otl::utility::WithBoundary<_TReal>

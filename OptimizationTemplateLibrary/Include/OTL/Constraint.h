@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace otl
 {
 /*!
- * \brief The solution base class
- * \param[in] _TReal The type of objective, must be a real number type
+ * \brief This class is used to record the inequality and equality constraints
+ * \param[in] _TReal The type of objective value, must be a real number type
  */
 template <typename _TReal>
 class Constraint
@@ -56,7 +56,7 @@ Constraint<_TReal>::~Constraint(void)
 }
 
 /*!
- * \brief Checking violation
+ * \brief Checking constraint violation
  * \return No constraint violation detected
  */
 template <typename _TReal>
