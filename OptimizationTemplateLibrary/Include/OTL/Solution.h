@@ -44,6 +44,7 @@ public:
 
 	Solution(void);
 	~Solution(void);
+	bool operator ==(const Solution<TReal, TDecision> &solution) const;
 
 private:
 	template<class _TArchive> void serialize(_TArchive &archive, const unsigned version);
@@ -59,6 +60,12 @@ Solution<_TReal, _TDecision>::Solution(void)
 template <typename _TReal, typename _TDecision>
 Solution<_TReal, _TDecision>::~Solution(void)
 {
+}
+
+template <typename _TReal, typename _TDecision>
+bool Solution<_TReal, _TDecision>::operator ==(const Solution<TReal, TDecision> &solution) const
+{
+	return decision_ == solution.decision_;
 }
 
 template <typename _TReal, typename _TDecision>
