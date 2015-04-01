@@ -44,7 +44,7 @@ public:
 	typedef typename otl::crossover::WithCoupleCrossover<TReal, TDecision>::TCrossover TCrossover;
 	typedef typename otl::mutation::WithMutation<TReal, TDecision>::TMutation TMutation;
 
-	Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<TReal> &objectiveLower, const std::vector<TReal> &epsilon);
+	Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<TReal> &epsilon);
 	~Epsilon_MOEA(void);
 
 protected:
@@ -53,8 +53,8 @@ protected:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<TReal> &objectiveLower, const std::vector<TReal> &epsilon)
-	: TSuper(random, problem, initial, objectiveLower, epsilon)
+Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, TCrossover &crossover, TMutation &mutation, const std::vector<TReal> &epsilon)
+	: TSuper(random, problem, initial, epsilon)
 	, otl::crossover::WithCoupleCrossover<TReal, TDecision>(crossover)
 	, otl::mutation::WithMutation<TReal, TDecision>(mutation)
 {
@@ -82,6 +82,7 @@ void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_ProduceOffspring(const TIndivi
 	this->GetCrossover()(parent1, parent2, child);
 	this->GetMutation()(child);
 	TSuper::GetProblem()(child);
+	TSuper::UpdateLower(child.objective_);
 	TSuper::Update(child);
 }
 }

@@ -60,11 +60,12 @@ public:
 	typedef Metaheuristic<TSolutionSet> TSuper;
 	typedef typename TSuper::TProblem TProblem;
 
-	Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const std::vector<TReal> &objectiveLower, const std::vector<TReal> &epsilon);
+	Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const std::vector<TReal> &epsilon);
 	~Epsilon_MOEA(void);
 	const std::vector<TReal> &GetEpsilon(void) const;
+	void UpdateLower(const std::vector<TReal> &objective);
 	void Update(TIndividual &individual) const;
-	void Update(const std::vector<TReal> &objective, std::vector<size_t> &epslionPoint) const;
+	void Update(const std::vector<TReal> &objective, std::vector<size_t> &point) const;
 	static bool Dominate(const TIndividual &individual1, const TIndividual &individual2);
 	static bool EpslionDominate(const TIndividual &individual1, const TIndividual &individual2);
 
@@ -80,28 +81,30 @@ protected:
 	void _PopulationAcceptance(const TIndividual &elite, TPopulation &population);
 
 private:
-	std::vector<TReal> objectiveLower_;
 	std::vector<TReal> epsilon_;
+	std::vector<TReal> lower_;
 	std::uniform_real_distribution<TReal> dist_;
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const std::vector<TReal> &objectiveLower, const std::vector<TReal> &epsilon)
+Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Epsilon_MOEA(TRandom random, TProblem &problem, const std::vector<TDecision> &initial, const std::vector<TReal> &epsilon)
 	: TSuper(problem)
 	, otl::utility::WithRandom<TRandom>(random)
-	, objectiveLower_(objectiveLower)
 	, epsilon_(epsilon)
+	, lower_(problem.GetNumberOfObjectives())
 	, dist_(0, 1)
 {
-	assert(TSuper::GetProblem().GetNumberOfObjectives() == objectiveLower_.size());
-	assert(objectiveLower_.size() == epsilon_.size());
+	assert(TSuper::GetProblem().GetNumberOfObjectives() == lower_.size());
+	assert(lower_.size() == epsilon_.size());
 	population_.resize(initial.size());
 	for (size_t i = 0; i < initial.size(); ++i)
 	{
 		population_[i].decision_ = initial[i];
 		TSuper::GetProblem()(population_[i]);
-		Update(population_[i]);
+		UpdateLower(population_[i].objective_);
 	}
+	for (size_t i = 0; i < population_.size(); ++i)
+		Update(population_[i]);
 	typedef typename TPopulation::pointer _TPointer;
 	std::list<_TPointer> population;
 	for (size_t i = 0; i < population_.size(); ++i)
@@ -123,21 +126,32 @@ const std::vector<typename Epsilon_MOEA<_TReal, _TDecision, _TRandom>::TReal> &E
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
+void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::UpdateLower(const std::vector<TReal> &objective)
+{
+	assert(objective.size() == lower_.size());
+	for (size_t i = 0; i < lower_.size(); ++i)
+	{
+		if (objective[i] < lower_[i])
+			lower_[i] = objective[i];
+	}
+}
+
+template <typename _TReal, typename _TDecision, typename _TRandom>
 void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Update(TIndividual &individual) const
 {
 	Update(individual.objective_, individual.point_);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Update(const std::vector<TReal> &objective, std::vector<size_t> &epslionPoint) const
+void Epsilon_MOEA<_TReal, _TDecision, _TRandom>::Update(const std::vector<TReal> &objective, std::vector<size_t> &point) const
 {
 	assert(objective.size() == epsilon_.size());
-	assert(objectiveLower_.size() == epsilon_.size());
-	epslionPoint.resize(objective.size());
+	assert(lower_.size() == epsilon_.size());
+	point.resize(objective.size());
 	for (size_t i = 0; i < objective.size(); ++i)
 	{
-		assert(objectiveLower_[i] <= objective[i]);
-		epslionPoint[i] = (size_t)floor((objective[i] - objectiveLower_[i]) / epsilon_[i]);
+		assert(lower_[i] <= objective[i]);
+		point[i] = (size_t)floor((objective[i] - lower_[i]) / epsilon_[i]);
 	}
 }
 
@@ -226,7 +240,7 @@ bool Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_SameGridCompare(const TIndivid
 	{
 		assert(individual1.objective_.size() == individual2.objective_.size());
 		assert(individual1.objective_.size() == epsilon_.size());
-		assert(objectiveLower_.size() == epsilon_.size());
+		assert(lower_.size() == epsilon_.size());
 		assert(individual1.objective_.size() == individual1.point_.size());
 		assert(individual2.objective_.size() == individual2.point_.size());
 		TReal delta1 = 0;
@@ -234,9 +248,9 @@ bool Epsilon_MOEA<_TReal, _TDecision, _TRandom>::_SameGridCompare(const TIndivid
 		for (size_t i = 0; i < individual1.objective_.size(); ++i)
 		{
 			TReal temp;
-			temp = (individual1.objective_[i] - objectiveLower_[i] - individual1.point_[i]) / epsilon_[i];
+			temp = (individual1.objective_[i] - lower_[i] - individual1.point_[i]) / epsilon_[i];
 			delta1 += temp * temp;
-			temp = (individual2.objective_[i] - objectiveLower_[i] - individual2.point_[i]) / epsilon_[i];
+			temp = (individual2.objective_[i] - lower_[i] - individual2.point_[i]) / epsilon_[i];
 			delta2 += temp * temp;
 		}
 		return delta1 < delta2;
