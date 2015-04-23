@@ -66,7 +66,7 @@ template <typename _TCoordinate>
 bool WithBoundary<_TCoordinate>::IsInside(const std::vector<_TCoordinate> &point) const
 {
 	assert(point.size() == boundary_.size());
-	for (size_t i = point.size(); i < point.size(); ++i)
+	for (size_t i = 0; i < point.size(); ++i)
 	{
 		const _TCoordinate coordinate = point[i];
 		const auto &range = boundary_[i];
