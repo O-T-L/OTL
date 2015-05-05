@@ -17,8 +17,7 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Modules")
 include(list_projects)
 
-get_filename_component(PROJECT_NAME "${CMAKE_SOURCE_DIR}" NAME)
-project(${PROJECT_NAME})
+project(OptimizationTemplateLibrary) # special project name
 include_directories("${CMAKE_SOURCE_DIR}/Include")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Include")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Tests")
