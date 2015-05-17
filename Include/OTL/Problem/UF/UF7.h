@@ -87,9 +87,9 @@ void UF7<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objec
 	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	const TReal x = decision[0];
-	const TReal bias = pow(x, 0.2);
-	objective[0] = bias + 2 * distance::Distance7(decision, 2);
-	objective[1] = 1 - bias + 2 * distance::Distance7(decision, 1);
+	const TReal _x = pow(x, 0.2);
+	objective[0] = _x + 2 * distance::Distance7(decision, 2);
+	objective[1] = 1 - _x + 2 * distance::Distance7(decision, 1);
 }
 }
 }
