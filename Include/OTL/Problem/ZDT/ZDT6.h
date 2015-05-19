@@ -40,7 +40,7 @@ public:
 	typedef typename TSuper::TRange TRange;
 	typedef typename TSuper::TBoundary TBoundary;
 
-	ZDT6(const size_t nDistDecisions = 29);
+	ZDT6(const size_t nDistDecisions = 9);
 	~ZDT6(void);
 
 protected:
