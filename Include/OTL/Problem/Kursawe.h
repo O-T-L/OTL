@@ -55,6 +55,7 @@ Kursawe<_TReal>::Kursawe(const size_t nDecisions)
 	: TSuper(2)
 	, otl::utility::WithBoundary<TReal>(TBoundary(nDecisions, TRange(-5, 5)))
 {
+	assert(nDecisions > 1);
 }
 
 template <typename _TReal>
