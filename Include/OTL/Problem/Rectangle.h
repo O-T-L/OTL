@@ -109,8 +109,8 @@ void Rectangle<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> 
 	for (size_t i = 0; i < decision.size(); ++i)
 	{
 		const size_t j = i * 2;
-		objective[j] = fabs(decision[i] - boundaryOptimal_[i].first);
-		objective[j + 1] = fabs(decision[i] - boundaryOptimal_[i].second);
+		objective[j] = std::abs(decision[i] - boundaryOptimal_[i].first);
+		objective[j + 1] = std::abs(decision[i] - boundaryOptimal_[i].second);
 	}
 }
 

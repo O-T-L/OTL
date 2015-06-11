@@ -25,8 +25,10 @@ namespace otl
 {
 namespace problem
 {
+namespace viennet
+{
 template <typename _TReal>
-class Viennet2 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
+class Viennet3 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -36,8 +38,8 @@ public:
 	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
 	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
-	Viennet2(void);
-	~Viennet2(void);
+	Viennet3(void);
+	~Viennet3(void);
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
@@ -51,45 +53,48 @@ private:
 };
 
 template <typename _TReal>
-Viennet2<_TReal>::Viennet2(void)
+Viennet3<_TReal>::Viennet3(void)
 	: TSuper(3)
-	, otl::utility::WithBoundary<TReal>(2, TRange(-4, 4))
+	, otl::utility::WithBoundary<TReal>(TBoundary(2, TRange(-3, 3)))
 {
 }
 
 template <typename _TReal>
-Viennet2<_TReal>::~Viennet2(void)
+Viennet3<_TReal>::~Viennet3(void)
 {
 }
 
 template <typename _TReal>
-size_t Viennet2<_TReal>::_DoEvaluate(TSolution &solution)
+size_t Viennet3<_TReal>::_DoEvaluate(TSolution &solution)
 {
 	_Evaluate(solution.decision_, solution.objective_);
 	return 1;
 }
 
 template <typename _TReal>
-void Viennet2<_TReal>::_DoFix(std::vector<TReal> &objective)
+void Viennet3<_TReal>::_DoFix(std::vector<TReal> &objective)
 {
 }
 
 template <typename _TReal>
-void Viennet2<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
+void Viennet3<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
 	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 2);
-	objective[0] = (decision[0] - 2) * (decision[0] - 2) / 2 + (decision[1] + 1) * (decision[1] + 1) / 13 + 3;
-	objective[1] = (decision[0] + decision[1] - 3) * (decision[0] + decision[1] - 3) / 36 + (-decision[0] + decision[1] + 2) * (-decision[0] + decision[1] + 2) / 8 - 17;
-	objective[2] = (decision[0] + 2 * decision[1] - 1) * (decision[0] + 2 * decision[1] - 1) / 175 + (2 * decision[1] - decision[0]) * (2 * decision[1] - decision[0]) / 17 - 13;
+	objective[0] = 0.5 * (decision[0] * decision[0] + decision[1] * decision[1]) + sin(decision[0] * decision[0] + decision[1] * decision[1]);
+	const TReal value1 = 3 * decision[0] - 2 * decision[1] + 4;
+	const TReal value2 = decision[0] - decision[1] + 1;
+	objective[1] = (value1 * value1) / 8 + (value2 * value2) / 27 + 15;
+	objective[2] = 1 / (decision[0] * decision[0] + decision[1] * decision[1] + 1) - 1.1 * exp(-(decision[0] * decision[0]) - (decision[1] * decision[1]));
 }
 
 template <typename _TReal>
-template<class _TArchive> void Viennet2<_TReal>::serialize(_TArchive &archive, const unsigned version)
+template<class _TArchive> void Viennet3<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
 	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
+}
 }
 }
 }

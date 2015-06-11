@@ -25,8 +25,10 @@ namespace otl
 {
 namespace problem
 {
+namespace viennet
+{
 template <typename _TReal>
-class Viennet3 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
+class Viennet4 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -36,13 +38,13 @@ public:
 	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
 	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
-	Viennet3(void);
-	~Viennet3(void);
+	Viennet4(void);
+	~Viennet4(void);
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
 	void _DoFix(std::vector<TReal> &objective);
-	void _Evaluate(const TDecision &decision, std::vector<TReal> &objective);
+	void _Evaluate(const TDecision &decision, std::vector<TReal> &objective, std::vector<TReal> &inequality);
 
 private:
 	template<class _TArchive> void serialize(_TArchive &archive, const unsigned version);
@@ -51,47 +53,49 @@ private:
 };
 
 template <typename _TReal>
-Viennet3<_TReal>::Viennet3(void)
+Viennet4<_TReal>::Viennet4(void)
 	: TSuper(3)
-	, otl::utility::WithBoundary<TReal>(2, TRange(-3, 3))
+	, otl::utility::WithBoundary<TReal>(TBoundary(2, TRange(-4, 4)))
 {
 }
 
 template <typename _TReal>
-Viennet3<_TReal>::~Viennet3(void)
+Viennet4<_TReal>::~Viennet4(void)
 {
 }
 
 template <typename _TReal>
-size_t Viennet3<_TReal>::_DoEvaluate(TSolution &solution)
+size_t Viennet4<_TReal>::_DoEvaluate(TSolution &solution)
 {
-	_Evaluate(solution.decision_, solution.objective_);
+	_Evaluate(solution.decision_, solution.objective_, solution.inequality_);
 	return 1;
 }
 
 template <typename _TReal>
-void Viennet3<_TReal>::_DoFix(std::vector<TReal> &objective)
+void Viennet4<_TReal>::_DoFix(std::vector<TReal> &objective)
 {
 }
 
 template <typename _TReal>
-void Viennet3<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
+void Viennet4<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective, std::vector<TReal> &inequality)
 {
 	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
 	assert(decision.size() == 2);
-	objective[0] = 0.5 * (decision[0] * decision[0] + decision[1] * decision[1]) + sin(decision[0] * decision[0] + decision[1] * decision[1]);
-	const TReal value1 = 3 * decision[0] - 2 * decision[1] + 4;
-	const TReal value2 = decision[0] - decision[1] + 1;
-	objective[1] = (value1 * value1) / 8 + (value2 * value2) / 27 + 15;
-	objective[2] = 1 / (decision[0] * decision[0] + decision[1] * decision[1] + 1) - 1.1 * exp(-(decision[0] * decision[0]) - (decision[1] * decision[1]));
+	objective[0] = (decision[0] - 2) * (decision[0] - 2) / 2 + (decision[1] + 1) * (decision[1] + 1) / 13 + 3;
+	objective[1] = (decision[0] + decision[1] - 3) * (decision[0] + decision[1] - 3) / 175 + (2 * decision[1] - decision[0]) * (2 * decision[1] - decision[0]) / 17 - 13;
+	objective[2] = (3 * decision[0] - 2 * decision[1] + 4) * (3 * decision[0] - 2 * decision[1] + 4) / 8 + (decision[0] - decision[1] + 1) * (decision[0] - decision[1] + 1) / 27 + 15;
+	inequality[0] = -decision[1] - (4 * decision[0]) + 4;
+	inequality[1] = decision[0] + 1;
+	inequality[2] = decision[1] - decision[0] + 2;
 }
 
 template <typename _TReal>
-template<class _TArchive> void Viennet3<_TReal>::serialize(_TArchive &archive, const unsigned version)
+template<class _TArchive> void Viennet4<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
 	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
+}
 }
 }
 }

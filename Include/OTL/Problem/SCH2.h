@@ -26,7 +26,7 @@ namespace otl
 namespace problem
 {
 template <typename _TReal>
-class Kursawe : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
+class SCH2 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -36,8 +36,8 @@ public:
 	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
 	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
-	Kursawe(const size_t nDecisions = 3);
-	~Kursawe(void);
+	SCH2(void);
+	~SCH2(void);
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
@@ -51,49 +51,48 @@ private:
 };
 
 template <typename _TReal>
-Kursawe<_TReal>::Kursawe(const size_t nDecisions)
+SCH2<_TReal>::SCH2(void)
 	: TSuper(2)
-	, otl::utility::WithBoundary<TReal>(TBoundary(nDecisions, TRange(-5, 5)))
+	, otl::utility::WithBoundary<TReal>(TBoundary(1, TRange(-5, 10)))
 {
 }
 
 template <typename _TReal>
-Kursawe<_TReal>::~Kursawe(void)
+SCH2<_TReal>::~SCH2(void)
 {
 }
 
 template <typename _TReal>
-size_t Kursawe<_TReal>::_DoEvaluate(TSolution &solution)
+size_t SCH2<_TReal>::_DoEvaluate(TSolution &solution)
 {
 	_Evaluate(solution.decision_, solution.objective_);
 	return 1;
 }
 
 template <typename _TReal>
-void Kursawe<_TReal>::_DoFix(std::vector<TReal> &objective)
+void SCH2<_TReal>::_DoFix(std::vector<TReal> &objective)
 {
 }
 
 template <typename _TReal>
-void Kursawe<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
+void SCH2<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
 	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
-	objective[0] = 0;
-	for (size_t i = 0; i < this->GetBoundary().size() - 1; ++i)
-	{
-		const TReal x1 = decision[i] * decision[i];
-		const TReal x2 = decision[i + 1] * decision[i + 1];
-		objective[0] += -10 * exp(-0.2 * sqrt(x1 + x2));
-	}
-
-	objective[1] = 0;
-	for (size_t i = 0; i < this->GetBoundary().size(); ++i)
-		objective[1] += pow(std::abs(decision[i]), 0.8) + 5 * sin(pow(decision[i], 3));
+	if (decision[0] <= 1)
+		objective[0] = -decision[0];
+	else if (decision[0] <= 3)
+		objective[0] = decision[0] - 2.0;
+	else if (decision[0] <= 4)
+		objective[0] = 4.0 - decision[0];
+	else
+		objective[0] = decision[0] - 4.0;
+	const TReal x_5 = decision[0] - 5;
+	objective[1] = x_5 * x_5;
 }
 
 template <typename _TReal>
-template<class _TArchive> void Kursawe<_TReal>::serialize(_TArchive &archive, const unsigned version)
+template<class _TArchive> void SCH2<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
 	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
