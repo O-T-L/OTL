@@ -85,6 +85,7 @@ void Viennet4<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &
 	objective[0] = (decision[0] - 2) * (decision[0] - 2) / 2 + (decision[1] + 1) * (decision[1] + 1) / 13 + 3;
 	objective[1] = (decision[0] + decision[1] - 3) * (decision[0] + decision[1] - 3) / 175 + (2 * decision[1] - decision[0]) * (2 * decision[1] - decision[0]) / 17 - 13;
 	objective[2] = (3 * decision[0] - 2 * decision[1] + 4) * (3 * decision[0] - 2 * decision[1] + 4) / 8 + (decision[0] - decision[1] + 1) * (decision[0] - decision[1] + 1) / 27 + 15;
+	inequality.resize(3);
 	inequality[0] = -decision[1] - (4 * decision[0]) + 4;
 	inequality[1] = decision[0] + 1;
 	inequality[2] = decision[1] - decision[0] + 2;
