@@ -76,13 +76,14 @@ void WFG2<_TReal>::Transition2(TDecision &decision, const size_t nPosDecisions)
 {
 	assert(0 < nPosDecisions && nPosDecisions <= decision.size());
 	const size_t nDistDecisions = decision.size() - nPosDecisions;
-	decision.resize(nPosDecisions + nDistDecisions / 2);
-	for(size_t i = nPosDecisions; i < decision.size(); ++i)
+	const size_t size = nDistDecisions / 2;
+	for(size_t i = 0; i < size; ++i)
 	{
-		const size_t begin = nPosDecisions + 2 * (i - nPosDecisions);
-		const size_t end = nPosDecisions + 2 * (i - nPosDecisions + 1);
-		decision[i] = transform::reduction::NonSeparable<TReal>(decision.begin() + begin, decision.begin() + end, 2);
+		const size_t begin = nPosDecisions + 2 * i;
+		const size_t end = nPosDecisions + 2 * (i + 1);
+		decision[nPosDecisions + i] = transform::reduction::NonSeparable<TReal>(decision.begin() + begin, decision.begin() + end, 2);
 	}
+	decision.resize(nPosDecisions + size);
 }
 
 template <typename _TReal>
