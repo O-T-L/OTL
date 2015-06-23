@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "StdWFG.h"
 #include "WFG1.h"
 #include "WFG2.h"
+#include "WFG4.h"
 #include "Utility.h"
 #include "Transform/Reduction/WeightedSum.h"
 #include "Transform/Bias/Dependent.h"
@@ -96,13 +97,7 @@ _TReal WFG7<_TReal>::Transition3(const TDecision &decision, const size_t nPosDec
 template <typename _TReal>
 void WFG7<_TReal>::Shape(const TDecision &decision, const _TReal distance, std::vector<TReal> &objective)
 {
-	assert(decision.size() > 0);
-	TDecision angle = decision;
-	const std::vector<TReal> degenerate(angle.size(), 1);
-	transform::Degenerate(angle, degenerate, distance);
-	shape::ConvertAngles<TReal>(angle.begin(), angle.end());
-	shape::InvertConcave(angle.begin(), angle.end(), objective.begin(), objective.end(), (TReal)1);
-	Scale(distance, objective);
+	WFG4<TReal>::Shape(decision, distance, objective);
 }
 
 template <typename _TReal>
