@@ -67,11 +67,11 @@ CoupleCoupleAdapter<_TMOEA_D>::~CoupleCoupleAdapter(void)
 template <typename _TMOEA_D>
 void CoupleCoupleAdapter<_TMOEA_D>::_DoStep(void)
 {
-    for(size_t i = 0; i < TSuper::GetSolutionSet().size(); ++i)
+	for(size_t i = 0; i < TSuper::GetSolutionSet().size(); ++i)
 	{
-    	const TNeighbors &neighbors = TSuper::neighbors_[i];
-    	assert(neighbors.size() > 0);
-    	std::uniform_int_distribution<size_t> dist(0, neighbors.size() - 1);
+		const TNeighbors &neighbors = TSuper::neighbors_[i];
+		assert(neighbors.size() > 0);
+		std::uniform_int_distribution<size_t> dist(0, neighbors.size() - 1);
 		const TIndividual &parent1 = TSuper::GetSolutionSet()[neighbors[dist(this->GetRandom())]];
 		const TIndividual &parent2 = TSuper::GetSolutionSet()[neighbors[dist(this->GetRandom())]];
 		TIndividual child1, child2;

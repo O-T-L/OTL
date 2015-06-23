@@ -61,7 +61,7 @@ _TReal MinMaxCut<_TReal, _TMatrix>::_DoEvaluate(const TMatrix &graph, const std:
 	_TReal mmc = 0;
 	for (size_t i = 0; i < communities.size(); ++i)
 	{
-	    const std::set<size_t> &community = communities[i];
+		const std::set<size_t> &community = communities[i];
 		const TReal innerDegree = CommunityInnerDegree(graph, community);
 		const TReal outerDegree = CommunityOuterDegree(graph, communities, i);
 		mmc +=  outerDegree / innerDegree;

@@ -84,8 +84,8 @@ void Viennet1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &
 	assert(decision.size() == 2);
 	const TReal x2 = decision[0] * decision[0];
 	const TReal ym = decision[1] - 1;
-    objective[0] = x2 + ym * ym;
-    const TReal yp = decision[1] + 1;
+	objective[0] = x2 + ym * ym;
+	const TReal yp = decision[1] + 1;
 	objective[1] = x2 + yp * yp + 1;
 	const TReal xm = decision[0] - 1;
 	objective[2] = xm * xm + decision[1] * decision[1] + 2;

@@ -31,15 +31,15 @@ namespace nsga_iii
 template <typename _TReal>
 _TReal Distance(const std::vector<_TReal> &referencePoint, const std::vector<_TReal> &objective)
 {
-    const _TReal factor = std::inner_product(objective.begin(), objective.end(), referencePoint.begin(), (_TReal)0) / std::inner_product(objective.begin(), objective.end(), objective.begin(), (_TReal)0);
-    _TReal sum = 0;
-    for (size_t i = 0; i < objective.size(); ++i)
-    {
-    	_TReal temp = factor * objective[i] - referencePoint[i];
-        sum += temp * temp;
-    }
-    assert(sum >= 0);
-    return sqrt(sum);
+	const _TReal factor = std::inner_product(objective.begin(), objective.end(), referencePoint.begin(), (_TReal)0) / std::inner_product(objective.begin(), objective.end(), objective.begin(), (_TReal)0);
+	_TReal sum = 0;
+	for (size_t i = 0; i < objective.size(); ++i)
+	{
+		_TReal temp = factor * objective[i] - referencePoint[i];
+		sum += temp * temp;
+	}
+	assert(sum >= 0);
+	return sqrt(sum);
 }
 
 template <typename _TRandom, typename _TIterator>

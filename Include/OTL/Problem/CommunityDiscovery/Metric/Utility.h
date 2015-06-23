@@ -227,7 +227,7 @@ _TReal Bi(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph, const st
 			}
 			assert(0 <= degree && degree <= 1);
 			if(bi < degree)
-			   bi = degree;
+				bi = degree;
 		}
 	return bi;
 }
@@ -252,7 +252,7 @@ _TReal E(const boost::numeric::ublas::symmetric_matrix<_TReal> &graph, const std
 						{
 							assert(0 <= *m && *m < graph.size1());
 							if (*j != *m)
-							   e += graph(*j, *m);
+								e += graph(*j, *m);
 						}
 			}
 		}

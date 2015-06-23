@@ -34,18 +34,18 @@ namespace bias
 template <typename _TReal>
 _TReal Flat(const _TReal decision, const _TReal region, const _TReal regionMin, const _TReal regionMax)
 {
-	  assert(0 <= decision && decision <= 1);
-	  assert(0 <= region && region <= 1);
-	  assert(0 <= regionMin && regionMin <= 1);
-	  assert(0 <= regionMax && regionMax <= 1);
-	  assert(regionMin < regionMax);
-	  assert(regionMin != 0 || region == 0);
-	  assert(regionMin != 0 || regionMax != 1);
-	  assert(regionMax != 1 || region == 1);
-	  assert(regionMax != 1 || regionMin != 0);
-	  const _TReal tmp1 = std::min((_TReal)0, floor(decision - regionMin)) * region * (regionMin - decision) / regionMin;
-	  const _TReal tmp2 = std::min((_TReal)0, floor(regionMax - decision)) * (1 - region) * (decision - regionMax) / (1 - regionMax);
-	  return Fix<_TReal>(region + tmp1 - tmp2, 0, 1);
+	assert(0 <= decision && decision <= 1);
+	assert(0 <= region && region <= 1);
+	assert(0 <= regionMin && regionMin <= 1);
+	assert(0 <= regionMax && regionMax <= 1);
+	assert(regionMin < regionMax);
+	assert(regionMin != 0 || region == 0);
+	assert(regionMin != 0 || regionMax != 1);
+	assert(regionMax != 1 || region == 1);
+	assert(regionMax != 1 || regionMin != 0);
+	const _TReal tmp1 = std::min((_TReal)0, floor(decision - regionMin)) * region * (regionMin - decision) / regionMin;
+	const _TReal tmp2 = std::min((_TReal)0, floor(regionMax - decision)) * (1 - region) * (decision - regionMax) / (1 - regionMax);
+	return Fix<_TReal>(region + tmp1 - tmp2, 0, 1);
 }
 }
 }

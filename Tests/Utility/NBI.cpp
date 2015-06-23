@@ -29,10 +29,10 @@ template <typename _TInteger>
 _TInteger nCr(const _TInteger n, const _TInteger r)
 {
 	_TInteger f[n + 1];
-    f[0] = 1;
-    for (size_t i = 1; i <= n; ++i)
-        f[i] = i * f[i - 1];
-    return f[n] / f[r] / f[n - r];
+	f[0] = 1;
+	for (size_t i = 1; i <= n; ++i)
+		f[i] = i * f[i - 1];
+	return f[n] / f[r] / f[n - r];
 }
 
 BOOST_AUTO_TEST_CASE(NBI)
