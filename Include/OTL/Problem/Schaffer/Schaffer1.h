@@ -25,8 +25,10 @@ namespace otl
 {
 namespace problem
 {
+namespace schaffer
+{
 template <typename _TReal>
-class Schaffer : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
+class Schaffer1 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -36,8 +38,8 @@ public:
 	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
 	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
-	Schaffer(void);
-	~Schaffer(void);
+	Schaffer1(void);
+	~Schaffer1(void);
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
@@ -51,44 +53,45 @@ private:
 };
 
 template <typename _TReal>
-Schaffer<_TReal>::Schaffer(void)
+Schaffer1<_TReal>::Schaffer1(void)
 	: TSuper(2)
-	, otl::utility::WithBoundary<TReal>(1, TRange(-100000, 100000))
+	, otl::utility::WithBoundary<TReal>(TBoundary(1, TRange(-100, 100)))
 {
 }
 
 template <typename _TReal>
-Schaffer<_TReal>::~Schaffer(void)
+Schaffer1<_TReal>::~Schaffer1(void)
 {
 }
 
 template <typename _TReal>
-size_t Schaffer<_TReal>::_DoEvaluate(TSolution &solution)
+size_t Schaffer1<_TReal>::_DoEvaluate(TSolution &solution)
 {
 	_Evaluate(solution.decision_, solution.objective_);
 	return 1;
 }
 
 template <typename _TReal>
-void Schaffer<_TReal>::_DoFix(std::vector<TReal> &objective)
+void Schaffer1<_TReal>::_DoFix(std::vector<TReal> &objective)
 {
 }
 
 template <typename _TReal>
-void Schaffer<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
+void Schaffer1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
 	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
-	assert(decision.size() == 1);
 	objective[0] = decision[0] * decision[0];
-	objective[1] = (decision[0] - 2) * (decision[0] - 2);
+	const TReal x_2 = decision[0] - 2;
+	objective[1] = x_2 * x_2;
 }
 
 template <typename _TReal>
-template<class _TArchive> void Schaffer<_TReal>::serialize(_TArchive &archive, const unsigned version)
+template<class _TArchive> void Schaffer1<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
 	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
+}
 }
 }
 }

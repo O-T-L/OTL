@@ -25,8 +25,10 @@ namespace otl
 {
 namespace problem
 {
+namespace schaffer
+{
 template <typename _TReal>
-class SCH1 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
+class Schaffer2 : public Problem<_TReal, std::vector<_TReal> >, public otl::utility::WithBoundary<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -36,8 +38,8 @@ public:
 	typedef typename otl::utility::WithBoundary<TReal>::TRange TRange;
 	typedef typename otl::utility::WithBoundary<TReal>::TBoundary TBoundary;
 
-	SCH1(void);
-	~SCH1(void);
+	Schaffer2(void);
+	~Schaffer2(void);
 
 protected:
 	size_t _DoEvaluate(TSolution &solution);
@@ -51,44 +53,52 @@ private:
 };
 
 template <typename _TReal>
-SCH1<_TReal>::SCH1(void)
+Schaffer2<_TReal>::Schaffer2(void)
 	: TSuper(2)
-	, otl::utility::WithBoundary<TReal>(TBoundary(1, TRange(-100, 100)))
+	, otl::utility::WithBoundary<TReal>(TBoundary(1, TRange(-5, 10)))
 {
 }
 
 template <typename _TReal>
-SCH1<_TReal>::~SCH1(void)
+Schaffer2<_TReal>::~Schaffer2(void)
 {
 }
 
 template <typename _TReal>
-size_t SCH1<_TReal>::_DoEvaluate(TSolution &solution)
+size_t Schaffer2<_TReal>::_DoEvaluate(TSolution &solution)
 {
 	_Evaluate(solution.decision_, solution.objective_);
 	return 1;
 }
 
 template <typename _TReal>
-void SCH1<_TReal>::_DoFix(std::vector<TReal> &objective)
+void Schaffer2<_TReal>::_DoFix(std::vector<TReal> &objective)
 {
 }
 
 template <typename _TReal>
-void SCH1<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
+void Schaffer2<_TReal>::_Evaluate(const TDecision &decision, std::vector<TReal> &objective)
 {
 	assert(this->IsInside(decision));
 	objective.resize(TSuper::GetNumberOfObjectives());
-	objective[0] = decision[0] * decision[0];
-	const TReal x_2 = decision[0] - 2;
-	objective[1] = x_2 * x_2;
+	if (decision[0] <= 1)
+		objective[0] = -decision[0];
+	else if (decision[0] <= 3)
+		objective[0] = decision[0] - 2.0;
+	else if (decision[0] <= 4)
+		objective[0] = 4.0 - decision[0];
+	else
+		objective[0] = decision[0] - 4.0;
+	const TReal x_5 = decision[0] - 5;
+	objective[1] = x_5 * x_5;
 }
 
 template <typename _TReal>
-template<class _TArchive> void SCH1<_TReal>::serialize(_TArchive &archive, const unsigned version)
+template<class _TArchive> void Schaffer2<_TReal>::serialize(_TArchive &archive, const unsigned version)
 {
 	archive & boost::serialization::base_object<TSuper>(*this);
 	archive & boost::serialization::base_object<otl::utility::WithBoundary<TReal> >(*this);
+}
 }
 }
 }
