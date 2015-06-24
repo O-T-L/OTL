@@ -12,6 +12,8 @@ This project is released as the open source software with the GNU Lesser General
 
 # Acknowledgements
 
+OTL is originated in professor [Jinhua Zheng](http://daoshi.xtu.edu.cn/index.php?id=725)'s lab since 2009. Professor Jinhua Zheng is my master's and doctoral tutor. I'm grateful for his support to let me spend 6 years to develop this project.
+
 The following tool and library are used in this project:
 
 * [CMake](http://www.cmake.org).
