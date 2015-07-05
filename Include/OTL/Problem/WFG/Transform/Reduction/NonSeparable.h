@@ -44,7 +44,8 @@ _TReal NonSeparable(_TIterator begin, _TIterator end, const size_t degree)
 		const size_t nDecision = decision - begin;
 		assert(0 <= *decision && *decision <= 1);
 		numerator += *decision;
-		for(size_t i = 0; i <= degree - 2; ++i)
+		const ptrdiff_t _degree = (ptrdiff_t)degree - 2; //degree - 2 is possible lesser than zero
+		for(ptrdiff_t i = 0; i <= _degree; ++i)
 		{
 			const size_t index = (nDecision + i + 1) % std::distance(begin, end);
 			_TIterator _decision = begin + index;
