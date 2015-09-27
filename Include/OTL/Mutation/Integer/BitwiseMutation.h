@@ -22,11 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "Mutation.h"
+#include <OTL/Mutation/Mutation.h>
 
 namespace otl
 {
 namespace mutation
+{
+namespace integer
 {
 template <typename _TReal, typename _TInteger, typename _TRandom>
 class BitwiseMutation : public Mutation<_TReal, std::vector<_TInteger> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
@@ -41,7 +43,6 @@ public:
 
 	BitwiseMutation(TRandom random, const TReal probability, const std::vector<size_t> &decisionBits);
 	~BitwiseMutation(void);
-	bool ShouldMutate(void);
 	const std::vector<size_t> &GetDecisionBits(void) const;
 
 protected:
@@ -66,12 +67,6 @@ BitwiseMutation<_TReal, _TInteger, _TRandom>::BitwiseMutation(TRandom random, co
 template <typename _TReal, typename _TInteger, typename _TRandom>
 BitwiseMutation<_TReal, _TInteger, _TRandom>::~BitwiseMutation(void)
 {
-}
-
-template <typename _TReal, typename _TInteger, typename _TRandom>
-bool BitwiseMutation<_TReal, _TInteger, _TRandom>::ShouldMutate(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
 }
 
 template <typename _TReal, typename _TInteger, typename _TRandom>
@@ -101,11 +96,12 @@ _TInteger BitwiseMutation<_TReal, _TInteger, _TRandom>::_Mutate(TInteger coding,
 	TInteger mask = 1;
 	for (size_t i = 0; i < nBits; ++i)
 	{
-		if (ShouldMutate())
+		if (dist_(this->GetRandom()) < this->GetProbability())
 			coding ^= mask;
 		mask <<= 1;
 	}
 	return coding;
+}
 }
 }
 }

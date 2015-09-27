@@ -20,16 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <OTL/Initial/ShuffleTSP.h>
-#include <OTL/Crossover/OrderBasedCrossover.h>
-#include <OTL/Crossover/PartiallyMappedCrossover.h>
-#include <OTL/Crossover/PositionBasedCrossover.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
-#include <OTL/Mutation/DisplacementMutation.h>
-#include <OTL/Mutation/ExchangeMutation.h>
-#include <OTL/Mutation/InsertionMutation.h>
-#include <OTL/Mutation/InversionMutation.h>
-#include <OTL/Mutation/SpreadMutation.h>
+#include <OTL/Crossover/TSP/OrderBasedCrossover.h>
+#include <OTL/Crossover/TSP/PartiallyMappedCrossover.h>
+#include <OTL/Crossover/TSP/PositionBasedCrossover.h>
+#include <OTL/Initial/TSP/Shuffle.h>
+#include <OTL/Mutation/TSP/DisplacementMutation.h>
+#include <OTL/Mutation/TSP/ExchangeMutation.h>
+#include <OTL/Mutation/TSP/InsertionMutation.h>
+#include <OTL/Mutation/TSP/InversionMutation.h>
+#include <OTL/Mutation/TSP/SpreadMutation.h>
 
 namespace tsp
 {
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(TSP)
 	typedef std::vector<size_t> _TDecision;
 	typedef otl::Solution<_TReal, _TDecision> _TSolution;
 	_TRandom random;
-	std::vector<_TDecision> population = otl::initial::PopulationShuffleTSP(random, 30, 100);
+	std::vector<_TDecision> population = otl::initial::tsp::BatchShuffle(random, 30, 100);
 	for (size_t i = 0; i < population.size(); ++i)
 	{
 		_TDecision test = population[i];
@@ -90,21 +90,21 @@ BOOST_AUTO_TEST_CASE(TSP)
 		offspring[i].decision_ = population[i];
 	{
 		ancestor = offspring;
-		otl::crossover::OrderBasedCrossover<_TReal, _TRandom &> _crossover(random, 1);
+		otl::crossover::tsp::OrderBasedCrossover<_TReal, _TRandom &> _crossover(random, 1);
 		otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 		offspring = MakeCrossover(crossover, ancestor);
 		TestPopulation(offspring.begin(), offspring.end());
 	}
 	{
 		ancestor = offspring;
-		otl::crossover::PartiallyMappedCrossover<_TReal, _TRandom &> _crossover(random, 1);
+		otl::crossover::tsp::PartiallyMappedCrossover<_TReal, _TRandom &> _crossover(random, 1);
 		otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 		offspring = MakeCrossover(crossover, ancestor);
 		TestPopulation(offspring.begin(), offspring.end());
 	}
 	{
 		ancestor = offspring;
-		otl::crossover::PositionBasedCrossover<_TReal, _TRandom &> _crossover(random, 1);
+		otl::crossover::tsp::PositionBasedCrossover<_TReal, _TRandom &> _crossover(random, 1);
 		otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 		offspring = MakeCrossover(crossover, ancestor);
 		TestPopulation(offspring.begin(), offspring.end());

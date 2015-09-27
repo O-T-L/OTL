@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <OTL/Problem/DTLZ/DTLZ2.h>
-#include <OTL/Initial/UniformReal.h>
-#include <OTL/Crossover/SimulatedBinaryCrossover.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
-#include <OTL/Mutation/PolynomialMutation.h>
+#include <OTL/Crossover/Real/SBX/SimulatedBinaryCrossover.h>
+#include <OTL/Initial/Real/Uniform.h>
+#include <OTL/Mutation/Real/PM/PolynomialMutation.h>
 #include <OTL/Optimizer/NSGA-III/NSGA-III.h>
 #include <OTL/Utility/Weight/NormalBoundaryIntersection.h>
 
@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE(NSGA_III)
 	typedef double _TReal;
 	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_iii::NSGA_III<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	_TRandom random;
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(NSGA_III)
 	std::vector<std::vector<_TReal> > referenceSet(points.begin(), points.end());
 	size_t nPopulation = referenceSet.size();
 	nPopulation += (4 - nPopulation % 4) % 4;
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), nPopulation);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), nPopulation);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);

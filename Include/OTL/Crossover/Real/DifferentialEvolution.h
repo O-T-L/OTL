@@ -36,17 +36,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <random>
 #include <OTL/Utility/WithRandom.h>
-#include <OTL/Crossover/XTripleCrossover.h>
 #include <OTL/Utility/WithProbability.h>
 #include <OTL/Utility/WithBoundary.h>
 #include <OTL/Utility/Fix/Truncate.h>
-
-#undef min
-#undef max
+#include <OTL/Crossover/XTripleCrossover.h>
 
 namespace otl
 {
 namespace crossover
+{
+namespace real
 {
 template <typename _TReal, typename _TRandom>
 class DifferentialEvolution : public XTripleCrossover<_TReal, std::vector<_TReal> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithBoundary<_TReal>
@@ -62,7 +61,6 @@ public:
 
 	DifferentialEvolution(TRandom random, const TReal probability, const TBoundary &boundary, const TReal scalingFactor = 0.5);
 	~DifferentialEvolution(void);
-	bool ShouldCrossover(void);
 	TReal GetScalingFactor(void) const;
 
 protected:
@@ -90,12 +88,6 @@ DifferentialEvolution<_TReal, _TRandom>::~DifferentialEvolution(void)
 }
 
 template <typename _TReal, typename _TRandom>
-bool DifferentialEvolution<_TReal, _TRandom>::ShouldCrossover(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
-}
-
-template <typename _TReal, typename _TRandom>
 _TReal DifferentialEvolution<_TReal, _TRandom>::GetScalingFactor(void) const
 {
 	return scalingFactor_;
@@ -119,11 +111,15 @@ void DifferentialEvolution<_TReal, _TRandom>::_Crossover(const TDecision &parent
 	child.resize(this->GetBoundary().size());
 	for (size_t i = 0; i < this->GetBoundary().size(); ++i)
 	{
-		if (ShouldCrossover() || i == randIndex)
-			child[i] = otl::utility::fix::Truncate(parent3[i] + scalingFactor_ * (parent1[i] - parent2[i]), this->GetBoundary()[i]);
+		if (dist_(this->GetRandom()) < this->GetProbability() || i == randIndex)
+		{
+			const TRange &range = this->GetBoundary()[i];
+			child[i] = otl::utility::fix::Truncate(parent3[i] + scalingFactor_ * (parent1[i] - parent2[i]), range.first, range.second);
+		}
 		else
 			child[i] = parent[i];
 	}
+}
 }
 }
 }

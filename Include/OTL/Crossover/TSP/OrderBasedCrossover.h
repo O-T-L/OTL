@@ -15,29 +15,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-parent1 =	(1 2 3|4 5 6 7|8 9)
-parent2 =	(4 5 2|1 8 7 6|9 3)
-			(=====|       |===)
-child1 =	(4 2 3|1 8 7 6|5 9)
-child2 =	(1 8 2|4 5 6 7|9 3)
-*/
-
 #pragma once
 
+#include <vector>
+#include <list>
 #include <algorithm>
-#include <limits>
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "CoupleCoupleCrossover.h"
+#include <OTL/Crossover/CoupleCoupleCrossover.h>
 
 namespace otl
 {
 namespace crossover
 {
+namespace tsp
+{
 template <typename _TReal, typename _TRandom>
-class PartiallyMappedCrossover : public CoupleCoupleCrossover<_TReal, std::vector<size_t> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
+class OrderBasedCrossover : public CoupleCoupleCrossover<_TReal, std::vector<size_t> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -46,9 +41,8 @@ public:
 	typedef CoupleCoupleCrossover<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
 
-	PartiallyMappedCrossover(TRandom random, const TReal probability);
-	~PartiallyMappedCrossover(void);
-	bool ShouldCrossover(void);
+	OrderBasedCrossover(TRandom random, const TReal probability);
+	~OrderBasedCrossover(void);
 
 protected:
 	void _DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2);
@@ -60,7 +54,7 @@ private:
 };
 
 template <typename _TReal, typename _TRandom>
-PartiallyMappedCrossover<_TReal, _TRandom>::PartiallyMappedCrossover(TRandom random, const TReal probability)
+OrderBasedCrossover<_TReal, _TRandom>::OrderBasedCrossover(TRandom random, const TReal probability)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
 	, dist_(0, 1)
@@ -68,34 +62,26 @@ PartiallyMappedCrossover<_TReal, _TRandom>::PartiallyMappedCrossover(TRandom ran
 }
 
 template <typename _TReal, typename _TRandom>
-PartiallyMappedCrossover<_TReal, _TRandom>::~PartiallyMappedCrossover(void)
+OrderBasedCrossover<_TReal, _TRandom>::~OrderBasedCrossover(void)
 {
 }
 
 template <typename _TReal, typename _TRandom>
-bool PartiallyMappedCrossover<_TReal, _TRandom>::ShouldCrossover(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
-}
-
-template <typename _TReal, typename _TRandom>
-void PartiallyMappedCrossover<_TReal, _TRandom>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
+void OrderBasedCrossover<_TReal, _TRandom>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
 {
 	_Crossover(parent1.decision_, parent2.decision_, child1.decision_, child2.decision_);
 }
 
 template <typename _TReal, typename _TRandom>
-void PartiallyMappedCrossover<_TReal, _TRandom>::_Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2)
+void OrderBasedCrossover<_TReal, _TRandom>::_Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2)
 {
 	child1 = parent1;
 	child2 = parent2;
-	if (ShouldCrossover())
+	if (dist_(this->GetRandom()) < this->GetProbability())
 	{
 		std::uniform_int_distribution<size_t> dist(0, child1.size() - 1);
 		const size_t position1 = dist(this->GetRandom());
 		const size_t position2 = dist(this->GetRandom());
-		assert(0 <= position1 && position1 < child1.size());
-		assert(0 <= position2 && position2 < child1.size());
 		if (position1 > position2)
 			_Crossover(child1, child2, position2, position1 + 1);
 		else
@@ -104,16 +90,61 @@ void PartiallyMappedCrossover<_TReal, _TRandom>::_Crossover(const TDecision &par
 }
 
 template <typename _TReal, typename _TRandom>
-void PartiallyMappedCrossover<_TReal, _TRandom>::_Crossover(TDecision &child1, TDecision &child2, const size_t begin, const size_t end)
+void OrderBasedCrossover<_TReal, _TRandom>::_Crossover(TDecision &child1, TDecision &child2, const size_t begin, const size_t end)
 {
+	assert(child1.size() == child2.size());
 	assert(begin < end);
+	/*
+	child1 =	(1 2 3|4 5 6 7|8 9)
+	child2 =	(4 5 2|1 8 7 6|9 3)
+	*/
+	std::list<size_t> cityList1(child1.begin(), child1.end());
+	std::list<size_t> cityList2(child2.begin(), child2.end());
 	for (size_t i = begin; i < end; ++i)
 	{
-		typename TDecision::iterator city1 = std::find(child1.begin(), child1.end(), child2[i]);
-		typename TDecision::iterator city2 = std::find(child2.begin(), child2.end(), child1[i]);
-		std::swap(child1[i], child2[i]);
-		std::swap(*city1, *city2);
+		typename std::list<size_t>::iterator city1 = std::find(cityList1.begin(), cityList1.end(), child2[i]);
+		cityList1.erase(city1);
+		typename std::list<size_t>::iterator city2 = std::find(cityList2.begin(), cityList2.end(), child1[i]);
+		cityList2.erase(city2);
 	}
+	assert(cityList1.size() == cityList2.size());
+	assert(cityList1.size() == child1.size() - (end - begin));
+
+	typename std::list<size_t>::iterator city1 = cityList1.begin();
+	typename std::list<size_t>::iterator city2 = cityList2.begin();
+	/*
+	cityList1 =	[2 3 4 5 9]
+	cityList2 =	[2 1 8 9 3]
+
+	child1 =	(x x x|4 5 6 7|x x)
+	child2 =	(x x x|1 8 7 6|x x)
+	*/
+	for (size_t i = 0; i < begin; ++i)
+	{
+		child1[i] = *city2;
+		child2[i] = *city1;
+		++city1;
+		++city2;
+	}
+	/*
+	cityList1 =	[5 9]
+	cityList2 =	[9 3]
+
+	child1 =	(2 1 8|4 5 6 7|x x)
+	child2 =	(2 3 4|1 8 7 6|x x)
+	*/
+	for (size_t i = end; i < child1.size(); ++i)
+	{
+		child1[i] = *city2;
+		child2[i] = *city1;
+		++city1;
+		++city2;
+	}
+	/*
+	child1 =	(2 1 8|4 5 6 7|9 3)
+	child2 =	(2 3 4|1 8 7 6|5 9)
+	*/
+}
 }
 }
 }

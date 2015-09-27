@@ -21,13 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <OTL/Problem/DTLZ/DTLZ2.h>
-#include <OTL/Initial/UniformReal.h>
-#include <OTL/Crossover/SimulatedBinaryCrossover.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
-#include <OTL/Mutation/PolynomialMutation.h>
 #include <OTL/Optimizer/MSOPS/MSOPS.h>
 #include <OTL/Utility/Weight/NormalBoundaryIntersection.h>
 #include <boost/numeric/ublas/io.hpp>
+#include <OTL/Crossover/Real/SBX/SimulatedBinaryCrossover.h>
+#include <OTL/Initial/Real/Uniform.h>
+#include <OTL/Mutation/Real/PM/PolynomialMutation.h>
 
 namespace msops
 {
@@ -37,14 +37,14 @@ BOOST_AUTO_TEST_CASE(MSOPS)
 	typedef double _TReal;
 	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::msops::MSOPS<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);

@@ -27,8 +27,10 @@ namespace otl
 {
 namespace initial
 {
+namespace dynamic_bitset
+{
 template <typename _TRandom>
-boost::dynamic_bitset<> UniformDynamicBitset(_TRandom &random, const size_t nBits)
+boost::dynamic_bitset<> Uniform(_TRandom &random, const size_t nBits)
 {
 	typedef boost::dynamic_bitset<> _TBitset;
 	typedef typename _TBitset::block_type _TBlock;
@@ -43,13 +45,14 @@ boost::dynamic_bitset<> UniformDynamicBitset(_TRandom &random, const size_t nBit
 }
 
 template <typename _TRandom>
-std::vector<boost::dynamic_bitset<> > PopulationUniformDynamicBitset(_TRandom &random, const size_t nBits, const size_t populationSize)
+std::vector<boost::dynamic_bitset<> > BatchUniform(_TRandom &random, const size_t nBits, const size_t size)
 {
 	typedef boost::dynamic_bitset<> _TBitset;
-	std::vector<_TBitset> initial(populationSize);
+	std::vector<_TBitset> initial(size);
 	for (size_t i = 0; i < initial.size(); ++i)
-		initial[i] = UniformDynamicBitset(random, nBits);
+		initial[i] = Uniform(random, nBits);
 	return initial;
+}
 }
 }
 }

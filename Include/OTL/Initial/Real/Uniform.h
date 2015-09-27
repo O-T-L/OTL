@@ -26,26 +26,29 @@ namespace otl
 {
 namespace initial
 {
-template <typename _TRandom, typename _TInteger>
-std::vector<_TInteger> UniformInteger(_TRandom &random, const std::vector<std::pair<_TInteger, _TInteger> > &boundary)
+namespace real
 {
-	std::vector<_TInteger> initial(boundary.size());
+template <typename _TRandom, typename _TReal>
+std::vector<_TReal> Uniform(_TRandom &random, const std::vector<std::pair<_TReal, _TReal> > &boundary)
+{
+	std::vector<_TReal> initial(boundary.size());
 	for (size_t i = 0; i < initial.size(); ++i)
 	{
 		assert(boundary[i].first < boundary[i].second);
-		std::uniform_int_distribution<_TInteger> dist(boundary[i].first, boundary[i].second);
+		std::uniform_real_distribution<_TReal> dist(boundary[i].first, boundary[i].second);
 		initial[i] = dist(random);
 	}
 	return initial;
 }
 
-template <typename _TRandom, typename _TInteger>
-std::vector<std::vector<_TInteger> > PopulationUniformInteger(_TRandom &random, const std::vector<std::pair<_TInteger, _TInteger> > &boundary, const size_t populationSize)
+template <typename _TRandom, typename _TReal>
+std::vector<std::vector<_TReal> > BatchUniform(_TRandom &random, const std::vector<std::pair<_TReal, _TReal> > &boundary, const size_t size)
 {
-	std::vector<std::vector<_TInteger> > initial(populationSize);
+	std::vector<std::vector<_TReal> > initial(size);
 	for (size_t i = 0; i < initial.size(); ++i)
-		initial[i] = UniformInteger(random, boundary);
+		initial[i] = Uniform(random, boundary);
 	return initial;
+}
 }
 }
 }

@@ -22,17 +22,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "CoupleCoupleCrossover.h"
-
-#undef min
-#undef max
+#include <OTL/Crossover/CoupleCoupleCrossover.h>
 
 namespace otl
 {
 namespace crossover
 {
+namespace bitset
+{
 template <typename _TReal, typename _TDecision, typename _TRandom>
-class BitsetSinglePointCrossover : public CoupleCoupleCrossover<_TReal, _TDecision>, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
+class SinglePointCrossover : public CoupleCoupleCrossover<_TReal, _TDecision>, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -41,8 +40,8 @@ public:
 	typedef CoupleCoupleCrossover<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
 
-	BitsetSinglePointCrossover(TRandom random, const TReal probability);
-	~BitsetSinglePointCrossover(void);
+	SinglePointCrossover(TRandom random, const TReal probability);
+	~SinglePointCrossover(void);
 
 protected:
 	void _DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2);
@@ -50,25 +49,25 @@ protected:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-BitsetSinglePointCrossover<_TReal, _TDecision, _TRandom>::BitsetSinglePointCrossover(TRandom random, const TReal probability)
+SinglePointCrossover<_TReal, _TDecision, _TRandom>::SinglePointCrossover(TRandom random, const TReal probability)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-BitsetSinglePointCrossover<_TReal, _TDecision, _TRandom>::~BitsetSinglePointCrossover(void)
+SinglePointCrossover<_TReal, _TDecision, _TRandom>::~SinglePointCrossover(void)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void BitsetSinglePointCrossover<_TReal, _TDecision, _TRandom>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
+void SinglePointCrossover<_TReal, _TDecision, _TRandom>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
 {
 	_Crossover(parent1.decision_, parent2.decision_, child1.decision_, child2.decision_);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void BitsetSinglePointCrossover<_TReal, _TDecision, _TRandom>::_Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2)
+void SinglePointCrossover<_TReal, _TDecision, _TRandom>::_Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2)
 {
 	assert(parent1.size() == parent2.size());
 	child1.resize(parent1.size());
@@ -86,6 +85,7 @@ void BitsetSinglePointCrossover<_TReal, _TDecision, _TRandom>::_Crossover(const 
 		child1[i] = parent2[i];
 		child2[i] = parent1[i];
 	}
+}
 }
 }
 }

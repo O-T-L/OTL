@@ -30,10 +30,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Problem/CommunityDiscovery/Metric/NCut.h>
 #include <OTL/Problem/CommunityDiscovery/ONL/Decode.h>
 #include <OTL/Problem/CommunityDiscovery/ONL/ONL.h>
-#include <OTL/Initial/UniformInteger.h>
-#include <OTL/Crossover/SinglePointCrossover.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
-#include <OTL/Mutation/BitwiseMutation.h>
+#include <OTL/Crossover/Integer/SinglePointCrossover.h>
+#include <OTL/Initial/Integer/Uniform.h>
+#include <OTL/Mutation/Integer/BitwiseMutation.h>
 #include <OTL/Optimizer/NSGA-II/NSGA-II.h>
 
 namespace community_discovery
@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE(TestONL)
 	typedef boost::numeric::ublas::symmetric_matrix<_TReal> _TMatrix;
 	typedef otl::problem::community_discovery::onl::ONL<_TReal, _TMatrix, _TRandom &> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SinglePointCrossover<_TReal, size_t, _TRandom &> _TCrossover;
-	typedef otl::mutation::BitwiseMutation<_TReal, size_t, _TRandom &> _TMutation;
+	typedef otl::crossover::integer::SinglePointCrossover<_TReal, size_t, _TRandom &> _TCrossover;
+	typedef otl::mutation::integer::BitwiseMutation<_TReal, size_t, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t populationSize = 100;
 	_TRandom random;
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(TestONL)
 	otl::problem::community_discovery::metric::QLi<_TReal, _TMatrix> metric2;
 	std::vector<_TProblem::TMetric *> metrics = {&metric1, &metric2};
 	_TProblem problem(graph, metrics, random);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformInteger(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::integer::BatchUniform(random, problem.GetBoundary(), populationSize);
 	const std::vector<size_t> decisionBits(graph.size1(), ceil(log2((_TReal)graph.size1())));
 	_TCrossover _crossover(random, 1, decisionBits);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);

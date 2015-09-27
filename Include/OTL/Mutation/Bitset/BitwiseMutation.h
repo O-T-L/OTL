@@ -22,14 +22,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "Mutation.h"
+#include <OTL/Mutation/Mutation.h>
 
 namespace otl
 {
 namespace mutation
 {
+namespace bitset
+{
 template <typename _TReal, typename _TDecision, typename _TRandom>
-class BitsetBitwiseMutation : public Mutation<_TReal, _TDecision>, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
+class BitwiseMutation : public Mutation<_TReal, _TDecision>, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -38,9 +40,8 @@ public:
 	typedef Mutation<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
 
-	BitsetBitwiseMutation(TRandom random, const TReal probability);
-	~BitsetBitwiseMutation(void);
-	bool ShouldMutate(void);
+	BitwiseMutation(TRandom random, const TReal probability);
+	~BitwiseMutation(void);
 
 protected:
 	void _DoMutate(TSolution &solution);
@@ -51,7 +52,7 @@ private:
 };
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::BitsetBitwiseMutation(TRandom random, const TReal probability)
+BitwiseMutation<_TReal, _TDecision, _TRandom>::BitwiseMutation(TRandom random, const TReal probability)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
 	, dist_(0, 1)
@@ -59,30 +60,25 @@ BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::BitsetBitwiseMutation(TRand
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::~BitsetBitwiseMutation(void)
+BitwiseMutation<_TReal, _TDecision, _TRandom>::~BitwiseMutation(void)
 {
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-bool BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::ShouldMutate(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
-}
-
-template <typename _TReal, typename _TDecision, typename _TRandom>
-void BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::_DoMutate(TSolution &solution)
+void BitwiseMutation<_TReal, _TDecision, _TRandom>::_DoMutate(TSolution &solution)
 {
 	_Mutate(solution.decision_);
 }
 
 template <typename _TReal, typename _TDecision, typename _TRandom>
-void BitsetBitwiseMutation<_TReal, _TDecision, _TRandom>::_Mutate(TDecision &decision)
+void BitwiseMutation<_TReal, _TDecision, _TRandom>::_Mutate(TDecision &decision)
 {
 	for (size_t i = 0; i < decision.size(); ++i)
 	{
-		if (ShouldMutate())
+		if (dist_(this->GetRandom()) < this->GetProbability())
 			decision[i].flip();
 	}
+}
 }
 }
 }

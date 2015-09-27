@@ -17,19 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <algorithm>
-#include <limits>
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "Mutation.h"
+#include <OTL/Mutation/Mutation.h>
 
 namespace otl
 {
 namespace mutation
 {
 template <typename _TReal, typename _TRandom>
-class InsertionMutation : public Mutation<_TReal, std::vector<size_t> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
+class ExchangeMutation : public Mutation<_TReal, std::vector<size_t> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -38,21 +36,19 @@ public:
 	typedef Mutation<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
 
-	InsertionMutation(TRandom random, const TReal probability);
-	~InsertionMutation(void);
-	bool ShouldMutate(void);
+	ExchangeMutation(TRandom random, const TReal probability);
+	~ExchangeMutation(void);
 
 protected:
 	void _DoMutate(TSolution &solution);
 	void _Mutate(TDecision &decision);
-	void _Mutate(TDecision &decision, const size_t from, const size_t to);
 
 private:
 	std::uniform_real_distribution<TReal> dist_;
 };
 
 template <typename _TReal, typename _TRandom>
-InsertionMutation<_TReal, _TRandom>::InsertionMutation(TRandom random, const TReal probability)
+ExchangeMutation<_TReal, _TRandom>::ExchangeMutation(TRandom random, const TReal probability)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
 	, dist_(0, 1)
@@ -60,38 +56,22 @@ InsertionMutation<_TReal, _TRandom>::InsertionMutation(TRandom random, const TRe
 }
 
 template <typename _TReal, typename _TRandom>
-InsertionMutation<_TReal, _TRandom>::~InsertionMutation(void)
+ExchangeMutation<_TReal, _TRandom>::~ExchangeMutation(void)
 {
 }
 
 template <typename _TReal, typename _TRandom>
-bool InsertionMutation<_TReal, _TRandom>::ShouldMutate(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
-}
-
-template <typename _TReal, typename _TRandom>
-void InsertionMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
+void ExchangeMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
 {
 	_Mutate(solution.decision_);
 }
 
 template <typename _TReal, typename _TRandom>
-void InsertionMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
+void ExchangeMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 {
 	std::uniform_int_distribution<size_t> dist(0, decision.size() - 1);
-	if (ShouldMutate())
-		_Mutate(decision, dist(this->GetRandom()), dist(this->GetRandom()));
-}
-
-template <typename _TReal, typename _TRandom>
-void InsertionMutation<_TReal, _TRandom>::_Mutate(TDecision &decision, const size_t from, const size_t to)
-{
-	assert(0 <= from && from < decision.size());
-	assert(0 <= to && to < decision.size());
-	const size_t city = decision[from];
-	decision.erase(decision.begin() + from);
-	decision.insert(decision.begin() + to, city);
+	if (dist_(this->GetRandom()) < this->GetProbability())
+		std::swap(decision[dist(this->GetRandom())], decision[dist(this->GetRandom())]);
 }
 }
 }
