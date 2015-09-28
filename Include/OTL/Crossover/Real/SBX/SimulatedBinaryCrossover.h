@@ -125,11 +125,7 @@ void SimulatedBinaryCrossover<_TReal, _TRandom>::_Crossover(const TDecision &par
 		{
 			const TRange &range = this->GetBoundary()[i];
 			if (dist_(this->GetRandom()) < GetComponentProbability())
-			{
 				BoundedCrossover(this->GetRandom(), this->GetDistributionIndex(), parent1[i], parent2[i], child1[i], child2[i], range.first, range.second);
-				if (dist_(this->GetRandom()) < 0.5)
-					std::swap(child1[i], child2[i]);
-			}
 			else
 			{
 				child1[i] = parent1[i];

@@ -92,6 +92,8 @@ void BoundedCrossover(_TRandom &random, const _TReal distributionIndex, const _T
 	const _TReal halfDistance = distance / 2;
 	child1 = otl::utility::fix::Truncate(middle - spreadFactor1 * halfDistance, lower, upper);
 	child2 = otl::utility::fix::Truncate(middle + spreadFactor2 * halfDistance, lower, upper);
+	if (dist(random) < 0.5)
+		std::swap(child1, child2);
 }
 }
 }
