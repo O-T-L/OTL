@@ -1,0 +1,9 @@
+@@ -58,7 +58,7 @@
+     set(_PYTHON_FIND_OTHER_VERSIONS ${_PYTHON3_VERSIONS} ${_PYTHON2_VERSIONS} ${_PYTHON1_VERSIONS})
+ endif()
+ 
+-list(APPEND _Python_NAMES python)
++list(APPEND _Python_NAMES python3 python)
+ 
+ # Search for the current active python version first
+ find_program(PYTHON_EXECUTABLE NAMES ${_Python_NAMES})

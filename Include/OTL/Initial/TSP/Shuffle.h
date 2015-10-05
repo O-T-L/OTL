@@ -24,8 +24,10 @@ namespace otl
 {
 namespace initial
 {
+namespace tsp
+{
 template <typename _TRandom>
-std::vector<size_t> ShuffleTSP(_TRandom &random, const size_t nCities)
+std::vector<size_t> Shuffle(_TRandom &random, const size_t nCities)
 {
 	std::vector<size_t> decision(nCities);
 	for (size_t i = 0; i < decision.size(); ++i)
@@ -35,12 +37,13 @@ std::vector<size_t> ShuffleTSP(_TRandom &random, const size_t nCities)
 }
 
 template <typename _TRandom>
-std::vector<std::vector<size_t> > PopulationShuffleTSP(_TRandom &random, const size_t nCities, const size_t populationSize)
+std::vector<std::vector<size_t> > BatchShuffle(_TRandom &random, const size_t nCities, const size_t size)
 {
-	std::vector<std::vector<size_t> > initial(populationSize);
+	std::vector<std::vector<size_t> > initial(size);
 	for (size_t i = 0; i < initial.size(); ++i)
-		initial[i] = ShuffleTSP(random, nCities);
+		initial[i] = Shuffle(random, nCities);
 	return initial;
+}
 }
 }
 }

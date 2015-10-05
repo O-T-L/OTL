@@ -22,18 +22,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <OTL/Utility/WithProbability.h>
 #include <OTL/Utility/WithRandom.h>
-#include <OTL/Initial/DynamicBitset.h>
-#include "CoupleCoupleCrossover.h"
-
-#undef min
-#undef max
+#include <OTL/Initial/DynamicBitset/Uniform.h>
+#include <OTL/Crossover/CoupleCoupleCrossover.h>
 
 namespace otl
 {
 namespace crossover
 {
+namespace dynamic_bitset
+{
 template <typename _TReal, typename _TRandom, typename _TDecision = boost::dynamic_bitset<> >
-class DynamicBitsetUniformCrossover : public CoupleCoupleCrossover<_TReal, _TDecision>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithRandom<_TRandom>
+class UniformCrossover : public CoupleCoupleCrossover<_TReal, _TDecision>, public otl::utility::WithProbability<_TReal>, public otl::utility::WithRandom<_TRandom>
 {
 public:
 	typedef _TReal TReal;
@@ -42,8 +41,8 @@ public:
 	typedef CoupleCoupleCrossover<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
 
-	DynamicBitsetUniformCrossover(TRandom random, const TReal probability);
-	~DynamicBitsetUniformCrossover(void);
+	UniformCrossover(TRandom random, const TReal probability);
+	~UniformCrossover(void);
 
 protected:
 	void _DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2);
@@ -51,33 +50,34 @@ protected:
 };
 
 template <typename _TReal, typename _TRandom, typename _TDecision>
-DynamicBitsetUniformCrossover<_TReal, _TRandom, _TDecision>::DynamicBitsetUniformCrossover(TRandom random, const TReal probability)
+UniformCrossover<_TReal, _TRandom, _TDecision>::UniformCrossover(TRandom random, const TReal probability)
 	: otl::utility::WithProbability<TReal>(probability)
 	, otl::utility::WithRandom<TRandom>(random)
 {
 }
 
 template <typename _TReal, typename _TRandom, typename _TDecision>
-DynamicBitsetUniformCrossover<_TReal, _TRandom, _TDecision>::~DynamicBitsetUniformCrossover(void)
+UniformCrossover<_TReal, _TRandom, _TDecision>::~UniformCrossover(void)
 {
 }
 
 template <typename _TReal, typename _TRandom, typename _TDecision>
-void DynamicBitsetUniformCrossover<_TReal, _TRandom, _TDecision>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
+void UniformCrossover<_TReal, _TRandom, _TDecision>::_DoCrossover(const TSolution &parent1, const TSolution &parent2, TSolution &child1, TSolution &child2)
 {
 	_Crossover(parent1.decision_, parent2.decision_, child1.decision_, child2.decision_);
 }
 
 template <typename _TReal, typename _TRandom, typename _TDecision>
-void DynamicBitsetUniformCrossover<_TReal, _TRandom, _TDecision>::_Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2)
+void UniformCrossover<_TReal, _TRandom, _TDecision>::_Crossover(const TDecision &parent1, const TDecision &parent2, TDecision &child1, TDecision &child2)
 {
 	assert(parent1.size() == parent2.size());
 	child1.resize(parent1.size());
 	child2.resize(parent2.size());
-	TDecision mask = otl::initial::UniformDynamicBitset(this->GetRandom(), parent1.size());
+	TDecision mask = otl::initial::dynamic_bitset::Uniform(this->GetRandom(), parent1.size());
 	TDecision inverseMask = ~mask;
 	child1 = (parent1 & mask) | (parent2 & inverseMask);
 	child2 = (parent1 & inverseMask) | (parent2 & mask);
+}
 }
 }
 }

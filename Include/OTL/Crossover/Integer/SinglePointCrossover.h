@@ -25,14 +25,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/integer/integer_mask.hpp>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "CoupleCoupleCrossover.h"
-
-#undef min
-#undef max
+#include <OTL/Crossover/CoupleCoupleCrossover.h>
 
 namespace otl
 {
 namespace crossover
+{
+namespace integer
 {
 template <typename _TReal, typename _TInteger, typename _TRandom>
 class SinglePointCrossover : public CoupleCoupleCrossover<_TReal, std::vector<_TInteger> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
@@ -47,7 +46,6 @@ public:
 
 	SinglePointCrossover(TRandom random, const TReal probability, const std::vector<size_t> &decisionBits);
 	~SinglePointCrossover(void);
-	bool ShouldCrossover(void);
 	const std::vector<size_t> &GetDecisionBits(void) const;
 
 protected:
@@ -75,12 +73,6 @@ SinglePointCrossover<_TReal, _TInteger, _TRandom>::~SinglePointCrossover(void)
 }
 
 template <typename _TReal, typename _TInteger, typename _TRandom>
-bool SinglePointCrossover<_TReal, _TInteger, _TRandom>::ShouldCrossover(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
-}
-
-template <typename _TReal, typename _TInteger, typename _TRandom>
 const std::vector<size_t> &SinglePointCrossover<_TReal, _TInteger, _TRandom>::GetDecisionBits(void) const
 {
 	return decisionBits_;
@@ -98,7 +90,7 @@ void SinglePointCrossover<_TReal, _TInteger, _TRandom>::_Crossover(const TDecisi
 	assert(!decisionBits_.empty());
 	assert(parent1.size() == decisionBits_.size());
 	assert(parent2.size() == decisionBits_.size());
-	if (ShouldCrossover())
+	if (dist_(this->GetRandom()) < this->GetProbability())
 	{
 		child1.resize(parent1.size());
 		child2.resize(parent2.size());
@@ -123,6 +115,7 @@ void SinglePointCrossover<_TReal, _TInteger, _TRandom>::_Crossover(const TIntege
 	const TInteger lowerMask = ~upperMask;
 	child1 = (parent1 & upperMask) | (parent2 & lowerMask);
 	child2 = (parent1 & lowerMask) | (parent2 & upperMask);
+}
 }
 }
 }

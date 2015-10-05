@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <OTL/Crossover/Real/DifferentialEvolution.h>
+#include <OTL/Initial/Real/Uniform.h>
 #include <OTL/Problem/DTLZ/DTLZ2.h>
-#include <OTL/Initial/UniformReal.h>
-#include <OTL/Crossover/DifferentialEvolution.h>
 #include <OTL/Optimizer/GDE3/GDE3.h>
 
 namespace gde3
@@ -33,13 +33,13 @@ BOOST_AUTO_TEST_CASE(GDE3)
 	typedef double _TReal;
 	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::DifferentialEvolution<_TReal, _TRandom &> _TCrossover;
+	typedef otl::crossover::real::DifferentialEvolution<_TReal, _TRandom &> _TCrossover;
 	typedef otl::optimizer::gde3::GDE3<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover crossover(random, 0.5, problem.GetBoundary(), 0.5);
 	_TOptimizer optimizer(random, problem, initial, crossover);
 	BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);

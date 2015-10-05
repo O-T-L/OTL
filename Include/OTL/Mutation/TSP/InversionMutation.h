@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "Mutation.h"
+#include <OTL/Mutation/Mutation.h>
 
 namespace otl
 {
@@ -38,7 +38,6 @@ public:
 
 	InversionMutation(TRandom random, const TReal probability);
 	~InversionMutation(void);
-	bool ShouldMutate(void);
 
 protected:
 	void _DoMutate(TSolution &solution);
@@ -63,12 +62,6 @@ InversionMutation<_TReal, _TRandom>::~InversionMutation(void)
 }
 
 template <typename _TReal, typename _TRandom>
-bool InversionMutation<_TReal, _TRandom>::ShouldMutate(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
-}
-
-template <typename _TReal, typename _TRandom>
 void InversionMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
 {
 	_Mutate(solution.decision_);
@@ -77,7 +70,7 @@ void InversionMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
 template <typename _TReal, typename _TRandom>
 void InversionMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 {
-	if (ShouldMutate())
+	if (dist_(this->GetRandom()) < this->GetProbability())
 	{
 		std::uniform_int_distribution<size_t> dist(0, decision.size() - 1);
 		const size_t position1 = dist(this->GetRandom());

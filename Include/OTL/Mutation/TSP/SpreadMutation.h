@@ -17,17 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <algorithm>
 #include <random>
 #include <OTL/Utility/WithRandom.h>
 #include <OTL/Utility/WithProbability.h>
-#include "Mutation.h"
+#include <OTL/Mutation/Mutation.h>
 
 namespace otl
 {
 namespace mutation
 {
 template <typename _TReal, typename _TRandom>
-class DisplacementMutation : public Mutation<_TReal, std::vector<size_t> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
+class SpreadMutation : public Mutation<_TReal, std::vector<size_t> >, public otl::utility::WithRandom<_TRandom>, public otl::utility::WithProbability<_TReal>
 {
 public:
 	typedef _TReal TReal;
@@ -36,22 +37,20 @@ public:
 	typedef Mutation<TReal, TDecision> TSuper;
 	typedef typename TSuper::TSolution TSolution;
 
-	DisplacementMutation(TRandom random, const TReal probability);
-	~DisplacementMutation(void);
-	bool ShouldMutate(void);
+	SpreadMutation(TRandom random, const TReal probability);
+	~SpreadMutation(void);
 
 protected:
 	void _DoMutate(TSolution &solution);
 	void _Mutate(TDecision &decision);
 	void _Mutate(TDecision &decision, const size_t begin, const size_t end);
-	template <typename _TIterator> void _Mutate(TDecision &decision, _TIterator begin, _TIterator end);
 
 private:
 	std::uniform_real_distribution<TReal> dist_;
 };
 
 template <typename _TReal, typename _TRandom>
-DisplacementMutation<_TReal, _TRandom>::DisplacementMutation(TRandom random, const TReal probability)
+SpreadMutation<_TReal, _TRandom>::SpreadMutation(TRandom random, const TReal probability)
 	: otl::utility::WithRandom<TRandom>(random)
 	, otl::utility::WithProbability<TReal>(probability)
 	, dist_(0, 1)
@@ -59,26 +58,20 @@ DisplacementMutation<_TReal, _TRandom>::DisplacementMutation(TRandom random, con
 }
 
 template <typename _TReal, typename _TRandom>
-DisplacementMutation<_TReal, _TRandom>::~DisplacementMutation(void)
+SpreadMutation<_TReal, _TRandom>::~SpreadMutation(void)
 {
 }
 
 template <typename _TReal, typename _TRandom>
-bool DisplacementMutation<_TReal, _TRandom>::ShouldMutate(void)
-{
-	return dist_(this->GetRandom()) < this->GetProbability();
-}
-
-template <typename _TReal, typename _TRandom>
-void DisplacementMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
+void SpreadMutation<_TReal, _TRandom>::_DoMutate(TSolution &solution)
 {
 	_Mutate(solution.decision_);
 }
 
 template <typename _TReal, typename _TRandom>
-void DisplacementMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
+void SpreadMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 {
-	if (ShouldMutate())
+	if (dist_(this->GetRandom()) < this->GetProbability())
 	{
 		std::uniform_int_distribution<size_t> dist(0, decision.size() - 1);
 		const size_t position1 = dist(this->GetRandom());
@@ -91,21 +84,10 @@ void DisplacementMutation<_TReal, _TRandom>::_Mutate(TDecision &decision)
 }
 
 template <typename _TReal, typename _TRandom>
-void DisplacementMutation<_TReal, _TRandom>::_Mutate(TDecision &decision, const size_t begin, const size_t end)
+void SpreadMutation<_TReal, _TRandom>::_Mutate(TDecision &decision, const size_t begin, const size_t end)
 {
 	assert(begin < end);
-	if (end - begin >= decision.size())
-		return;
-	_Mutate(decision, decision.begin() + begin, decision.begin() + end);
-}
-
-template <typename _TReal, typename _TRandom>
-template <typename _TIterator> void DisplacementMutation<_TReal, _TRandom>::_Mutate(TDecision &decision, _TIterator begin, _TIterator end)
-{
-	TDecision section(begin, end);
-	decision.erase(begin, end);
-	assert(!decision.empty());
-	decision.insert(decision.begin() + std::uniform_int_distribution<size_t>(0, decision.size() - 1)(this->GetRandom()), section.begin(), section.end());
+	std::random_shuffle(decision.begin() + begin, decision.begin() + end, [this](const size_t n)-> size_t{return std::uniform_int_distribution<size_t> (0, n - 1)(this->GetRandom());});
 }
 }
 }

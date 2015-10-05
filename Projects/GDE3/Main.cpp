@@ -23,13 +23,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <OTL/Crossover/Real/DifferentialEvolution.h>
+#include <OTL/Initial/Real/Uniform.h>
 #include <OTL/Problem/DTLZ/DTLZ1.h>
 #include <OTL/Problem/DTLZ/DTLZ2.h>
 #include <OTL/Problem/DTLZ/DTLZ3.h>
 #include <OTL/Problem/DTLZ/DTLZ4.h>
 #include <OTL/Problem/DTLZ/DTLZ7.h>
-#include <OTL/Initial/UniformReal.h>
-#include <OTL/Crossover/DifferentialEvolution.h>
 #include <OTL/Optimizer/GDE3/GDE3.h>
 
 int main(void)
@@ -37,7 +37,7 @@ int main(void)
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
 	typedef otl::problem::dtlz::DTLZ<_TReal> _TProblem;
-	typedef otl::crossover::DifferentialEvolution<_TReal, _TRandom &> _TCrossover;
+	typedef otl::crossover::real::DifferentialEvolution<_TReal, _TRandom &> _TCrossover;
 	typedef _TProblem::TDecision _TDecision;
 	typedef otl::optimizer::gde3::GDE3<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	_TRandom random(std::time(0));
@@ -59,7 +59,7 @@ int main(void)
 				_TProblem &problem = problems[i];
 				const size_t nEvaluations = nEvaluationsList[i];
 				const clock_t start = clock();
-				const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), 100);
+				const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), 100);
 				_TCrossover crossover(random, 1, problem.GetBoundary(), 0.5);
 				_TOptimizer optimizer(random, problem, initial, crossover);
 				for (size_t generation = 1; problem.GetNumberOfEvaluations() < nEvaluations; ++generation)

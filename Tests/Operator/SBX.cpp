@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <OTL/Crossover/SimulatedBinaryCrossover.h>
+#include <OTL/Crossover/Real/SBX/SimulatedBinaryCrossover.h>
 
 namespace sbx
 {
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(SBX)
 {
 	typedef std::mt19937 _TRandom;
 	typedef double _TReal;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
 	typedef _TCrossover::TDecision _TDecision;
 	typedef _TCrossover::TSolution _TSolution;
 	typedef _TCrossover::TBoundary _TBoundary;

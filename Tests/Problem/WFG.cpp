@@ -29,10 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <OTL/Problem/WFG/WFG7.h>
 #include <OTL/Problem/WFG/WFG8.h>
 #include <OTL/Problem/WFG/WFG9.h>
-#include <OTL/Initial/UniformReal.h>
-#include <OTL/Crossover/SimulatedBinaryCrossover.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
-#include <OTL/Mutation/PolynomialMutation.h>
+#include <OTL/Crossover/Real/SBX/SimulatedBinaryCrossover.h>
+#include <OTL/Initial/Real/Uniform.h>
+#include <OTL/Mutation/Real/PM/PolynomialMutation.h>
 #include <OTL/Optimizer/NSGA-II/NSGA-II.h>
 
 namespace wfg
@@ -43,14 +43,14 @@ BOOST_AUTO_TEST_CASE(WFG1)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG1<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -69,14 +69,14 @@ BOOST_AUTO_TEST_CASE(WFG2)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG2<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -95,14 +95,14 @@ BOOST_AUTO_TEST_CASE(WFG3)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG3<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -121,14 +121,14 @@ BOOST_AUTO_TEST_CASE(WFG4)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG4<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -147,14 +147,14 @@ BOOST_AUTO_TEST_CASE(WFG5)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG5<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -173,14 +173,14 @@ BOOST_AUTO_TEST_CASE(WFG6)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG6<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -199,14 +199,14 @@ BOOST_AUTO_TEST_CASE(WFG7)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG7<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -225,14 +225,14 @@ BOOST_AUTO_TEST_CASE(WFG8)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG8<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
@@ -251,14 +251,14 @@ BOOST_AUTO_TEST_CASE(WFG9)
 	typedef double _TReal;
 	typedef otl::problem::wfg::WFG9<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	const size_t populationSize = 100;
 	_TRandom random;
 	_TProblem problem(nObjectives);
-	const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+	const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 	_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 	otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 	_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);

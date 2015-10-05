@@ -21,12 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <OTL/Problem/DTLZ/DTLZ2.h>
-#include <OTL/Initial/UniformReal.h>
-#include <OTL/Crossover/SimulatedBinaryCrossover.h>
-#include <OTL/Crossover/DifferentialEvolution.h>
 #include <OTL/Crossover/CoupleCoupleCrossoverAdapter.h>
+#include <OTL/Crossover/Real/DifferentialEvolution.h>
+#include <OTL/Crossover/Real/SBX/SimulatedBinaryCrossover.h>
 #include <OTL/Crossover/XTripleCrossoverAdapter.h>
-#include <OTL/Mutation/PolynomialMutation.h>
+#include <OTL/Initial/Real/Uniform.h>
+#include <OTL/Mutation/Real/PM/PolynomialMutation.h>
 #include <OTL/Optimizer/NSGA-II/NSGA-II.h>
 
 namespace adapter
@@ -37,8 +37,8 @@ BOOST_AUTO_TEST_CASE(CoupleCoupleCrossover)
 	typedef double _TReal;
 	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::sbx::SimulatedBinaryCrossover<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	_TRandom random;
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(CoupleCoupleCrossover)
 		_TCrossover _crossover(random, 1, problem.GetBoundary(), 20);
 		otl::crossover::CoupleCoupleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 		_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);
-		const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+		const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 		_TOptimizer optimizer(random, problem, initial, crossover, mutation);
 		BOOST_CHECK(problem.GetNumberOfEvaluations() == populationSize);
 		for (size_t generation = 1; problem.GetNumberOfEvaluations() < 30000; ++generation)
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE(XTripleCrossover)
 	typedef double _TReal;
 	typedef otl::problem::dtlz::DTLZ2<_TReal> _TProblem;
 	typedef _TProblem::TDecision _TDecision;
-	typedef otl::crossover::DifferentialEvolution<_TReal, _TRandom &> _TCrossover;
-	typedef otl::mutation::PolynomialMutation<_TReal, _TRandom &> _TMutation;
+	typedef otl::crossover::real::DifferentialEvolution<_TReal, _TRandom &> _TCrossover;
+	typedef otl::mutation::real::pm::PolynomialMutation<_TReal, _TRandom &> _TMutation;
 	typedef otl::optimizer::nsga_ii::NSGA_II<_TReal, _TDecision, _TRandom &> _TOptimizer;
 	const size_t nObjectives = 3;
 	_TRandom random;
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(XTripleCrossover)
 	{
 		const size_t populationSize = populationSizeList[i];
 		_TProblem problem(nObjectives);
-		const std::vector<_TDecision> initial = otl::initial::PopulationUniformReal(random, problem.GetBoundary(), populationSize);
+		const std::vector<_TDecision> initial = otl::initial::real::BatchUniform(random, problem.GetBoundary(), populationSize);
 		_TCrossover _crossover(random, 1, problem.GetBoundary());
 		otl::crossover::XTripleCrossoverAdapter<_TReal, _TDecision, _TRandom &> crossover(_crossover, random);
 		_TMutation mutation(random, 1 / (_TReal)problem.GetBoundary().size(), problem.GetBoundary(), 20);

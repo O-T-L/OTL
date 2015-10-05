@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <cassert>
-#include <OTL/Utility/WithBoundary.h>
 
 namespace otl
 {
@@ -27,13 +26,13 @@ namespace utility
 namespace fix
 {
 template <typename _TCoordinate>
-_TCoordinate Truncate(const _TCoordinate coordinate, const typename WithBoundary<_TCoordinate>::TRange &range)
+_TCoordinate Truncate(const _TCoordinate coordinate, const _TCoordinate lower, const _TCoordinate upper)
 {
-	assert(range.first < range.second);
-	if (coordinate < range.first)
-		return range.first;
-	else if (coordinate > range.second)
-		return range.second;
+	assert(lower < upper);
+	if (coordinate < lower)
+		return lower;
+	else if (coordinate > upper)
+		return upper;
 	else
 		return coordinate;
 }
