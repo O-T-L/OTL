@@ -1,0 +1,10 @@
+g++
+clang
+cmake-qt-gui
+libboost-all
+python3-all-dev
+python3-numpy
+python3-scipy
+python3-matplotlib
+python3-pyqt4
+python3-tk
